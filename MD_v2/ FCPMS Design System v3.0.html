@@ -1,0 +1,1320 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FCPMS - نظام التصميم الشامل (Design System v3.0)</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Tajawal', 'sans-serif'] },
+                    colors: {
+                        primary: { DEFAULT: 'hsl(217, 100%, 50%)', foreground: '#ffffff', light: 'hsl(217, 100%, 65%)', dark: 'hsl(217, 100%, 40%)' },
+                        background: 'hsl(240, 5%, 96%)',
+                        foreground: 'hsl(240, 10%, 10%)',
+                        card: 'hsl(0, 0%, 100%)',
+                        border: 'hsl(240, 6%, 90%)',
+                        muted: 'hsl(240, 4%, 90%)',
+                        destructive: 'hsl(0, 84%, 60%)',
+                        success: 'hsl(142, 71%, 45%)',
+                        warning: 'hsl(38, 92%, 50%)',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* ===== المتغيرات الأساسية ===== */
+        :root { --background: 240 5% 96%; --foreground: 240 10% 10%; --card: 0 0% 100%; --primary: 217 100% 50%; --border: 240 6% 90%; --radius: 1.5rem; }
+        .dark { --background: 0 0% 0%; --foreground: 0 0% 98%; --card: 240 5% 18%; --primary: 217 100% 55%; --border: 0 0% 100%; }
+        body { direction: rtl; font-family: 'Tajawal', sans-serif; min-height: 100vh; transition: background-color 0.5s; }
+        /* ===== تدرج خلفية الشاشة للوضعين (Advanced Gradient Mesh Backgrounds) ===== */
+        .body-bg-dark {
+            background: 
+                radial-gradient(at 0% 0%, rgba(30, 58, 138, 0.45) 0px, transparent 55%),
+                radial-gradient(at 100% 0%, rgba(88, 28, 135, 0.35) 0px, transparent 55%),
+                radial-gradient(at 50% 100%, rgba(15, 23, 42, 0.9) 0px, transparent 70%),
+                linear-gradient(145deg, #090d16 0%, #0f172a 50%, #07090e 100%) fixed;
+        }
+        .body-bg-light {
+            background: 
+                radial-gradient(at 0% 0%, rgba(219, 234, 254, 0.8) 0px, transparent 55%),
+                radial-gradient(at 100% 0%, rgba(224, 231, 255, 0.7) 0px, transparent 55%),
+                radial-gradient(at 50% 100%, rgba(243, 244, 246, 0.9) 0px, transparent 70%),
+                linear-gradient(135deg, #f8fafc 0%, #e2e8f0 50%, #f1f5f9 100%) fixed;
+        }
+
+        /* ===== النظام الزجاجي Spatial Glassmorphism Ultra ===== */
+        .spatial-window { backdrop-filter: blur(80px); border: 1px solid rgba(0,0,0,0.08); background: linear-gradient(135deg, rgba(255,255,255,0.75), rgba(240,246,255,0.55)); }
+        .dark .spatial-window { border-color: rgba(255,255,255,0.14); background: linear-gradient(145deg, rgba(30,50,100,0.55), rgba(15,20,40,0.45)); }
+        .spatial-card {
+            backdrop-filter: blur(40px);
+            border-radius: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            background: linear-gradient(145deg, rgba(255, 255, 255, 0.92), rgba(232, 241, 253, 0.75));
+            box-shadow: 0 20px 45px -15px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255, 255, 255, 0.8);
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .spatial-card:hover {
+            box-shadow: 0 25px 50px -12px rgba(59, 130, 246, 0.18), inset 0 1px 0 rgba(255, 255, 255, 1);
+        }
+        .dark .spatial-card {
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            background: linear-gradient(145deg, rgba(30, 48, 95, 0.40), rgba(15, 23, 50, 0.30));
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+        }
+        .dark .spatial-card:hover {
+            border-color: rgba(59, 130, 246, 0.4);
+            box-shadow: 0 25px 55px -10px rgba(59, 130, 246, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+        }
+        .spatial-modal-card { backdrop-filter: blur(50px); border-radius: 28px; border: 1px solid rgba(0,0,0,0.1); background: linear-gradient(145deg, rgba(255,255,255,0.96), rgba(240,244,250,0.92)); box-shadow: 0 30px 60px -12px rgba(0,0,0,0.25); }
+        .dark .spatial-modal-card { border-color: rgba(255,255,255,0.16); background: linear-gradient(145deg, rgba(40,60,120,0.60), rgba(20,25,55,0.50)); }
+
+        /* ===== حقول الإدخال ===== */
+        .spatial-input { border: 1px solid rgba(0,0,0,0.1); transition: all 0.2s; outline: none; background: rgba(0,0,0,0.05); }
+        .spatial-input:focus { border-color: rgba(59,130,246,0.5); box-shadow: 0 0 0 2px rgba(59,130,246,0.2); }
+        .dark .spatial-input { border-color: rgba(255,255,255,0.15); background: linear-gradient(135deg, rgba(40,60,120,0.30), rgba(20,25,55,0.20)); color: #ffffff; }
+        .dark .spatial-input:focus { border-color: rgba(255,255,255,0.4); box-shadow: 0 0 0 2px rgba(255,255,255,0.15); }
+        .spatial-input.error { border-color: #ef4444 !important; background: rgba(239,68,68,0.1) !important; }
+        .spatial-input.success { border-color: #10b981 !important; background: rgba(16,185,129,0.1) !important; }
+
+        /* ===== تصميم القوائم المنسدلة التفاعلية الموحدة ===== */
+        .spatial-dropdown-trigger {
+            height: 3.5rem /* 56px - زيادة الارتفاع */;
+            border-radius: 20px;
+            padding-left: 1.25rem;
+            padding-right: 1.25rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            user-select: none;
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .spatial-dropdown-trigger:hover {
+            border-color: rgba(59, 130, 246, 0.4);
+            transform: translateY(-1px);
+        }
+        .spatial-dropdown-menu {
+            position: absolute;
+            z-index: 60;
+            width: 100%;
+            margin-top: 0.5rem;
+            backdrop-filter: blur(50px);
+            border-radius: 22px;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            background: linear-gradient(145deg, rgba(255,255,255,0.95), rgba(240,244,250,0.95));
+        }
+        .dark .spatial-dropdown-menu {
+            border-color: rgba(255, 255, 255, 0.15);
+            background: linear-gradient(145deg, rgba(25, 35, 65, 0.95), rgba(15, 20, 40, 0.95));
+        }
+        .spatial-dropdown-item {
+            padding: 0.75rem 1.25rem;
+            border-radius: 14px;
+            font-weight: 700;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .spatial-dropdown-item:hover {
+            background: rgba(59, 130, 246, 0.12);
+            color: hsl(217, 100%, 50%);
+            padding-right: 1.5rem;
+        }
+
+        /* تثبيت أبعاد السهم بدقة لتجنب التضخم البصري */
+        .spatial-dropdown-arrow {
+            width: 1.125rem !important;
+            height: 1.125rem !important;
+            min-width: 1.125rem !important;
+            min-height: 1.125rem !important;
+            max-width: 1.125rem !important;
+            max-height: 1.125rem !important;
+            flex-shrink: 0 !important;
+            transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        /* ===== الجداول وحالة التحديد ===== */
+        tr.selected-row {
+            background: rgba(59, 130, 246, 0.14) !important;
+            border-right: 4px solid hsl(217, 100%, 50%) !important;
+        }
+        .dark tr.selected-row {
+            background: rgba(59, 130, 246, 0.25) !important;
+        }
+        .row-checkbox, .custom-checkbox {
+            appearance: none;
+            -webkit-appearance: none;
+            width: 1.35rem;
+            height: 1.35rem;
+            border-radius: 8px;
+            border: 2px solid rgba(148, 163, 184, 0.4);
+            background: rgba(0, 0, 0, 0.04);
+            cursor: pointer;
+            position: relative;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .dark .row-checkbox, .dark .custom-checkbox {
+            border-color: rgba(255, 255, 255, 0.25);
+            background: rgba(255, 255, 255, 0.06);
+        }
+        .row-checkbox:hover, .custom-checkbox:hover {
+            border-color: hsl(217, 100%, 50%);
+            box-shadow: 0 0 12px rgba(59, 130, 246, 0.35);
+            transform: scale(1.05);
+        }
+        .row-checkbox:checked, .custom-checkbox:checked {
+            background: hsl(217, 100%, 50%);
+            border-color: hsl(217, 100%, 50%);
+            box-shadow: 0 0 16px rgba(59, 130, 246, 0.55);
+            transform: scale(1.08);
+        }
+        .row-checkbox:checked::after, .custom-checkbox:checked::after {
+            content: '';
+            width: 5px;
+            height: 9px;
+            border: solid white;
+            border-width: 0 2.5px 2.5px 0;
+            transform: rotate(45deg) translate(-0.5px, -1px);
+            display: block;
+        }
+
+        /* المفاتيح التفاعلية SpatialSwitch */
+        .spatial-switch {
+            position: relative;
+            display: inline-block;
+            width: 3.25rem;
+            height: 1.85rem;
+            flex-shrink: 0;
+        }
+        .spatial-switch input { opacity: 0; width: 0; height: 0; }
+        .spatial-switch-slider {
+            position: absolute;
+            cursor: pointer;
+            inset: 0;
+            background-color: rgba(0,0,0,0.15);
+            transition: .3s cubic-bezier(0.16, 1, 0.3, 1);
+            border-radius: 9999px;
+            border: 1px solid rgba(0,0,0,0.1);
+        }
+        .dark .spatial-switch-slider {
+            background-color: rgba(255,255,255,0.12);
+            border-color: rgba(255,255,255,0.15);
+        }
+        .spatial-switch-slider:before {
+            position: absolute;
+            content: "";
+            height: 1.35rem;
+            width: 1.35rem;
+            right: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .3s cubic-bezier(0.16, 1, 0.3, 1);
+            border-radius: 50%;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+        }
+        .spatial-switch input:checked + .spatial-switch-slider {
+            background-color: hsl(217, 100%, 50%);
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.4);
+        }
+        .spatial-switch input:checked + .spatial-switch-slider:before {
+            transform: translateX(-1.4rem);
+        }
+
+        /* شريط العمليات المجمعة العائم (Floating Bulk Action Bar) */
+        #bulkBarFloating {
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%) translateY(120px);
+            opacity: 0;
+            transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+            z-index: 90;
+            pointer-events: none;
+        }
+        #bulkBarFloating.active {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        /* ===== الأزرار ===== */
+        .spatial-button { background-color: hsl(217, 100%, 50%); color: #ffffff; border-radius: 20px; transition: all 0.2s; font-weight: 700; padding: 0.75rem 1.5rem; display: inline-flex; align-items: center; gap: 0.5rem; border: none; cursor: pointer; }
+        .spatial-button:hover { background-color: #3b82f6; transform: translateY(-1px); box-shadow: 0 8px 20px rgba(59,130,246,0.3); }
+        .spatial-icon-btn { width: 3rem; height: 3rem; display: flex; align-items: center; justify-content: center; border-radius: 9999px; background: rgba(0,0,0,0.05); border: 1px solid transparent; transition: all 0.2s; color: #475569; cursor: pointer; }
+        .dark .spatial-icon-btn { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.1); color: rgba(255,255,255,0.7); }
+        .dark .spatial-icon-btn:hover { background: rgba(255,255,255,0.15); color: #ffffff; }
+
+        /* ===== الحالات (Status Pills) ===== */
+        .status-pill { display: inline-block; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 700; }
+        .status-pill.completed { background: rgba(16,185,129,0.2); color: #10b981; }
+        .status-pill.pending { background: rgba(245,158,11,0.2); color: #f59e0b; }
+        .status-pill.overdue { background: rgba(239,68,68,0.2); color: #ef4444; }
+        .dark .status-pill.completed { background: rgba(16,185,129,0.3); color: #34d399; }
+        .dark .status-pill.pending { background: rgba(245,158,11,0.3); color: #fbbf24; }
+        .dark .status-pill.overdue { background: rgba(239,68,68,0.3); color: #f87171; }
+
+        .progress-bar { height: 6px; border-radius: 9999px; background: rgba(0,0,0,0.1); overflow: hidden; }
+        .progress-bar .fill { height: 100%; border-radius: 9999px; transition: width 0.3s ease; }
+
+        /* ===== TOAST NOTIFICATIONS ===== */
+        #toastContainer { position: fixed; top: 20px; left: 20px; z-index: 99999; display: flex; flex-direction: column; gap: 10px; max-width: 380px; width: 100%; }
+        .toast-item { backdrop-filter: blur(40px); border-radius: 16px; padding: 14px 18px; display: flex; align-items: center; gap: 12px; border: 1px solid rgba(0,0,0,0.1); animation: slideInRight 0.3s ease forwards; box-shadow: 0 10px 30px rgba(0,0,0,0.15); }
+        .toast-item.success { background: rgba(16,185,129,0.9); color: white; }
+        .toast-item.error { background: rgba(239,68,68,0.9); color: white; }
+        .toast-item.warning { background: rgba(245,158,11,0.9); color: white; }
+        .toast-item.info { background: rgba(59,130,246,0.9); color: white; }
+        .dark .toast-item { border-color: rgba(255,255,255,0.2); }
+        .toast-item .close-toast { background: rgba(255,255,255,0.2); border: none; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: white; font-weight: bold; transition: 0.2s; }
+        .toast-item .close-toast:hover { background: rgba(255,255,255,0.4); }
+        @keyframes slideInRight { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @keyframes slideOutRight { from { transform: translateX(0); opacity: 1; } to { transform: translateX(100%); opacity: 0; } }
+
+        /* ===== DRAWER ===== */
+        #drawerOverlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); z-index: 9998; display: none; }
+        #drawerOverlay.active { display: block; }
+        #drawerContent { position: fixed; top: 0; left: 0; height: 100vh; width: 480px; max-width: 90vw; background: #fff; z-index: 9999; box-shadow: -10px 0 40px rgba(0,0,0,0.2); transform: translateX(-100%); transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1); overflow-y: auto; display: flex; flex-direction: column; }
+        .dark #drawerContent { background: #1a1a2e; border-left: 1px solid rgba(255,255,255,0.1); }
+        #drawerContent.active { transform: translateX(0); }
+
+        /* ===== SKELETON LOADER ===== */
+        .skeleton { background: linear-gradient(90deg, rgba(0,0,0,0.06) 25%, rgba(0,0,0,0.12) 50%, rgba(0,0,0,0.06) 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: 8px; }
+        .dark .skeleton { background: linear-gradient(90deg, rgba(255,255,255,0.06) 25%, rgba(255,255,255,0.15) 50%, rgba(255,255,255,0.06) 75%); background-size: 200% 100%; }
+        @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+
+        /* ===== EMPTY STATE ===== */
+        .empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px 20px; text-align: center; }
+        .empty-state .icon { width: 64px; height: 64px; border-radius: 50%; background: rgba(0,0,0,0.05); display: flex; align-items: center; justify-content: center; margin-bottom: 16px; font-size: 28px; color: #94a3b8; }
+        .dark .empty-state .icon { background: rgba(255,255,255,0.05); }
+
+        /* ===== Required Field ===== */
+        .required-star { color: #ef4444; margin-right: 2px; }
+
+        /* ===== Validation Message ===== */
+        .validation-msg { font-size: 12px; font-weight: 700; margin-top: 4px; display: flex; align-items: center; gap: 4px; }
+        .validation-msg.error { color: #ef4444; }
+        .validation-msg.success { color: #10b981; }
+
+        /* ===== Image Upload Area ===== */
+        .image-upload-area { border: 2px dashed rgba(59,130,246,0.3); border-radius: 24px; padding: 28px; text-align: center; cursor: pointer; transition: all 0.25s ease; background: rgba(59,130,246,0.02); }
+        .dark .image-upload-area { border-color: rgba(255,255,255,0.15); background: rgba(255,255,255,0.02); }
+        .image-upload-area:hover { border-color: hsl(217, 100%, 50%); background: rgba(59,130,246,0.08); transform: translateY(-2px); }
+        .image-upload-area .preview-img { max-width: 100%; max-height: 160px; border-radius: 16px; margin-top: 12px; border: 2px solid rgba(255,255,255,0.2); box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
+
+        /* ===== Task Option Cards (Section 5) ===== */
+        .task-option-card {
+            border: 2px solid rgba(0,0,0,0.08);
+            border-radius: 20px;
+            padding: 16px;
+            cursor: pointer;
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            background: rgba(0,0,0,0.02);
+        }
+        .dark .task-option-card {
+            border-color: rgba(255,255,255,0.1);
+            background: rgba(255,255,255,0.03);
+        }
+        .task-option-card:hover {
+            border-color: rgba(59,130,246,0.5);
+            transform: translateY(-2px);
+        }
+        .task-option-card.active {
+            border-color: hsl(217, 100%, 50%) !important;
+            background: rgba(59,130,246,0.12) !important;
+            box-shadow: 0 0 15px rgba(59,130,246,0.2);
+        }
+
+        /* ===== Conditional Field ===== */
+        .conditional-field { transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1); overflow: hidden; }
+        .conditional-field.hidden { max-height: 0; opacity: 0; padding: 0; margin: 0; pointer-events: none; }
+
+        /* ===== Utilities ===== */
+        .animate-spatial-in { animation: fadeIn 0.25s cubic-bezier(0.16,1,0.3,1) forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: scale(0.97); } to { opacity: 1; transform: scale(1); } }
+        .custom-scroll::-webkit-scrollbar { width: 5px; }
+        .custom-scroll::-webkit-scrollbar-track { background: transparent; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: hsl(217, 100%, 50%); border-radius: 9999px; }
+    </style>
+</head>
+<body class="body-bg-dark text-slate-800 dark:text-white transition-colors">
+
+    <!-- ===== TOAST CONTAINER ===== -->
+    <div id="toastContainer"></div>
+
+    <!-- ===== FLOATING BULK ACTION BAR (SECTION 3) ===== -->
+    <div id="bulkBarFloating" class="backdrop-blur-2xl bg-slate-900/90 dark:bg-slate-950/95 text-white border border-primary/40 shadow-2xl rounded-[26px] px-6 py-3.5 flex items-center gap-5">
+        <div class="flex items-center gap-2.5">
+            <span class="w-3 h-3 rounded-full bg-primary animate-ping"></span>
+            <span id="bulkText" class="text-xs font-black text-white px-3 py-1 rounded-full bg-primary/20 border border-primary/40">تم تحديد 0 عناصر</span>
+        </div>
+        <div class="h-6 w-px bg-white/15"></div>
+        <div class="flex items-center gap-2">
+            <button onclick="showToast('success', 'تم طباعة العناصر المحددة بنجاح 🖨️')" class="px-4 py-2 rounded-[14px] bg-primary hover:bg-blue-600 text-white text-xs font-black shadow-md flex items-center gap-1.5 transition-all">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+                طباعة
+            </button>
+            <button onclick="showToast('info', 'تم تصدير سجلات البيانات 📥')" class="px-4 py-2 rounded-[14px] bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-black shadow-md flex items-center gap-1.5 transition-all">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                تصدير
+            </button>
+            <button onclick="openModal('deleteModal')" class="px-4 py-2 rounded-[14px] bg-red-500/20 hover:bg-red-500/30 text-red-400 border border-red-500/30 text-xs font-black transition-all flex items-center gap-1.5">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                حذف مجمع
+            </button>
+        </div>
+        <div class="h-6 w-px bg-white/15"></div>
+        <button onclick="unselectAll()" class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-all text-xs font-bold" title="إلغاء التحديد">✕</button>
+    </div>
+
+    <!-- ===== DRAWER ===== -->
+    <div id="drawerOverlay" onclick="closeDrawer()"></div>
+    <div id="drawerContent" class="p-6">
+        <div class="flex items-center justify-between border-b border-black/10 dark:border-white/10 pb-4 mb-6">
+            <h3 class="text-xl font-black flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full bg-primary"></span> تعديل بيانات الاستشاري</h3>
+            <button onclick="closeDrawer()" class="w-9 h-9 rounded-full bg-black/5 dark:bg-white/10 hover:bg-black/10 dark:hover:bg-white/20 transition-all flex items-center justify-center">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+        </div>
+        <div class="flex-1 overflow-y-auto custom-scroll space-y-5">
+            <div class="space-y-1.5">
+                <label class="text-xs font-bold text-slate-700 dark:text-white/75 flex items-center gap-1">الاسم الكامل <span class="required-star">*</span></label>
+                <input type="text" class="spatial-input h-14 rounded-[18px] px-5 w-full text-sm font-bold" value="أحمد السالم">
+                <div class="validation-msg success">✓ صحيح</div>
+            </div>
+            <div class="space-y-1.5">
+                <label class="text-xs font-bold text-slate-700 dark:text-white/75 flex items-center gap-1">البريد الإلكتروني <span class="required-star">*</span></label>
+                <input type="email" class="spatial-input h-14 rounded-[18px] px-5 w-full text-sm font-bold error" value="invalid-email">
+                <div class="validation-msg error">✗ البريد الإلكتروني غير صالح</div>
+            </div>
+            <div class="space-y-1.5">
+                <label class="text-xs font-bold text-slate-700 dark:text-white/75">رقم الهاتف</label>
+                <input type="text" class="spatial-input h-14 rounded-[18px] px-5 w-full text-sm font-bold" placeholder="051-...">
+            </div>
+            <div class="space-y-1.5">
+                <label class="text-xs font-bold text-slate-700 dark:text-white/75 flex items-center gap-1">الموقع <span class="required-star">*</span></label>
+                <!-- Custom Interactive Single Overlay Dropdown -->
+                <div class="relative">
+                    <div onclick="toggleDropdown('drawerLocMenu')" class="spatial-input spatial-dropdown-trigger">
+                        <span id="drawerLocValue" class="font-bold text-sm">طرابلس</span>
+                        <svg class="spatial-dropdown-arrow text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>
+                    </div>
+                    <div id="drawerLocMenu" class="hidden spatial-dropdown-menu animate-spatial-in">
+                        <ul class="p-2 space-y-1">
+                            <li onclick="selectCustomDropdown('drawerLocValue', 'drawerLocMenu', 'طرابلس')" class="spatial-dropdown-item">طرابلس <span class="text-xs text-primary">✓</span></li>
+                            <li onclick="selectCustomDropdown('drawerLocValue', 'drawerLocMenu', 'بنغازي')" class="spatial-dropdown-item">بنغازي</li>
+                            <li onclick="selectCustomDropdown('drawerLocValue', 'drawerLocMenu', 'مصراتة')" class="spatial-dropdown-item">مصراتة</li>
+                            <li onclick="selectCustomDropdown('drawerLocValue', 'drawerLocMenu', 'سبها')" class="spatial-dropdown-item">سبها</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <button onclick="showToast('success', 'تم حفظ التغييرات بنجاح!')" class="w-full spatial-button justify-center h-14 mt-4">حفظ التغييرات</button>
+        </div>
+    </div>
+
+    <!-- ===== HEADER ===== -->
+    <header class="sticky top-0 z-40 backdrop-blur-2xl bg-white/70 dark:bg-[#13131a]/70 border-b border-black/10 dark:border-white/10 px-6 py-4 flex items-center justify-between shadow-sm">
+        <div class="flex items-center gap-4">
+            <button onclick="toggleSidebar()" class="spatial-icon-btn"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+            <div class="flex items-center gap-3"><div class="w-3 h-3 rounded-full bg-primary animate-pulse"></div><h1 class="text-xl font-black">FCPMS <span class="text-xs px-2.5 py-1 rounded-full bg-primary/20 text-primary font-bold mr-2">Design System v3.0</span></h1></div>
+        </div>
+        <div class="flex items-center gap-3">
+            <button onclick="toggleTheme()" class="spatial-icon-btn"><svg id="sunIcon" class="w-5 h-5 hidden dark:block text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg><svg id="moonIcon" class="w-5 h-5 block dark:hidden text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg></button>
+            <button onclick="document.getElementById('modalsSection').scrollIntoView({behavior:'smooth'})" class="px-5 h-11 rounded-[16px] bg-primary text-white font-bold text-sm shadow-md hover:bg-blue-600 transition-all flex items-center gap-2"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122"/></svg> تجربة النوافذ</button>
+        </div>
+    </header>
+
+    <!-- ===== MAIN LAYOUT ===== -->
+    <div class="flex-1 flex overflow-hidden relative">
+        <!-- SIDEBAR -->
+        <aside id="mainSidebar" class="w-64 border-l border-black/10 dark:border-white/10 bg-white/40 dark:bg-slate-900/40 backdrop-blur-2xl flex flex-col py-6 px-4 transition-all duration-300 shrink-0 z-30">
+            <div class="flex items-center gap-3 px-3 mb-6"><div class="w-10 h-10 rounded-2xl bg-primary flex items-center justify-center text-white font-black text-lg shadow-lg">ف</div><div><span class="font-black text-sm text-slate-800 dark:text-white">FCPMS</span><span class="text-xs text-slate-500 dark:text-white/50 block">نظام أداء الاستشاريين</span></div></div>
+            <nav class="flex-1 flex flex-col gap-1.5 custom-scroll overflow-y-auto">
+                <div class="text-[11px] font-black text-slate-400 dark:text-white/40 uppercase tracking-widest px-3 my-2">أقسام التصميم</div>
+                <a href="#colorsSection" class="flex items-center gap-3 px-3.5 py-3 rounded-[16px] bg-primary text-white font-bold text-sm shadow-md"><svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"/></svg><span>الألوان والخطوط</span></a>
+                <a href="#cardsSection" class="flex items-center gap-3 px-3.5 py-3 rounded-[16px] text-slate-600 dark:text-white/70 hover:bg-black/5 dark:hover:bg-white/10 font-bold text-sm"><svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg><span>البطاقات والإحصائيات</span></a>
+                <a href="#tablesSection" class="flex items-center gap-3 px-3.5 py-3 rounded-[16px] text-slate-600 dark:text-white/70 hover:bg-black/5 dark:hover:bg-white/10 font-bold text-sm"><svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg><span>الجداول والبيانات</span></a>
+                <a href="#formsSection" class="flex items-center gap-3 px-3.5 py-3 rounded-[16px] text-slate-600 dark:text-white/70 hover:bg-black/5 dark:hover:bg-white/10 font-bold text-sm"><svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg><span>النماذج والأزرار</span></a>
+                <a href="#taskComponentsSection" class="flex items-center gap-3 px-3.5 py-3 rounded-[16px] text-slate-600 dark:text-white/70 hover:bg-black/5 dark:hover:bg-white/10 font-bold text-sm"><svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2"/></svg><span>مكونات المهام</span></a>
+                <a href="#dropdownsSection" class="flex items-center gap-3 px-3.5 py-3 rounded-[16px] text-slate-600 dark:text-white/70 hover:bg-black/5 dark:hover:bg-white/10 font-bold text-sm"><svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg><span>القوائم المنسدلة</span></a>
+                <a href="#modalsSection" class="flex items-center gap-3 px-3.5 py-3 rounded-[16px] text-slate-600 dark:text-white/70 hover:bg-black/5 dark:hover:bg-white/10 font-bold text-sm"><svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4a2 2 0 012 2v2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2"/></svg><span>النوافذ المنبثقة</span></a>
+                <a href="#feedbackSection" class="flex items-center gap-3 px-3.5 py-3 rounded-[16px] text-slate-600 dark:text-white/70 hover:bg-black/5 dark:hover:bg-white/10 font-bold text-sm"><svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg><span>التغذية الراجعة والحالات</span></a>
+                <a href="#tabsSection" class="flex items-center gap-3 px-3.5 py-3 rounded-[16px] text-slate-600 dark:text-white/70 hover:bg-black/5 dark:hover:bg-white/10 font-bold text-sm"><svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 19a2 2 0 01-2-2V7a2 2 0 012-2h4l2 2h4a2 2 0 012 2v1M5 19h14a2 2 0 002-2v-5a2 2 0 00-2-2H9a2 2 0 00-2 2v5a2 2 0 01-2 2z"/></svg><span>علامات التبويب</span></a>
+            </nav>
+        </aside>
+
+        <!-- ===== MAIN CONTENT ===== -->
+        <main class="flex-1 overflow-y-auto p-6 lg:p-10 space-y-12 custom-scroll">
+
+            <!-- INTRO BANNER -->
+            <section class="spatial-card p-8 relative overflow-hidden">
+                <div class="absolute -left-10 -bottom-10 w-64 h-64 bg-primary/20 rounded-full blur-3xl pointer-events-none"></div>
+                <div class="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+                    <div class="space-y-3 max-w-2xl">
+                        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary font-bold text-xs"><span class="w-2 h-2 rounded-full bg-primary"></span> FCPMS Design System v3.0</div>
+                        <h2 class="text-3xl font-black text-slate-900 dark:text-white leading-tight">دليل التصميم الشامل الموحد<br><span class="text-base font-medium text-slate-500 dark:text-white/50">تصميم زجاجي موحد: جميع القوائم المنسدلة تعتمد الاختيار المفرد التفاعلي الفاخر بارتفاع إضافي</span></h2>
+                    </div>
+                    <button onclick="toggleTheme()" class="px-5 py-3 rounded-[18px] bg-black/5 dark:bg-white/10 hover:bg-black/10 dark:hover:bg-white/15 text-slate-800 dark:text-white font-bold text-sm transition-all border border-black/10 dark:border-white/15 flex items-center gap-2"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"/></svg> تبديل الثيم</button>
+                </div>
+            </section>
+
+            <!-- ===== SECTION 1: COLORS ===== -->
+            <section id="colorsSection" class="space-y-8">
+                <div class="flex items-center gap-3"><span class="w-3.5 h-9 rounded-full bg-primary shadow-lg shadow-primary/40"></span><div><h2 class="text-2xl font-black">1. الألوان والخطوط</h2><p class="text-xs font-bold text-slate-500 dark:text-white/50">ثوابت التصميم مع مختبر تفاعلي</p></div></div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div class="spatial-card p-5"><div class="h-24 rounded-[22px] bg-primary flex flex-col items-center justify-center text-white shadow-lg"><span class="font-black">Primary</span><span class="text-xs font-mono">#0066FF</span></div></div>
+                    <div class="spatial-card p-5"><div class="h-24 rounded-[22px] bg-gradient-to-r from-[#1e2436] to-[#13131a] border border-white/15 flex flex-col items-center justify-center text-white"><span class="font-black">Dark Canvas</span><span class="text-xs font-mono">#13131A</span></div></div>
+                    <div class="spatial-card p-5"><div class="h-24 rounded-[22px] bg-emerald-500/20 border border-emerald-500/30 flex flex-col items-center justify-center text-emerald-500"><span class="font-black">Success</span><span class="text-xs font-mono">#10B981</span></div></div>
+                    <div class="spatial-card p-5"><div class="h-24 rounded-[22px] bg-amber-500/20 border border-amber-500/30 flex flex-col items-center justify-center text-amber-500"><span class="font-black">Warning</span><span class="text-xs font-mono">#F59E0B</span></div></div>
+                </div>
+                <div class="spatial-window rounded-[32px] p-6 space-y-6">
+                    <div class="flex flex-col sm:flex-row items-center justify-between gap-4 border-b border-black/10 dark:border-white/10 pb-4">
+                        <h3 class="text-lg font-black flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full bg-primary"></span> مختبر الخطوط</h3>
+                        <div class="flex items-center gap-4 bg-black/5 dark:bg-white/5 p-2 rounded-2xl"><span class="text-xs font-bold">حجم الخط:</span><input type="range" id="fontSlider" min="14" max="36" value="22" oninput="updateFontPreview()" class="w-32 accent-primary"><span id="fontSizeDisplay" class="text-xs font-mono font-black px-2.5 py-1 rounded-lg bg-primary text-white">22px</span></div>
+                    </div>
+                    <input type="text" id="fontTextInput" value="نظام متابعة أداء الاستشاريين الميدانيين" oninput="updateFontPreview()" class="spatial-input h-14 rounded-[18px] px-5 text-xs font-bold w-full">
+                    <div class="p-6 rounded-[24px] bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/8"><p id="fontLivePreview" class="font-black text-slate-900 dark:text-white leading-relaxed transition-all" style="font-size:22px;">نظام متابعة أداء الاستشاريين الميدانيين</p></div>
+                </div>
+            </section>
+
+            <!-- ===== SECTION 2: CARDS ===== -->
+            <section id="cardsSection" class="space-y-8">
+                <div class="flex items-center gap-3"><span class="w-3.5 h-9 rounded-full bg-primary shadow-lg shadow-primary/40"></span><div><h2 class="text-2xl font-black">2. البطاقات ومؤشرات الأداء</h2><p class="text-xs font-bold text-slate-500 dark:text-white/50">بطاقات KPI، بطاقات استشاري، وشبكات إحصائيات</p></div></div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div class="spatial-card p-6 flex flex-col justify-between space-y-4"><div class="flex items-center justify-between"><div class="w-12 h-12 rounded-[18px] bg-primary/15 border border-primary/25 flex items-center justify-center text-primary font-bold"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg></div><span class="text-xs font-black px-3 py-1 rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400">+12% ↗</span></div><div><span class="text-xs font-bold text-slate-500 dark:text-white/50 uppercase block">النشطون</span><h3 class="text-2xl font-black">48</h3></div><div class="progress-bar"><div class="fill bg-primary" style="width:85%"></div></div></div>
+                    <div class="spatial-card p-6 flex flex-col justify-between space-y-4"><div class="flex items-center justify-between"><div class="w-12 h-12 rounded-[18px] bg-emerald-500/15 border border-emerald-500/25 flex items-center justify-center text-emerald-500 font-bold"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div><span class="text-xs font-black px-3 py-1 rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400">+8% ↗</span></div><div><span class="text-xs font-bold text-slate-500 dark:text-white/50 uppercase block">الإنجاز اليومي</span><h3 class="text-2xl font-black">94%</h3></div><div class="progress-bar"><div class="fill bg-emerald-500" style="width:94%"></div></div></div>
+                    <div class="spatial-card p-6 flex flex-col justify-between space-y-4"><div class="flex items-center justify-between"><div class="w-12 h-12 rounded-[18px] bg-amber-500/15 border border-amber-500/25 flex items-center justify-center text-amber-500 font-bold"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg></div><span class="text-xs font-black px-3 py-1 rounded-full bg-amber-500/15 text-amber-600">+3% ↗</span></div><div><span class="text-xs font-bold text-slate-500 dark:text-white/50 uppercase block">الزيارات اليوم</span><h3 class="text-2xl font-black">142</h3></div><div class="progress-bar"><div class="fill bg-amber-500" style="width:78%"></div></div></div>
+                    <div class="spatial-card p-6 flex flex-col justify-between space-y-4"><div class="flex items-center justify-between"><div class="w-12 h-12 rounded-[18px] bg-purple-500/15 border border-purple-500/25 flex items-center justify-center text-purple-400 font-bold"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2"/></svg></div><span class="text-xs font-black px-3 py-1 rounded-full bg-purple-500/15 text-purple-400"><span class="w-2 h-2 rounded-full bg-purple-400 animate-ping inline-block mr-1"></span> 12 غائب</span></div><div><span class="text-xs font-bold text-slate-500 dark:text-white/50 uppercase block">الغياب اليوم</span><h3 class="text-2xl font-black">12</h3></div><div class="progress-bar"><div class="fill bg-purple-500" style="width:15%"></div></div></div>
+                </div>
+                <div class="spatial-card p-6 flex flex-col md:flex-row items-center gap-6">
+                    <div class="w-20 h-20 rounded-full bg-primary/20 text-primary flex items-center justify-center text-3xl font-black border-4 border-primary/30">أ</div>
+                    <div class="flex-1 space-y-1"><div class="flex items-center gap-3 flex-wrap"><h3 class="text-xl font-black">أحمد السالم</h3><span class="status-pill completed">نشط</span><span class="text-xs font-mono text-slate-500 dark:text-white/50">#EMP-1024</span></div><div class="flex flex-wrap gap-4 text-sm font-bold text-slate-600 dark:text-white/70"><span>📞 051-234-5678</span><span>📍 طرابلس</span><span>📅 01-01-2024</span></div></div>
+                    <div class="flex gap-2"><button class="spatial-button text-sm px-4 py-2">عرض الملف</button><button onclick="openDrawer()" class="px-4 py-2 rounded-[16px] bg-black/5 dark:bg-white/10 hover:bg-black/10 dark:hover:bg-white/15 transition-all text-sm font-bold">تعديل</button></div>
+                </div>
+            </section>
+
+            <!-- ===== SECTION 3: TABLES ===== -->
+            <section id="tablesSection" class="space-y-8">
+                <div class="flex items-center gap-3"><span class="w-3.5 h-9 rounded-full bg-primary shadow-lg shadow-primary/40"></span><div><h2 class="text-2xl font-black">3. الجداول والبيانات</h2><p class="text-xs font-bold text-slate-500 dark:text-white/50">عرض البيانات مع إبراز الصفوف المحددة وشريط إجراءات عائم متطور</p></div></div>
+                <div class="spatial-card overflow-hidden">
+                    <div class="p-6 border-b border-black/10 dark:border-white/10 flex flex-col md:flex-row items-center justify-between gap-4">
+                        <h3 class="font-black text-lg">قائمة الاستشاريين</h3>
+                        <div class="flex flex-wrap items-center gap-3">
+                            <input type="text" id="tableSearchInput" onkeyup="filterTableRows()" placeholder="بحث..." class="spatial-input h-10 rounded-[14px] px-4 pr-9 text-xs font-bold w-56">
+                            <div class="flex items-center gap-1 bg-black/5 dark:bg-white/5 p-1 rounded-xl text-xs font-bold">
+                                <button onclick="filterTable('all')" id="tbl-btn-all" class="px-3 py-1.5 rounded-lg bg-primary text-white font-bold">الكل</button>
+                                <button onclick="filterTable('active')" id="tbl-btn-active" class="px-3 py-1.5 rounded-lg text-slate-600 dark:text-white/70 hover:text-slate-900 transition-all">نشط</button>
+                                <button onclick="filterTable('inactive')" id="tbl-btn-inactive" class="px-3 py-1.5 rounded-lg text-slate-600 dark:text-white/70 hover:text-slate-900 transition-all">موقوف</button>
+                            </div>
+                            <button onclick="toggleSkeletonTable()" class="px-3 py-1.5 rounded-xl bg-black/5 dark:bg-white/10 text-xs font-bold hover:bg-black/10 transition-all">💀 Skeleton</button>
+                            <button onclick="toggleEmptyState()" class="px-3 py-1.5 rounded-xl bg-black/5 dark:bg-white/10 text-xs font-bold hover:bg-black/10 transition-all">📭 فارغ</button>
+                        </div>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <div id="skeletonTableLoader" class="hidden p-4 space-y-2">
+                            <div class="skeleton h-8 w-full rounded-lg"></div>
+                            <div class="skeleton h-12 w-full rounded-lg"></div>
+                            <div class="skeleton h-12 w-full rounded-lg"></div>
+                            <div class="skeleton h-12 w-full rounded-lg"></div>
+                            <div class="skeleton h-12 w-full rounded-lg"></div>
+                        </div>
+                        <div id="emptyStateContainer" class="hidden">
+                            <div class="empty-state"><div class="icon">📭</div><h3 class="text-lg font-black">لا توجد بيانات</h3><p class="text-sm text-slate-500 dark:text-white/50">لم يتم العثور على استشاريين مطابقين للبحث.</p><button onclick="toggleEmptyState()" class="spatial-button text-sm px-4 py-2 mt-4">إعادة تعيين</button></div>
+                        </div>
+                        <div id="realTableContainer">
+                            <table class="w-full text-right text-sm">
+                                <thead class="bg-black/5 dark:bg-white/5 text-slate-500 dark:text-white/60 font-bold uppercase text-xs">
+                                    <tr>
+                                        <th class="p-4 w-12 text-center"><input type="checkbox" id="selectAll" onchange="toggleAllRows(this)" class="row-checkbox"></th>
+                                        <th class="p-4">الرقم</th>
+                                        <th class="p-4">الاسم</th>
+                                        <th class="p-4">الموقع</th>
+                                        <th class="p-4">نسبة الإنجاز</th>
+                                        <th class="p-4">الحالة</th>
+                                        <th class="p-4 text-center">إجراء</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tableBody" class="divide-y divide-black/5 dark:divide-white/5 font-bold text-slate-800 dark:text-white">
+                                    <tr data-status="active"><td class="p-4 text-center"><input type="checkbox" class="row-checkbox" onchange="updateBulkBar()"></td><td class="p-4 font-mono">#101</td><td class="p-4 flex items-center gap-2"><div class="w-8 h-8 rounded-full bg-primary/20 text-primary text-xs font-black flex items-center justify-center">أ</div> أحمد السالم</td><td class="p-4">طرابلس</td><td class="p-4"><div class="flex items-center gap-2"><span class="text-emerald-500 font-black">94%</span><div class="progress-bar w-16"><div class="fill bg-emerald-500" style="width:94%"></div></div></div></td><td class="p-4"><span class="status-pill completed">نشط</span></td><td class="p-4 text-center"><button onclick="openModal('detailModal')" class="spatial-icon-btn w-9 h-9 inline-flex"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg></button></td></tr>
+                                    <tr data-status="active"><td class="p-4 text-center"><input type="checkbox" class="row-checkbox" onchange="updateBulkBar()"></td><td class="p-4 font-mono">#102</td><td class="p-4 flex items-center gap-2"><div class="w-8 h-8 rounded-full bg-emerald-500/20 text-emerald-500 text-xs font-black flex items-center justify-center">م</div> محمد الفيتوري</td><td class="p-4">بنغازي</td><td class="p-4"><div class="flex items-center gap-2"><span class="text-amber-500 font-black">78%</span><div class="progress-bar w-16"><div class="fill bg-amber-500" style="width:78%"></div></div></div></td><td class="p-4"><span class="status-pill pending">قيد</span></td><td class="p-4 text-center"><button onclick="openModal('detailModal')" class="spatial-icon-btn w-9 h-9 inline-flex"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg></button></td></tr>
+                                    <tr data-status="inactive"><td class="p-4 text-center"><input type="checkbox" class="row-checkbox" onchange="updateBulkBar()"></td><td class="p-4 font-mono">#103</td><td class="p-4 flex items-center gap-2"><div class="w-8 h-8 rounded-full bg-red-500/20 text-red-500 text-xs font-black flex items-center justify-center">ع</div> علي بن عمر</td><td class="p-4">مصراتة</td><td class="p-4"><div class="flex items-center gap-2"><span class="text-red-500 font-black">52%</span><div class="progress-bar w-16"><div class="fill bg-red-500" style="width:52%"></div></div></div></td><td class="p-4"><span class="status-pill overdue">موقوف</span></td><td class="p-4 text-center"><button onclick="openModal('detailModal')" class="spatial-icon-btn w-9 h-9 inline-flex"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg></button></td></tr>
+                                    <tr data-status="active"><td class="p-4 text-center"><input type="checkbox" class="row-checkbox" onchange="updateBulkBar()"></td><td class="p-4 font-mono">#104</td><td class="p-4 flex items-center gap-2"><div class="w-8 h-8 rounded-full bg-purple-500/20 text-purple-500 text-xs font-black flex items-center justify-center">س</div> سامي التومي</td><td class="p-4">سبها</td><td class="p-4"><div class="flex items-center gap-2"><span class="text-emerald-500 font-black">100%</span><div class="progress-bar w-16"><div class="fill bg-emerald-500" style="width:100%"></div></div></div></td><td class="p-4"><span class="status-pill completed">متميز</span></td><td class="p-4 text-center"><button onclick="openModal('detailModal')" class="spatial-icon-btn w-9 h-9 inline-flex"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg></button></td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="p-4 border-t border-black/10 dark:border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs font-bold text-slate-500 dark:text-white/60"><span>عرض 1-4 من 4</span><div class="flex gap-1.5"><button class="px-3 py-1.5 rounded-xl bg-black/5 dark:bg-white/5 opacity-50">السابق</button><button class="px-3.5 py-1.5 rounded-xl bg-primary text-white font-black shadow-sm">1</button><button class="px-3.5 py-1.5 rounded-xl hover:bg-black/5 dark:hover:bg-white/10">2</button><button class="px-3 py-1.5 rounded-xl bg-black/5 dark:bg-white/10 hover:bg-black/10">التالي</button></div></div>
+                </div>
+            </section>
+
+            <!-- ===== SECTION 4: FORMS ===== -->
+            <section id="formsSection" class="space-y-8">
+                <div class="flex items-center gap-3"><span class="w-3.5 h-9 rounded-full bg-primary shadow-lg shadow-primary/40"></span><div><h2 class="text-2xl font-black">4. النماذج والأزرار</h2><p class="text-xs font-bold text-slate-500 dark:text-white/50">حقول إدخال إلزامية (*)، تحقق فوري (Validation)، وقوائم اختيار مفردة تفاعلية موحدة</p></div></div>
+                <div class="spatial-card p-6 lg:p-8 space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="space-y-1.5">
+                            <label class="text-xs font-bold text-slate-700 dark:text-white/75 flex items-center gap-1">الاسم الكامل <span class="required-star">*</span></label>
+                            <input type="text" class="spatial-input h-14 rounded-[18px] px-5 w-full text-sm font-bold success" value="أحمد السالم">
+                            <div class="validation-msg success">✓ تم التحقق</div>
+                        </div>
+                        <div class="space-y-1.5">
+                            <label class="text-xs font-bold text-slate-700 dark:text-white/75 flex items-center gap-1">البريد الإلكتروني <span class="required-star">*</span></label>
+                            <input type="email" class="spatial-input h-14 rounded-[18px] px-5 w-full text-sm font-bold error" value="invalid-email">
+                            <div class="validation-msg error">✗ البريد الإلكتروني غير صالح</div>
+                        </div>
+                        <div class="space-y-1.5">
+                            <label class="text-xs font-bold text-slate-700 dark:text-white/75">رقم الهاتف</label>
+                            <input type="text" class="spatial-input h-14 rounded-[18px] px-5 w-full text-sm font-bold" placeholder="051-...">
+                        </div>
+                        <div class="space-y-1.5">
+                            <label class="text-xs font-bold text-slate-700 dark:text-white/75 flex items-center gap-1">الموقع <span class="required-star">*</span></label>
+                            <!-- Custom Interactive Single Overlay Dropdown -->
+                            <div class="relative">
+                                <div onclick="toggleDropdown('formLocMenu')" class="spatial-input spatial-dropdown-trigger">
+                                    <span id="formLocValue" class="font-bold text-sm">طرابلس</span>
+                                    <svg class="spatial-dropdown-arrow text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>
+                                </div>
+                                <div id="formLocMenu" class="hidden spatial-dropdown-menu animate-spatial-in">
+                                    <ul class="p-2 space-y-1">
+                                        <li onclick="selectCustomDropdown('formLocValue', 'formLocMenu', 'طرابلس')" class="spatial-dropdown-item">طرابلس <span class="text-xs text-primary">✓</span></li>
+                                        <li onclick="selectCustomDropdown('formLocValue', 'formLocMenu', 'بنغازي')" class="spatial-dropdown-item">بنغازي</li>
+                                        <li onclick="selectCustomDropdown('formLocValue', 'formLocMenu', 'مصراتة')" class="spatial-dropdown-item">مصراتة</li>
+                                        <li onclick="selectCustomDropdown('formLocValue', 'formLocMenu', 'سبها')" class="spatial-dropdown-item">سبها</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex flex-wrap items-center gap-4 pt-4 border-t border-black/10 dark:border-white/10">
+                        <button onclick="showToast('success', 'تم حفظ البيانات بنجاح!')" class="spatial-button h-14"><span class="btn-text">حفظ البيانات</span></button>
+                        <button onclick="simulateLoading(this)" class="spatial-button bg-emerald-500 hover:bg-emerald-600 h-14"><span class="btn-text">حفظ وإرسال</span></button>
+                        <button onclick="openModal('deleteModal')" class="px-6 h-14 rounded-[18px] bg-destructive hover:bg-red-600 text-white font-bold text-sm transition-all">حذف</button>
+                        <button onclick="showToast('info', 'تم إلغاء العملية')" class="px-6 h-14 rounded-[18px] bg-black/5 dark:bg-white/10 hover:bg-black/10 dark:hover:bg-white/15 text-slate-700 dark:text-white font-bold text-sm transition-all border border-black/10 dark:border-white/15">إلغاء</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ===== SECTION 5: TASK COMPONENTS (REDESIGNED) ===== -->
+            <section id="taskComponentsSection" class="space-y-8">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <span class="w-3.5 h-9 rounded-full bg-primary shadow-lg shadow-primary/40"></span>
+                        <div>
+                            <h2 class="text-2xl font-black">5. مكونات المهام الديناميكية</h2>
+                            <p class="text-xs font-bold text-slate-500 dark:text-white/50">بطاقات مهام تفاعلية مخصصة: خيارات مرئية، قوائم تفقدية متطورة، مرفقات صور، وحقول تكيفية</p>
+                        </div>
+                    </div>
+                    <span class="px-3.5 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-black hidden sm:inline-flex items-center gap-1.5">
+                        <span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span> نموذج استمارة ميدانية
+                    </span>
+                </div>
+
+                <div class="spatial-card p-6 lg:p-8 space-y-8">
+
+                    <!-- 5.1 Choice (Single Select Option Cards) -->
+                    <div class="space-y-4 border-b border-black/10 dark:border-white/10 pb-6">
+                        <div class="flex items-center justify-between">
+                            <h3 class="font-black text-lg flex items-center gap-2">
+                                <span class="w-3 h-3 rounded-full bg-primary"></span> 1. اختيار حالة التنفيذ (Single Choice Card)
+                            </h3>
+                            <span class="text-xs font-bold text-slate-400 dark:text-white/40">اختر حالة واحدة</span>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4" id="choiceCardGroup">
+                            <div onclick="selectTaskOption(this, 'yes')" class="task-option-card active flex flex-col justify-between space-y-3">
+                                <div class="flex items-center justify-between">
+                                    <span class="w-8 h-8 rounded-full bg-emerald-500/20 text-emerald-500 flex items-center justify-center font-bold">✓</span>
+                                    <span class="text-[10px] font-black px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-500">مكتمل</span>
+                                </div>
+                                <div>
+                                    <h4 class="font-black text-sm">تم التنفيذ بالكامل</h4>
+                                    <p class="text-xs text-slate-500 dark:text-white/50 mt-1">الأعمال مطابقة للمواصفات المعمارية</p>
+                                </div>
+                            </div>
+
+                            <div onclick="selectTaskOption(this, 'partial')" class="task-option-card flex flex-col justify-between space-y-3">
+                                <div class="flex items-center justify-between">
+                                    <span class="w-8 h-8 rounded-full bg-amber-500/20 text-amber-500 flex items-center justify-center font-bold">⚠️</span>
+                                    <span class="text-[10px] font-black px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-500">جزئي</span>
+                                </div>
+                                <div>
+                                    <h4 class="font-black text-sm">تنفيذ جزئي</h4>
+                                    <p class="text-xs text-slate-500 dark:text-white/50 mt-1">تتطلب المتابعة في التقرير القادم</p>
+                                </div>
+                            </div>
+
+                            <div onclick="selectTaskOption(this, 'no')" class="task-option-card flex flex-col justify-between space-y-3">
+                                <div class="flex items-center justify-between">
+                                    <span class="w-8 h-8 rounded-full bg-red-500/20 text-red-500 flex items-center justify-center font-bold">✕</span>
+                                    <span class="text-[10px] font-black px-2 py-0.5 rounded-full bg-red-500/10 text-red-500">متوقف</span>
+                                </div>
+                                <div>
+                                    <h4 class="font-black text-sm">لم يتم التنفيذ</h4>
+                                    <p class="text-xs text-slate-500 dark:text-white/50 mt-1">يتطلب تسجيل السبب والتقاط صورة</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Custom Interactive Overlay Dropdown fallback option -->
+                        <div class="pt-2">
+                            <label class="text-xs font-bold text-slate-700 dark:text-white/75 block mb-1.5">أو حدد من القائمة التفاعلية الموحدة:</label>
+                            <div class="relative max-w-md">
+                                <div onclick="toggleDropdown('taskChoiceMenu')" class="spatial-input spatial-dropdown-trigger">
+                                    <span id="taskChoiceValue" class="font-bold text-sm">تم التنفيذ بالكامل</span>
+                                    <svg class="spatial-dropdown-arrow text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>
+                                </div>
+                                <div id="taskChoiceMenu" class="hidden spatial-dropdown-menu animate-spatial-in">
+                                    <ul class="p-2 space-y-1">
+                                        <li onclick="selectCustomDropdown('taskChoiceValue', 'taskChoiceMenu', 'تم التنفيذ بالكامل', 'yes', 'toggleTaskConditional')" class="spatial-dropdown-item">تم التنفيذ بالكامل</li>
+                                        <li onclick="selectCustomDropdown('taskChoiceValue', 'taskChoiceMenu', 'تنفيذ جزئي', 'partial', 'toggleTaskConditional')" class="spatial-dropdown-item">تنفيذ جزئي</li>
+                                        <li onclick="selectCustomDropdown('taskChoiceValue', 'taskChoiceMenu', 'لم يتم التنفيذ', 'no', 'toggleTaskConditional')" class="spatial-dropdown-item text-red-400">لم يتم التنفيذ</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 5.2 Checklist (Interactive Progress Task Checkboxes) -->
+                    <div class="space-y-4 border-b border-black/10 dark:border-white/10 pb-6">
+                        <div class="flex items-center justify-between">
+                            <h3 class="font-black text-lg flex items-center gap-2">
+                                <span class="w-3 h-3 rounded-full bg-emerald-500"></span> 2. قائمة المراجعة التفقدية (Interactive Checklist)
+                            </h3>
+                            <div class="flex items-center gap-3">
+                                <span id="checklistScore" class="text-xs font-black px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-500">الإنجاز: 75%</span>
+                            </div>
+                        </div>
+                        <div class="progress-bar w-full h-2">
+                            <div id="checklistProgressBar" class="fill bg-emerald-500" style="width:75%"></div>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+                            <label class="flex items-center justify-between p-3.5 rounded-[16px] bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 cursor-pointer hover:border-primary/40 transition-all">
+                                <span class="flex items-center gap-3 text-sm font-bold">
+                                    <input type="checkbox" checked onchange="updateChecklistProgress()" class="checklist-item row-checkbox">
+                                    فحص صب الخرسانة المسلحة
+                                </span>
+                                <span class="text-xs text-emerald-500 font-bold">مكفول ✓</span>
+                            </label>
+
+                            <label class="flex items-center justify-between p-3.5 rounded-[16px] bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 cursor-pointer hover:border-primary/40 transition-all">
+                                <span class="flex items-center gap-3 text-sm font-bold">
+                                    <input type="checkbox" checked onchange="updateChecklistProgress()" class="checklist-item row-checkbox">
+                                    معاينة عزل القواعد السفلية
+                                </span>
+                                <span class="text-xs text-emerald-500 font-bold">مكفول ✓</span>
+                            </label>
+
+                            <label class="flex items-center justify-between p-3.5 rounded-[16px] bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 cursor-pointer hover:border-primary/40 transition-all">
+                                <span class="flex items-center gap-3 text-sm font-bold">
+                                    <input type="checkbox" checked onchange="updateChecklistProgress()" class="checklist-item row-checkbox">
+                                    اختبار عينات حديد التسليح
+                                </span>
+                                <span class="text-xs text-emerald-500 font-bold">مكفول ✓</span>
+                            </label>
+
+                            <label class="flex items-center justify-between p-3.5 rounded-[16px] bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 cursor-pointer hover:border-primary/40 transition-all">
+                                <span class="flex items-center gap-3 text-sm font-bold">
+                                    <input type="checkbox" onchange="updateChecklistProgress()" class="checklist-item row-checkbox">
+                                    اعتماد مخططات التكييف والتهوية
+                                </span>
+                                <span class="text-xs text-amber-500 font-bold">قيد الفحص ⏱</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- 5.3 Text & Textarea -->
+                    <div class="space-y-4 border-b border-black/10 dark:border-white/10 pb-6">
+                        <h3 class="font-black text-lg flex items-center gap-2">
+                            <span class="w-3 h-3 rounded-full bg-blue-500"></span> 3. المدخلات النصية والملاحظات (Rich Inputs)
+                        </h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="space-y-1.5">
+                                <label class="text-xs font-bold text-slate-700 dark:text-white/75">رقم البند أو الرمز الميداني</label>
+                                <div class="relative">
+                                    <input type="text" class="spatial-input h-14 rounded-[18px] px-5 pl-12 w-full text-sm font-bold" value="B-1024-TR">
+                                    <span class="absolute left-4 top-4 text-xs font-mono text-slate-400">#CODE</span>
+                                </div>
+                            </div>
+                            <div class="space-y-1.5">
+                                <div class="flex items-center justify-between">
+                                    <label class="text-xs font-bold text-slate-700 dark:text-white/75 flex items-center gap-1">ملاحظات المهندس <span class="required-star">*</span></label>
+                                    <span id="charCounter" class="text-[11px] font-mono text-slate-400">0 / 200</span>
+                                </div>
+                                <textarea id="taskTextarea" oninput="updateCharCount(this)" class="spatial-input rounded-[18px] px-5 py-3.5 w-full text-sm font-bold" rows="3" placeholder="اكتب تقرير معاينة الموقع بالتفصيل..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 5.4 Stepper & Date -->
+                    <div class="space-y-4 border-b border-black/10 dark:border-white/10 pb-6">
+                        <h3 class="font-black text-lg flex items-center gap-2">
+                            <span class="w-3 h-3 rounded-full bg-purple-500"></span> 4. عداد الكميات والتاريخ الميداني (Stepper &amp; Date)
+                        </h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="space-y-1.5">
+                                <label class="text-xs font-bold text-slate-700 dark:text-white/75 flex items-center gap-1">عدد العينات المفحوصة <span class="required-star">*</span></label>
+                                <div class="flex items-center gap-3">
+                                    <button onclick="adjustStepper(-1)" class="w-14 h-14 rounded-[18px] bg-black/5 dark:bg-white/10 hover:bg-primary hover:text-white font-black text-xl flex items-center justify-center transition-all">-</button>
+                                    <input type="number" id="stepperValue" class="spatial-input h-14 rounded-[18px] px-4 w-24 text-center font-black text-lg" value="5" min="0">
+                                    <button onclick="adjustStepper(1)" class="w-14 h-14 rounded-[18px] bg-black/5 dark:bg-white/10 hover:bg-primary hover:text-white font-black text-xl flex items-center justify-center transition-all">+</button>
+                                    <span class="text-xs font-bold text-slate-500 dark:text-white/50">عينات اختباريّة</span>
+                                </div>
+                            </div>
+                            <div class="space-y-1.5">
+                                <label class="text-xs font-bold text-slate-700 dark:text-white/75">تاريخ المعاينة المستهدفة</label>
+                                <div class="flex gap-2">
+                                    <input type="date" class="spatial-input h-14 rounded-[18px] px-5 flex-1 text-sm font-bold" value="2026-08-02">
+                                    <button onclick="showToast('info', 'تم تحديد تاريخ اليوم')" class="px-4 h-14 rounded-[18px] bg-black/5 dark:bg-white/10 text-xs font-bold hover:bg-black/10">اليوم</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 5.5 Advanced Image Upload Dropzone -->
+                    <div class="space-y-4 border-b border-black/10 dark:border-white/10 pb-6">
+                        <h3 class="font-black text-lg flex items-center gap-2">
+                            <span class="w-3 h-3 rounded-full bg-amber-500"></span> 5. مرفقات الصور والإثباتات (Interactive Image Upload Dropzone)
+                        </h3>
+                        <div class="image-upload-area" onclick="document.getElementById('taskFileInput').click()">
+                            <div class="flex flex-col items-center gap-2">
+                                <div class="w-14 h-14 rounded-full bg-primary/10 text-primary flex items-center justify-center text-2xl font-bold">
+                                    📷
+                                </div>
+                                <span class="text-sm font-black text-slate-800 dark:text-white">انقر لرفع صورة إثبات الموقع أو اسحب الصورة هنا</span>
+                                <span class="text-xs text-slate-400 dark:text-white/40">صيغ مدعومة: JPG, PNG, WEBP — الحد الأقصى 10MB</span>
+                            </div>
+                            <input type="file" id="taskFileInput" accept="image/*" class="hidden" onchange="handleTaskImageUpload(this)">
+                            
+                            <div id="taskImagePreviewBox" class="hidden mt-4 pt-4 border-t border-black/10 dark:border-white/10 flex flex-col items-center gap-3 animate-spatial-in">
+                                <img id="taskImagePreview" src="#" alt="معاينة المرفق" class="preview-img">
+                                <div class="flex items-center gap-4">
+                                    <span class="text-xs font-bold text-emerald-500 bg-emerald-500/15 px-3 py-1 rounded-full">✓ تم رفع الملف بنجاح</span>
+                                    <button onclick="event.stopPropagation(); removeTaskImage()" class="text-xs font-black text-red-500 hover:underline">إزالة المرفق ✕</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 5.6 Smart Conditional Logic Block -->
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between">
+                            <h3 class="font-black text-lg flex items-center gap-2">
+                                <span class="w-3 h-3 rounded-full bg-red-500"></span> 6. الحقول الشرطية الذكية (Smart Adaptive Form)
+                            </h3>
+                            <span class="text-xs font-bold text-primary">تظهر تلقائياً حسب الاختيار ⚡</span>
+                        </div>
+
+                        <div class="p-5 rounded-[24px] bg-black/5 dark:bg-white/5 space-y-4">
+                            <div class="space-y-1.5">
+                                <label class="text-xs font-bold text-slate-700 dark:text-white/75 flex items-center gap-1">هل تم إنجاز الأعمال المطلوبة؟ <span class="required-star">*</span></label>
+                                <!-- Custom Interactive Single Overlay Dropdown -->
+                                <div class="relative">
+                                    <div onclick="toggleDropdown('taskCondMenu')" class="spatial-input spatial-dropdown-trigger">
+                                        <span id="taskCondValue" class="font-bold text-sm">نعم، تم إنجاز العمل</span>
+                                        <svg class="spatial-dropdown-arrow text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>
+                                    </div>
+                                    <div id="taskCondMenu" class="hidden spatial-dropdown-menu animate-spatial-in">
+                                        <ul class="p-2 space-y-1">
+                                            <li onclick="selectCustomDropdown('taskCondValue', 'taskCondMenu', 'نعم، تم إنجاز العمل', 'yes', 'toggleTaskConditional')" class="spatial-dropdown-item">نعم، تم إنجاز العمل</li>
+                                            <li onclick="selectCustomDropdown('taskCondValue', 'taskCondMenu', 'لا، لم يتم إنجاز العمل', 'no', 'toggleTaskConditional')" class="spatial-dropdown-item text-red-400">لا، لم يتم إنجاز العمل</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Animated Conditional Box -->
+                            <div id="taskConditionalFields" class="conditional-field hidden pt-2">
+                                <div class="p-4 rounded-[20px] bg-red-500/10 border-r-4 border-red-500 space-y-4">
+                                    <div class="flex items-center gap-2 text-red-500 font-black text-xs uppercase">
+                                        <span>⚠️</span> مطلوب تسجيل سبب التوقف وإثبات بالصورة
+                                    </div>
+                                    <div class="space-y-1.5">
+                                        <label class="text-xs font-bold text-slate-700 dark:text-white/75 flex items-center gap-1">سبب عدم التنفيذ بالتفصيل <span class="required-star">*</span></label>
+                                        <textarea class="spatial-input rounded-[18px] px-5 py-3.5 w-full text-sm font-bold" rows="2" placeholder="اذكر النقص الحاصل أو العائق الميداني..."></textarea>
+                                    </div>
+                                    <div class="space-y-1.5">
+                                        <label class="text-xs font-bold text-slate-700 dark:text-white/75">صورة توضيحية لسبب العائق</label>
+                                        <div class="image-upload-area py-3" onclick="document.getElementById('condFile').click()">
+                                            <span class="text-xs font-bold text-slate-500 dark:text-white/60">📷 رفع صورة العائق الميداني</span>
+                                            <input type="file" id="condFile" accept="image/*" class="hidden">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+
+            <!-- ===== SECTION 6: DROPDOWNS (UNIFIED CUSTOM INTERACTIVE OVERLAYS) ===== -->
+            <section id="dropdownsSection" class="space-y-8">
+                <div class="flex items-center gap-3">
+                    <span class="w-3.5 h-9 rounded-full bg-primary shadow-lg shadow-primary/40"></span>
+                    <div>
+                        <h2 class="text-2xl font-black">6. القوائم المنسدلة التفاعلية الموحدة</h2>
+                        <p class="text-xs font-bold text-slate-500 dark:text-white/50">جميع القوائم المنسدلة تعتمد نمط "2. اختيار مفرد تفاعلي" مع زيادة الارتفاع (h-14 / 56px) لمظهر زجاجي متناسق</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Demo 1: Interactive Single Select Overlay (City Selection) -->
+                    <div class="spatial-card p-6 space-y-4">
+                        <div class="flex items-center justify-between">
+                            <h3 class="font-black text-base">1. اختيار المدينة الميدانية</h3>
+                            <span class="text-[10px] font-bold px-2.5 py-1 rounded-full bg-primary/10 text-primary">h-14 (56px)</span>
+                        </div>
+                        <p class="text-xs text-slate-500 dark:text-white/50">قائمة اختيار زجاجية تفاعلية بارتفاع أوسع ومظهر فضائي أنيق</p>
+                        <div class="relative">
+                            <div onclick="toggleDropdown('demoSingleMenu1')" class="spatial-input spatial-dropdown-trigger">
+                                <span id="demoSingleValue1" class="font-bold text-sm">طرابلس - المركز</span>
+                                <svg class="spatial-dropdown-arrow text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>
+                            </div>
+                            <div id="demoSingleMenu1" class="hidden spatial-dropdown-menu animate-spatial-in">
+                                <ul class="p-2 space-y-1">
+                                    <li onclick="selectCustomDropdown('demoSingleValue1', 'demoSingleMenu1', 'طرابلس - المركز')" class="spatial-dropdown-item">طرابلس - المركز <span class="text-xs text-primary">✓</span></li>
+                                    <li onclick="selectCustomDropdown('demoSingleValue1', 'demoSingleMenu1', 'بنغازي - الكويفية')" class="spatial-dropdown-item">بنغازي - الكويفية</li>
+                                    <li onclick="selectCustomDropdown('demoSingleValue1', 'demoSingleMenu1', 'مصراتة - المنطقة الحرة')" class="spatial-dropdown-item">مصراتة - المنطقة الحرة</li>
+                                    <li onclick="selectCustomDropdown('demoSingleValue1', 'demoSingleMenu1', 'سبها - الجديد')" class="spatial-dropdown-item">سبها - الجديد</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Demo 2: Interactive Single Select Overlay (Consultant Status) -->
+                    <div class="spatial-card p-6 space-y-4">
+                        <div class="flex items-center justify-between">
+                            <h3 class="font-black text-base">2. اختيار حالة الاستشاري</h3>
+                            <span class="text-[10px] font-bold px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-500">h-14 (56px)</span>
+                        </div>
+                        <p class="text-xs text-slate-500 dark:text-white/50">تغيير حالة النشاط الفوري للمستخدمين والاستشاريين</p>
+                        <div class="relative">
+                            <div onclick="toggleDropdown('demoSingleMenu2')" class="spatial-input spatial-dropdown-trigger">
+                                <span id="demoSingleValue2" class="font-bold text-sm">نشط وميداني</span>
+                                <svg class="spatial-dropdown-arrow text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>
+                            </div>
+                            <div id="demoSingleMenu2" class="hidden spatial-dropdown-menu animate-spatial-in">
+                                <ul class="p-2 space-y-1">
+                                    <li onclick="selectCustomDropdown('demoSingleValue2', 'demoSingleMenu2', 'نشط وميداني')" class="spatial-dropdown-item">
+                                        نشط وميداني <span class="status-pill completed text-[10px]">نشط</span>
+                                    </li>
+                                    <li onclick="selectCustomDropdown('demoSingleValue2', 'demoSingleMenu2', 'قيد مراجعة التقرير')" class="spatial-dropdown-item">
+                                        قيد مراجعة التقرير <span class="status-pill pending text-[10px]">قيد</span>
+                                    </li>
+                                    <li onclick="selectCustomDropdown('demoSingleValue2', 'demoSingleMenu2', 'موقوف مؤقتاً')" class="spatial-dropdown-item">
+                                        موقوف مؤقتاً <span class="status-pill overdue text-[10px]">موقوف</span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Demo 3: Multi-Select Tagged Overlay with elevated height -->
+                    <div class="spatial-card p-6 space-y-4">
+                        <div class="flex items-center justify-between">
+                            <h3 class="font-black text-base">3. اختيار متعدد بالأوسمة</h3>
+                            <span class="text-[10px] font-bold px-2.5 py-1 rounded-full bg-purple-500/10 text-purple-400">h-14 (56px)</span>
+                        </div>
+                        <p class="text-xs text-slate-500 dark:text-white/50">إضافة وإزالة خيارات متعددة بشكـل أوسمة تفاعلية</p>
+                        <div class="relative">
+                            <div onclick="toggleDropdown('multiMenu')" class="spatial-input min-h-[56px] rounded-[20px] px-5 py-2.5 flex items-center justify-between cursor-pointer">
+                                <div id="multiTags" class="flex flex-wrap gap-1.5 flex-1">
+                                    <span class="flex items-center gap-1 px-3 py-1 rounded-[10px] bg-primary/15 text-primary text-xs font-bold">نشط <button onclick="event.stopPropagation(); removeTag('نشط')" class="hover:bg-primary/20 rounded-full p-0.5">✕</button></span>
+                                    <span class="flex items-center gap-1 px-3 py-1 rounded-[10px] bg-primary/15 text-primary text-xs font-bold">متميز <button onclick="event.stopPropagation(); removeTag('متميز')" class="hover:bg-primary/20 rounded-full p-0.5">✕</button></span>
+                                </div>
+                                <svg class="spatial-dropdown-arrow text-primary" id="multiArrow" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>
+                            </div>
+                            <div id="multiMenu" class="hidden spatial-dropdown-menu animate-spatial-in">
+                                <ul class="p-2 space-y-1">
+                                    <li onclick="toggleMultiTag('نشط')" class="spatial-dropdown-item justify-start gap-2.5">
+                                        <span class="w-4 h-4 border-2 border-primary rounded-[4px] bg-primary flex items-center justify-center"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M1.5 5l2.5 2.5 4.5-4.5" stroke="white" stroke-width="2"/></svg></span> نشط
+                                    </li>
+                                    <li onclick="toggleMultiTag('متميز')" class="spatial-dropdown-item justify-start gap-2.5">
+                                        <span class="w-4 h-4 border-2 border-primary rounded-[4px] bg-primary flex items-center justify-center"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M1.5 5l2.5 2.5 4.5-4.5" stroke="white" stroke-width="2"/></svg></span> متميز
+                                    </li>
+                                    <li onclick="toggleMultiTag('قيد التقييم')" class="spatial-dropdown-item justify-start gap-2.5">
+                                        <span class="w-4 h-4 border-2 border-slate-300 dark:border-white/30 rounded-[4px] flex items-center justify-center"></span> قيد التقييم
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ===== SECTION 7: MODALS ===== -->
+            <section id="modalsSection" class="space-y-8">
+                <div class="flex items-center gap-3"><span class="w-3.5 h-9 rounded-full bg-primary shadow-lg shadow-primary/40"></span><div><h2 class="text-2xl font-black">7. النوافذ المنبثقة</h2><p class="text-xs font-bold text-slate-500 dark:text-white/50">تأكيد، حذف، وتفاصيل</p></div></div>
+                <div class="spatial-card p-6 flex flex-wrap gap-4">
+                    <button onclick="openModal('confirmModal')" class="px-6 py-3 rounded-[18px] bg-amber-500 hover:bg-amber-600 text-white font-bold shadow-md">تأكيد العملية</button>
+                    <button onclick="openModal('deleteModal')" class="px-6 py-3 rounded-[18px] bg-destructive hover:bg-red-600 text-white font-bold shadow-md">حذف سجل</button>
+                    <button onclick="openModal('detailModal')" class="px-6 py-3 rounded-[18px] bg-primary hover:bg-blue-600 text-white font-bold shadow-md">عرض التفاصيل</button>
+                </div>
+            </section>
+
+            <!-- ===== SECTION 8: FEEDBACK ===== -->
+            <section id="feedbackSection" class="space-y-8">
+                <div class="flex items-center gap-3"><span class="w-3.5 h-9 rounded-full bg-primary shadow-lg shadow-primary/40"></span><div><h2 class="text-2xl font-black">8. التغذية الراجعة والحالات</h2><p class="text-xs font-bold text-slate-500 dark:text-white/50">إشعارات، هيكل تحميل، وحالة فارغة</p></div></div>
+                <div class="spatial-card p-6 flex flex-wrap gap-4">
+                    <button onclick="showToast('success', 'تمت العملية بنجاح! 🎉')" class="px-4 py-2 rounded-[14px] bg-success text-white font-bold text-sm shadow-md">Toast نجاح</button>
+                    <button onclick="showToast('error', 'حدث خطأ أثناء الحفظ! ❌')" class="px-4 py-2 rounded-[14px] bg-destructive text-white font-bold text-sm shadow-md">Toast خطأ</button>
+                    <button onclick="showToast('warning', 'تنبيه: رصيد المخزون منخفض ⚠️')" class="px-4 py-2 rounded-[14px] bg-warning text-white font-bold text-sm shadow-md">Toast تحذير</button>
+                    <button onclick="showToast('info', 'جاري تحميل البيانات... 📡')" class="px-4 py-2 rounded-[14px] bg-primary text-white font-bold text-sm shadow-md">Toast معلومات</button>
+                    <button onclick="openDrawer()" class="px-4 py-2 rounded-[14px] bg-purple-600 text-white font-bold text-sm shadow-md hover:bg-purple-700 transition-all">📂 فتح Drawer</button>
+                </div>
+            </section>
+
+            <!-- ===== SECTION 9: TABS ===== -->
+            <section id="tabsSection" class="space-y-8">
+                <div class="flex items-center gap-3"><span class="w-3.5 h-9 rounded-full bg-primary shadow-lg shadow-primary/40"></span><div><h2 class="text-2xl font-black">9. علامات التبويب</h2><p class="text-xs font-bold text-slate-500 dark:text-white/50">تبديل المحتوى بسلاسة</p></div></div>
+                <div class="spatial-card p-6 lg:p-8 space-y-6">
+                    <div class="flex flex-wrap gap-2 p-1.5 rounded-[22px] bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/8 w-fit">
+                        <button onclick="switchTab('tab1')" id="btn-tab1" class="px-6 py-3 rounded-[16px] bg-primary text-white font-bold text-sm shadow-md">المهام اليومية</button>
+                        <button onclick="switchTab('tab2')" id="btn-tab2" class="px-6 py-3 rounded-[16px] text-slate-600 dark:text-white/70 hover:text-slate-900 dark:hover:text-white font-bold text-sm">المهام الإضافية</button>
+                        <button onclick="switchTab('tab3')" id="btn-tab3" class="px-6 py-3 rounded-[16px] text-slate-600 dark:text-white/70 hover:text-slate-900 dark:hover:text-white font-bold text-sm">التقارير</button>
+                    </div>
+                    <div id="panel-tab1" class="p-6 rounded-[26px] bg-black/5 dark:bg-white/5 space-y-4 animate-spatial-in"><h4 class="font-black text-lg">المهام اليومية</h4><p class="text-sm text-slate-600 dark:text-white/70">قائمة المهام اليومية ونسب الإنجاز.</p><div class="flex flex-wrap gap-4"><span class="status-pill completed">فحص السلامة</span><span class="status-pill pending">مراجعة العمال</span><span class="status-pill overdue">تقرير النظافة</span></div></div>
+                    <div id="panel-tab2" class="hidden p-6 rounded-[26px] bg-black/5 dark:bg-white/5 space-y-4 animate-spatial-in"><h4 class="font-black text-lg">المهام الإضافية</h4><p class="text-sm text-slate-600 dark:text-white/70">المهام حسب الحاجة.</p><div class="flex flex-wrap gap-4"><span class="status-pill completed">استلام خرسانة</span><span class="status-pill completed">فحص عزل</span><span class="status-pill pending">معاينة تشطيبات</span></div></div>
+                    <div id="panel-tab3" class="hidden p-6 rounded-[26px] bg-black/5 dark:bg-white/5 space-y-4 animate-spatial-in"><h4 class="font-black text-lg">التقارير</h4><p class="text-sm text-slate-600 dark:text-white/70">ملخص الأداء الأسبوعي.</p><div class="progress-bar w-full"><div class="fill bg-primary" style="width:88%"></div></div><span class="text-xs font-bold">نسبة الإنجاز: 88%</span></div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- ===== MODALS ===== -->
+    <div id="confirmModal" class="hidden fixed inset-0 z-[1000] flex items-center justify-center p-4">
+        <div onclick="closeModal('confirmModal')" class="absolute inset-0 bg-black/40 dark:bg-black/60 backdrop-blur-sm"></div>
+        <div class="relative w-full max-w-sm spatial-modal-card p-6 flex flex-col gap-5 animate-spatial-in">
+            <div class="flex items-center justify-between"><div class="w-12 h-12 rounded-[16px] bg-amber-500/12 border border-amber-500/15 flex items-center justify-center text-amber-500"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg></div><button onclick="closeModal('confirmModal')" class="w-9 h-9 rounded-full bg-black/6 dark:bg-white/8 hover:bg-black/10"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg></button></div>
+            <div><h3 class="text-lg font-black">تأكيد العملية</h3><p class="text-sm font-bold text-slate-500 dark:text-white/50">هل أنت متأكد؟</p></div>
+            <div class="flex gap-3"><button onclick="closeModal('confirmModal')" class="flex-1 h-11 rounded-[14px] bg-black/6 dark:bg-white/8 hover:bg-black/10 text-slate-600 dark:text-white/70 font-bold text-sm border border-black/8 dark:border-white/10">إلغاء</button><button onclick="closeModal('confirmModal'); showToast('success', 'تم التأكيد بنجاح')" class="flex-1 h-11 rounded-[14px] bg-amber-500 hover:bg-amber-600 text-white font-bold text-sm shadow-md">تأكيد</button></div>
+        </div>
+    </div>
+    <div id="deleteModal" class="hidden fixed inset-0 z-[1000] flex items-center justify-center p-4">
+        <div onclick="closeModal('deleteModal')" class="absolute inset-0 bg-black/40 dark:bg-black/60 backdrop-blur-sm"></div>
+        <div class="relative w-full max-w-sm spatial-modal-card p-6 flex flex-col gap-5 animate-spatial-in">
+            <div class="flex items-center justify-between"><div class="w-12 h-12 rounded-[16px] bg-red-500/12 border border-red-500/15 flex items-center justify-center text-red-500"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg></div><button onclick="closeModal('deleteModal')" class="w-9 h-9 rounded-full bg-black/6 dark:bg-white/8 hover:bg-black/10"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg></button></div>
+            <div><h3 class="text-lg font-black">حذف السجل</h3><p class="text-sm font-bold text-slate-500 dark:text-white/50">لا يمكن التراجع.</p></div>
+            <div class="flex gap-3"><button onclick="closeModal('deleteModal')" class="flex-1 h-11 rounded-[14px] bg-black/6 dark:bg-white/8 hover:bg-black/10 text-slate-600 dark:text-white/70 font-bold text-sm border border-black/8 dark:border-white/10">إلغاء</button><button onclick="closeModal('deleteModal'); showToast('error', 'تم الحذف نهائياً')" class="flex-1 h-11 rounded-[14px] bg-destructive hover:bg-red-600 text-white font-bold text-sm shadow-md">حذف</button></div>
+        </div>
+    </div>
+    <div id="detailModal" class="hidden fixed inset-0 z-[1000] flex items-center justify-center p-4">
+        <div onclick="closeModal('detailModal')" class="absolute inset-0 bg-black/40 dark:bg-black/60 backdrop-blur-sm"></div>
+        <div class="relative w-full max-w-md spatial-modal-card p-6 flex flex-col gap-5 animate-spatial-in">
+            <div class="flex items-center justify-between border-b border-black/10 dark:border-white/10 pb-3"><h3 class="font-black text-lg">تفاصيل الاستشاري</h3><button onclick="closeModal('detailModal')" class="w-9 h-9 rounded-full bg-black/6 dark:bg-white/8 hover:bg-black/10"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg></button></div>
+            <div class="space-y-3 text-sm font-bold"><div class="flex justify-between"><span class="text-slate-500">الاسم:</span><span>أحمد السالم</span></div><div class="flex justify-between"><span class="text-slate-500">الرقم:</span><span>#101</span></div><div class="flex justify-between"><span class="text-slate-500">الموقع:</span><span>طرابلس</span></div><div class="flex justify-between"><span class="text-slate-500">نسبة الإنجاز:</span><span class="text-emerald-500 font-black">94%</span></div><div class="flex justify-between"><span class="text-slate-500">الحالة:</span><span class="status-pill completed">نشط</span></div></div>
+            <button onclick="closeModal('detailModal')" class="w-full h-12 rounded-[16px] bg-primary hover:bg-blue-600 text-white font-bold shadow-md">إغلاق</button>
+        </div>
+    </div>
+
+    <!-- ===== JAVASCRIPT ===== -->
+    <script>
+        // Theme Toggle
+        function toggleTheme() {
+            document.documentElement.classList.toggle('dark');
+            document.body.classList.toggle('body-bg-dark');
+            document.body.classList.toggle('body-bg-light');
+        }
+
+        // Sidebar Toggle
+        let sidebarOpen = true;
+        function toggleSidebar() {
+            const sidebar = document.getElementById('mainSidebar');
+            const texts = document.querySelectorAll('.sidebar-text');
+            sidebarOpen = !sidebarOpen;
+            if (sidebarOpen) { sidebar.classList.remove('w-20'); sidebar.classList.add('w-64'); texts.forEach(el => el.classList.remove('hidden')); }
+            else { sidebar.classList.remove('w-64'); sidebar.classList.add('w-20'); texts.forEach(el => el.classList.add('hidden')); }
+        }
+
+        // Font Slider Preview
+        function updateFontPreview() {
+            const val = document.getElementById('fontSlider').value;
+            document.getElementById('fontSizeDisplay').innerText = val + 'px';
+            document.getElementById('fontLivePreview').style.fontSize = val + 'px';
+            document.getElementById('fontLivePreview').innerText = document.getElementById('fontTextInput').value || 'نظام متابعة أداء الاستشاريين';
+        }
+
+        // Table Filtering & Bulk Selection Logic
+        function filterTable(status) {
+            ['all','active','inactive'].forEach(id => {
+                const btn = document.getElementById('tbl-btn-'+id);
+                if(btn) btn.className = "px-3 py-1.5 rounded-lg text-slate-600 dark:text-white/70 hover:text-slate-900 transition-all";
+            });
+            const activeBtn = document.getElementById('tbl-btn-'+ (status === 'all' ? 'all' : status));
+            if(activeBtn) activeBtn.className = "px-3 py-1.5 rounded-lg bg-primary text-white font-bold";
+            document.querySelectorAll('#tableBody tr').forEach(row => {
+                const s = row.getAttribute('data-status');
+                row.style.display = (status === 'all' || s === status) ? '' : 'none';
+            });
+            document.getElementById('emptyStateContainer').classList.add('hidden');
+            document.getElementById('realTableContainer').style.display = '';
+        }
+
+        function filterTableRows() {
+            const q = document.getElementById('tableSearchInput').value.toLowerCase();
+            let hasVisible = false;
+            document.querySelectorAll('#tableBody tr').forEach(row => {
+                const match = row.innerText.toLowerCase().includes(q);
+                row.style.display = match ? '' : 'none';
+                if(match) hasVisible = true;
+            });
+            if(!hasVisible) { document.getElementById('emptyStateContainer').classList.remove('hidden'); document.getElementById('realTableContainer').style.display = 'none'; }
+            else { document.getElementById('emptyStateContainer').classList.add('hidden'); document.getElementById('realTableContainer').style.display = ''; }
+        }
+
+        function toggleAllRows(master) {
+            document.querySelectorAll('#tableBody .row-checkbox').forEach(cb => {
+                cb.checked = master.checked;
+                const row = cb.closest('tr');
+                if (master.checked) row.classList.add('selected-row');
+                else row.classList.remove('selected-row');
+            });
+            updateBulkBar();
+        }
+
+        function updateBulkBar() {
+            const checkboxes = document.querySelectorAll('#tableBody .row-checkbox');
+            const checked = document.querySelectorAll('#tableBody .row-checkbox:checked');
+            const bar = document.getElementById('bulkBarFloating');
+            
+            checkboxes.forEach(cb => {
+                const row = cb.closest('tr');
+                if (cb.checked) {
+                    row.classList.add('selected-row');
+                } else {
+                    row.classList.remove('selected-row');
+                }
+            });
+
+            if (checked.length > 0) {
+                bar.classList.add('active');
+                document.getElementById('bulkText').innerText = `تم تحديد ${checked.length} عناصر`;
+            } else {
+                bar.classList.remove('active');
+                const selectAll = document.getElementById('selectAll');
+                if(selectAll) selectAll.checked = false;
+            }
+        }
+
+        function unselectAll() {
+            document.querySelectorAll('#tableBody .row-checkbox').forEach(cb => {
+                cb.checked = false;
+                const row = cb.closest('tr');
+                if(row) row.classList.remove('selected-row');
+            });
+            const selectAll = document.getElementById('selectAll');
+            if(selectAll) selectAll.checked = false;
+            updateBulkBar();
+        }
+
+        // Skeleton & Empty State Toggles
+        let skeletonActive = false;
+        function toggleSkeletonTable() {
+            skeletonActive = !skeletonActive;
+            const skel = document.getElementById('skeletonTableLoader');
+            const real = document.getElementById('realTableContainer');
+            const empty = document.getElementById('emptyStateContainer');
+            if(skeletonActive) { skel.classList.remove('hidden'); real.style.display = 'none'; empty.classList.add('hidden'); }
+            else { skel.classList.add('hidden'); real.style.display = ''; empty.classList.add('hidden'); }
+        }
+
+        let emptyActive = false;
+        function toggleEmptyState() {
+            emptyActive = !emptyActive;
+            const empty = document.getElementById('emptyStateContainer');
+            const real = document.getElementById('realTableContainer');
+            const skel = document.getElementById('skeletonTableLoader');
+            if(emptyActive) { empty.classList.remove('hidden'); real.style.display = 'none'; skel.classList.add('hidden'); }
+            else { empty.classList.add('hidden'); real.style.display = ''; skel.classList.add('hidden'); }
+        }
+
+        // Section 5 Interactive Task Logic
+        function selectTaskOption(card, value) {
+            document.querySelectorAll('#choiceCardGroup .task-option-card').forEach(c => c.classList.remove('active'));
+            card.classList.add('active');
+            toggleTaskConditional(value);
+        }
+
+        function toggleTaskConditional(value) {
+            const condBox = document.getElementById('taskConditionalFields');
+            if(value === 'no') {
+                condBox.classList.remove('hidden');
+            } else {
+                condBox.classList.add('hidden');
+            }
+        }
+
+        function updateChecklistProgress() {
+            const items = document.querySelectorAll('.checklist-item');
+            const checked = document.querySelectorAll('.checklist-item:checked');
+            const pct = Math.round((checked.length / items.length) * 100);
+            document.getElementById('checklistProgressBar').style.width = pct + '%';
+            document.getElementById('checklistScore').innerText = `الإنجاز: ${pct}% (${checked.length}/${items.length})`;
+        }
+
+        function updateCharCount(textarea) {
+            const count = textarea.value.length;
+            document.getElementById('charCounter').innerText = `${count} / 200`;
+        }
+
+        function adjustStepper(delta) {
+            const input = document.getElementById('stepperValue');
+            let val = parseInt(input.value) || 0;
+            val = Math.max(0, val + delta);
+            input.value = val;
+        }
+
+        function handleTaskImageUpload(input) {
+            const file = input.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const preview = document.getElementById('taskImagePreview');
+                    const box = document.getElementById('taskImagePreviewBox');
+                    preview.src = e.target.result;
+                    box.classList.remove('hidden');
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function removeTaskImage() {
+            document.getElementById('taskImagePreviewBox').classList.add('hidden');
+            document.getElementById('taskFileInput').value = '';
+        }
+
+        // Dropdowns Toggle & Selection System
+        function toggleDropdown(id) {
+            const menu = document.getElementById(id);
+            if(!menu) return;
+            
+            // Close all other open menus first
+            document.querySelectorAll('.spatial-dropdown-menu').forEach(m => {
+                if(m.id !== id) {
+                    m.classList.add('hidden');
+                    const ar = m.previousElementSibling ? m.previousElementSibling.querySelector('svg') : null;
+                    if(ar) ar.style.transform = 'rotate(0deg)';
+                }
+            });
+
+            menu.classList.toggle('hidden');
+            const arrow = menu.previousElementSibling ? menu.previousElementSibling.querySelector('svg') : null;
+            if(arrow) arrow.style.transform = menu.classList.contains('hidden') ? 'rotate(0deg)' : 'rotate(180deg)';
+        }
+
+        function selectCustomDropdown(valueId, menuId, text, rawVal = null, callbackType = null) {
+            const valSpan = document.getElementById(valueId);
+            if(valSpan) valSpan.innerText = text;
+            
+            const menu = document.getElementById(menuId);
+            if(menu) {
+                menu.classList.add('hidden');
+                const arrow = menu.previousElementSibling ? menu.previousElementSibling.querySelector('svg') : null;
+                if(arrow) arrow.style.transform = 'rotate(0deg)';
+            }
+
+            if(callbackType === 'toggleTaskConditional' && rawVal) {
+                toggleTaskConditional(rawVal);
+            }
+
+            showToast('info', `تم تحديد: ${text}`);
+        }
+
+        // Multi Select Tags System
+        const multiTags = ['نشط', 'متميز'];
+        function toggleMultiTag(val) {
+            const idx = multiTags.indexOf(val);
+            if(idx > -1) multiTags.splice(idx, 1);
+            else multiTags.push(val);
+            renderMultiTags();
+            const menu = document.getElementById('multiMenu');
+            if(menu) menu.classList.add('hidden');
+        }
+
+        function removeTag(val) {
+            const idx = multiTags.indexOf(val);
+            if(idx > -1) multiTags.splice(idx, 1);
+            renderMultiTags();
+        }
+
+        function renderMultiTags() {
+            const container = document.getElementById('multiTags');
+            if(multiTags.length === 0) container.innerHTML = '<span class="text-xs text-slate-400 dark:text-white/50">اختر أوسمة...</span>';
+            else container.innerHTML = multiTags.map(t => `<span class="flex items-center gap-1 px-3 py-1 rounded-[10px] bg-primary/15 text-primary text-xs font-bold">${t} <button onclick="event.stopPropagation(); removeTag('${t}')" class="hover:bg-primary/20 rounded-full p-0.5">✕</button></span>`).join('');
+        }
+
+        // Close dropdowns when clicking outside
+        document.addEventListener('click', function(e) {
+            if(!e.target.closest('.relative')) {
+                document.querySelectorAll('.spatial-dropdown-menu').forEach(m => {
+                    m.classList.add('hidden');
+                    const ar = m.previousElementSibling ? m.previousElementSibling.querySelector('svg') : null;
+                    if(ar) ar.style.transform = 'rotate(0deg)';
+                });
+            }
+        });
+
+        // Modals Logic
+        function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
+        function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+
+        // Drawer Logic
+        function openDrawer() {
+            document.getElementById('drawerOverlay').classList.add('active');
+            document.getElementById('drawerContent').classList.add('active');
+        }
+        function closeDrawer() {
+            document.getElementById('drawerOverlay').classList.remove('active');
+            document.getElementById('drawerContent').classList.remove('active');
+        }
+
+        // Toast System
+        function showToast(type, message) {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast-item ${type}`;
+            const icons = { success: '✅', error: '❌', warning: '⚠️', info: 'ℹ️' };
+            toast.innerHTML = `<span>${icons[type] || 'ℹ️'}</span><span class="flex-1 font-bold text-sm">${message}</span><button onclick="this.parentElement.remove()" class="close-toast">✕</button>`;
+            container.appendChild(toast);
+            setTimeout(() => { if(toast.parentElement) toast.style.animation = 'slideOutRight 0.3s forwards'; setTimeout(() => toast.remove(), 300); }, 4000);
+        }
+
+        // Tabs Logic
+        function switchTab(id) {
+            ['tab1','tab2','tab3'].forEach(t => {
+                const btn = document.getElementById('btn-'+t);
+                const panel = document.getElementById('panel-'+t);
+                if(t === id) { btn.className = "px-6 py-3 rounded-[16px] bg-primary text-white font-bold text-sm shadow-md"; panel.classList.remove('hidden'); }
+                else { btn.className = "px-6 py-3 rounded-[16px] text-slate-600 dark:text-white/70 hover:text-slate-900 dark:hover:text-white font-bold text-sm"; panel.classList.add('hidden'); }
+            });
+        }
+
+        // Button Loading Simulation
+        function simulateLoading(btn) {
+            const span = btn.querySelector('.btn-text');
+            const orig = span.innerText;
+            span.innerText = 'جاري الحفظ...';
+            btn.disabled = true;
+            setTimeout(() => { span.innerText = '✓ تم الحفظ'; btn.classList.add('bg-emerald-600'); }, 1000);
+            setTimeout(() => { span.innerText = orig; btn.disabled = false; btn.classList.remove('bg-emerald-600'); }, 2500);
+        }
+    </script>
+</body>
+</html>
