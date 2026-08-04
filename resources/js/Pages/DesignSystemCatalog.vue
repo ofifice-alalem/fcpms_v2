@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen transition-colors duration-300 p-6 lg:p-10 space-y-12 custom-scroll font-sans">
+  <div class="min-h-screen transition-colors duration-500 p-6 lg:p-10 space-y-12 custom-scroll font-sans">
     
     <!-- ===== TOAST CONTAINER COMPONENT ===== -->
     <SpatialToast ref="toastRef" />
@@ -9,35 +9,35 @@
       :selected-count="selectedRows.length"
       @clear="unselectAllRows"
     >
-      <button class="px-4 py-1.5 rounded-xl bg-primary text-white font-bold text-xs shadow-md cursor-pointer hover:bg-blue-600" @click="notify('success', 'تم طباعة العناصر المحددة')">
+      <button class="px-4 py-1.5 rounded-xl bg-primary text-white font-bold text-xs shadow-md cursor-pointer hover:bg-blue-600 transition-all hover:scale-105" @click="notify('success', 'تم طباعة العناصر المحددة')">
         طباعة
       </button>
-      <button class="px-4 py-1.5 rounded-xl bg-emerald-500 text-white font-bold text-xs shadow-md cursor-pointer hover:bg-emerald-600" @click="notify('info', 'تم تصدير البيانات بنجاح')">
+      <button class="px-4 py-1.5 rounded-xl bg-emerald-500 text-white font-bold text-xs shadow-md cursor-pointer hover:bg-emerald-600 transition-all hover:scale-105" @click="notify('info', 'تم تصدير البيانات بنجاح')">
         تصدير
       </button>
-      <button class="px-4 py-1.5 rounded-xl bg-red-500 text-white font-bold text-xs shadow-md cursor-pointer hover:bg-red-600" @click="showDeleteModal = true">
+      <button class="px-4 py-1.5 rounded-xl bg-red-500 text-white font-bold text-xs shadow-md cursor-pointer hover:bg-red-600 transition-all hover:scale-105" @click="showDeleteModal = true">
         حذف مجمع
       </button>
     </SpatialFloatingBulkBar>
 
     <!-- ===== HEADER BANNER WITH THEME TOGGLE ===== -->
-    <header class="sticky top-0 z-40 backdrop-blur-2xl bg-white/80 dark:bg-[#0f172a]/80 border-b border-black/10 dark:border-white/10 px-6 py-4 rounded-2xl flex items-center justify-between shadow-xl mb-8">
+    <header class="sticky top-4 z-40 backdrop-blur-2xl bg-white/80 dark:bg-[#0f172a]/80 border border-black/10 dark:border-white/10 px-6 py-4 rounded-2xl flex items-center justify-between shadow-2xl transition-all">
       <div class="flex items-center gap-3">
-        <div class="w-3 h-3 rounded-full bg-primary animate-pulse"></div>
-        <h1 class="text-xl font-black text-slate-900 dark:text-white">
-          FCPMS <span class="text-xs px-2.5 py-1 rounded-full bg-primary/20 text-primary font-bold mr-2">Spatial UI v3.0 Vue Catalog</span>
+        <div class="w-3.5 h-3.5 rounded-full bg-primary animate-ping"></div>
+        <h1 class="text-xl font-black text-slate-900 dark:text-white flex items-center gap-2">
+          FCPMS <span class="text-xs px-3 py-1 rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-black shadow-md">Spatial UI v3.0 Ultra Catalog</span>
         </h1>
       </div>
       <div class="flex items-center gap-4">
         <!-- Theme Toggle Button matching components_catalog.html -->
         <button
           @click="toggleTheme"
-          class="flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-black/10 dark:bg-white/10 hover:bg-black/20 dark:hover:bg-white/20 border border-black/10 dark:border-white/15 text-slate-900 dark:text-white font-bold text-xs transition-all cursor-pointer shadow-sm"
+          class="flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-black/10 dark:bg-white/10 hover:bg-black/20 dark:hover:bg-white/20 border border-black/10 dark:border-white/15 text-slate-900 dark:text-white font-bold text-xs transition-all cursor-pointer shadow-md active:scale-95"
         >
-          <span v-if="isDark">☀️ الوضع الفاتح</span>
-          <span v-else>🌙 الوضع الداكن</span>
+          <span v-if="isDark" class="flex items-center gap-1.5">☀️ الوضع الفاتح</span>
+          <span v-else class="flex items-center gap-1.5">🌙 الوضع الداكن</span>
         </button>
-        <span class="text-xs font-mono bg-black/5 dark:bg-white/10 px-3 py-2 rounded-xl border border-black/10 dark:border-white/15 text-blue-500 dark:text-blue-400 font-bold">
+        <span class="text-xs font-mono bg-primary/10 px-3.5 py-2 rounded-xl border border-primary/20 text-primary font-black shadow-sm">
           URL: /design-system
         </span>
       </div>
@@ -48,25 +48,106 @@
 
       <!-- INTRO SECTION -->
       <SpatialCard padding="p-8 relative overflow-hidden">
+        <div class="absolute -left-10 -bottom-10 w-64 h-64 bg-primary/20 rounded-full blur-3xl pointer-events-none"></div>
         <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 relative z-10">
           <div class="space-y-3 max-w-3xl">
             <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary font-bold text-xs">
-              <span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span> المعاينة التفاعلية لمكونات Vue 3
+              <span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span> المعاينة التفاعلية لمكونات Spatial UI v3.0 (بخلفيات زجاجية ملونة)
             </div>
             <h2 class="text-3xl font-black leading-tight text-slate-900 dark:text-white">
-              كتالوج المكونات التفاعلي الشامل (Spatial UI v3.0)<br>
-              <span class="text-base font-medium text-slate-500 dark:text-white/50">مطابق 100% للتصميم والمرجع الرسمي components_catalog.html بخط Tajawal</span>
+              كتالوج المكونات التفاعلي الشامل<br>
+              <span class="text-base font-medium text-slate-500 dark:text-white/50">مطابق 100% للتصميم والمرجع الرسمي components_catalog.html بخط Tajawal المعزز</span>
             </h2>
           </div>
         </div>
       </SpatialCard>
 
-      <!-- ===== SECTION 1: BUTTONS & BADGES ===== -->
+      <!-- ===== SECTION 1: COLORS & TYPOGRAPHY ===== -->
+      <section id="colorsSection" class="space-y-6">
+        <div class="flex items-center gap-3">
+          <span class="w-3.5 h-9 rounded-full bg-primary shadow-lg shadow-primary/40"></span>
+          <div>
+            <h2 class="text-2xl font-black text-slate-900 dark:text-white">1. الألوان والخطوط</h2>
+            <p class="text-xs font-bold text-slate-500 dark:text-white/50">تدرجات النظام الزجاجي مع مختبر حركي للخطوط (Tajawal Font Specimen)</p>
+          </div>
+        </div>
+
+        <!-- COLOR SWATCHES GRID -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <SpatialCard class="p-5">
+            <div class="h-28 rounded-[22px] bg-gradient-to-br from-blue-500 to-blue-700 flex flex-col items-center justify-center text-white shadow-lg border border-blue-400/30">
+              <span class="font-black text-lg">Primary</span>
+              <span class="text-xs font-mono bg-black/20 px-2.5 py-1 rounded-md mt-1">#0066FF</span>
+            </div>
+          </SpatialCard>
+
+          <SpatialCard class="p-5">
+            <div class="h-28 rounded-[22px] bg-gradient-to-br from-slate-900 to-slate-950 border border-white/15 flex flex-col items-center justify-center text-white shadow-lg">
+              <span class="font-black text-lg">Dark Canvas</span>
+              <span class="text-xs font-mono bg-white/10 px-2.5 py-1 rounded-md mt-1">#090D16</span>
+            </div>
+          </SpatialCard>
+
+          <SpatialCard class="p-5">
+            <div class="h-28 rounded-[22px] bg-gradient-to-br from-emerald-500/30 to-emerald-700/30 border border-emerald-500/40 flex flex-col items-center justify-center text-emerald-400 shadow-lg">
+              <span class="font-black text-lg">Success</span>
+              <span class="text-xs font-mono bg-emerald-950/40 px-2.5 py-1 rounded-md mt-1">#10B981</span>
+            </div>
+          </SpatialCard>
+
+          <SpatialCard class="p-5">
+            <div class="h-28 rounded-[22px] bg-gradient-to-br from-amber-500/30 to-amber-700/30 border border-amber-500/40 flex flex-col items-center justify-center text-amber-400 shadow-lg">
+              <span class="font-black text-lg">Warning</span>
+              <span class="text-xs font-mono bg-amber-950/40 px-2.5 py-1 rounded-md mt-1">#F59E0B</span>
+            </div>
+          </SpatialCard>
+        </div>
+
+        <!-- FONT LAB EXPERIMENT -->
+        <SpatialCard class="p-6 lg:p-8 space-y-6">
+          <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-black/10 dark:border-white/10 pb-4">
+            <h3 class="text-lg font-black flex items-center gap-2 text-slate-900 dark:text-white">
+              <span class="w-2.5 h-2.5 rounded-full bg-primary animate-pulse"></span>
+              مختبر الخطوط التفاعلي (Tajawal Font Specs)
+            </h3>
+            <div class="flex items-center gap-4 bg-black/5 dark:bg-white/5 p-2 rounded-2xl border border-black/5 dark:border-white/10">
+              <span class="text-xs font-bold text-slate-600 dark:text-white/70">حجم الخط:</span>
+              <input
+                type="range"
+                v-model="fontSizeVal"
+                min="14"
+                max="36"
+                class="w-32 accent-primary cursor-pointer"
+              />
+              <span class="text-xs font-mono font-black px-2.5 py-1 rounded-lg bg-primary text-white shadow-sm">
+                {{ fontSizeVal }}px
+              </span>
+            </div>
+          </div>
+
+          <SpatialInput
+            v-model="fontSampleText"
+            label="نص التجربة المباشرة"
+            placeholder="اكتب أي نص لمعاينته بحجم الخط المختار..."
+          />
+
+          <div class="p-6 rounded-[24px] bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/8 transition-all">
+            <p
+              class="font-black text-slate-900 dark:text-white leading-relaxed transition-all"
+              :style="{ fontSize: fontSizeVal + 'px' }"
+            >
+              {{ fontSampleText }}
+            </p>
+          </div>
+        </SpatialCard>
+      </section>
+
+      <!-- ===== SECTION 2: BUTTONS & BADGES ===== -->
       <section id="buttonsSection" class="space-y-6">
         <div class="flex items-center gap-3">
           <span class="w-3.5 h-9 rounded-full bg-primary shadow-lg shadow-primary/40"></span>
           <div>
-            <h2 class="text-2xl font-black text-slate-900 dark:text-white">1. الأزرار والحالات</h2>
+            <h2 class="text-2xl font-black text-slate-900 dark:text-white">2. الأزرار والحالات</h2>
             <p class="text-xs font-bold text-slate-500 dark:text-white/50">أزرار تفاعلية وشارات بصرية ملونة (Pills)</p>
           </div>
         </div>
@@ -89,20 +170,20 @@
         </SpatialCard>
       </section>
 
-      <!-- ===== SECTION 2: CARDS & KPI ===== -->
+      <!-- ===== SECTION 3: CARDS & KPI ===== -->
       <section id="cardsSection" class="space-y-6">
         <div class="flex items-center gap-3">
           <span class="w-3.5 h-9 rounded-full bg-primary shadow-lg shadow-primary/40"></span>
           <div>
-            <h2 class="text-2xl font-black text-slate-900 dark:text-white">2. البطاقات ومؤشرات الأداء</h2>
+            <h2 class="text-2xl font-black text-slate-900 dark:text-white">3. البطاقات ومؤشرات الأداء</h2>
             <p class="text-xs font-bold text-slate-500 dark:text-white/50">بطاقات قياس الأداء المتدرجة مع شريط الإنجاز وقالب بطاقة الاستشاري الكامل</p>
           </div>
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          <SpatialCard class="flex flex-col justify-between space-y-4 p-6">
+          <SpatialCard class="flex flex-col justify-between space-y-4 p-6 hover:scale-102 transition-transform">
             <div class="flex items-center justify-between">
-              <div class="w-12 h-12 rounded-[18px] bg-primary/15 border border-primary/25 flex items-center justify-center text-primary">
+              <div class="w-12 h-12 rounded-[18px] bg-primary/15 border border-primary/25 flex items-center justify-center text-primary shadow-inner">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
               </div>
               <span class="text-xs font-black px-3 py-1 rounded-full bg-emerald-500/15 text-emerald-500">+12% ↗</span>
@@ -111,9 +192,9 @@
             <SpatialProgressBar :percentage="85" color="primary" />
           </SpatialCard>
 
-          <SpatialCard class="flex flex-col justify-between space-y-4 p-6">
+          <SpatialCard class="flex flex-col justify-between space-y-4 p-6 hover:scale-102 transition-transform">
             <div class="flex items-center justify-between">
-              <div class="w-12 h-12 rounded-[18px] bg-emerald-500/15 border border-emerald-500/25 flex items-center justify-center text-emerald-500">
+              <div class="w-12 h-12 rounded-[18px] bg-emerald-500/15 border border-emerald-500/25 flex items-center justify-center text-emerald-500 shadow-inner">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
               </div>
               <span class="text-xs font-black px-3 py-1 rounded-full bg-emerald-500/15 text-emerald-500">+8% ↗</span>
@@ -122,9 +203,9 @@
             <SpatialProgressBar :percentage="94" color="success" />
           </SpatialCard>
 
-          <SpatialCard class="flex flex-col justify-between space-y-4 p-6">
+          <SpatialCard class="flex flex-col justify-between space-y-4 p-6 hover:scale-102 transition-transform">
             <div class="flex items-center justify-between">
-              <div class="w-12 h-12 rounded-[18px] bg-amber-500/15 border border-amber-500/25 flex items-center justify-center text-amber-500">
+              <div class="w-12 h-12 rounded-[18px] bg-amber-500/15 border border-amber-500/25 flex items-center justify-center text-amber-500 shadow-inner">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
               </div>
               <span class="text-xs font-black px-3 py-1 rounded-full bg-amber-500/15 text-amber-500">+3% ↗</span>
@@ -133,12 +214,14 @@
             <SpatialProgressBar :percentage="78" color="warning" />
           </SpatialCard>
 
-          <SpatialCard class="flex flex-col justify-between space-y-4 p-6">
+          <SpatialCard class="flex flex-col justify-between space-y-4 p-6 hover:scale-102 transition-transform">
             <div class="flex items-center justify-between">
-              <div class="w-12 h-12 rounded-[18px] bg-red-500/15 border border-red-500/25 flex items-center justify-center text-red-500">
+              <div class="w-12 h-12 rounded-[18px] bg-purple-500/15 border border-purple-500/25 flex items-center justify-center text-purple-400 shadow-inner">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
               </div>
-              <span class="text-xs font-black px-3 py-1 rounded-full bg-red-500/15 text-red-500">12 غائب</span>
+              <span class="text-xs font-black px-3 py-1 rounded-full bg-purple-500/15 text-purple-400 flex items-center gap-1">
+                <span class="w-2 h-2 rounded-full bg-purple-400 animate-ping"></span> 12 غائب
+              </span>
             </div>
             <div><span class="text-xs font-bold text-slate-500 dark:text-white/50 uppercase block">الغياب اليوم</span><h3 class="text-2xl font-black text-slate-900 dark:text-white">12</h3></div>
             <SpatialProgressBar :percentage="15" color="danger" />
@@ -174,12 +257,12 @@
         </SpatialCard>
       </section>
 
-      <!-- ===== SECTION 3: TABLES & BULK ACTION BAR ===== -->
+      <!-- ===== SECTION 4: TABLES & BULK ACTION BAR ===== -->
       <section id="tablesSection" class="space-y-6">
         <div class="flex items-center gap-3">
           <span class="w-3.5 h-9 rounded-full bg-primary shadow-lg shadow-primary/40"></span>
           <div>
-            <h2 class="text-2xl font-black text-slate-900 dark:text-white">3. الجداول والبيانات</h2>
+            <h2 class="text-2xl font-black text-slate-900 dark:text-white">4. الجداول والبيانات</h2>
             <p class="text-xs font-bold text-slate-500 dark:text-white/50">عرض البيانات مع إبراز الصفوف المحددة وشريط إجراءات عائم متطور</p>
           </div>
         </div>
@@ -236,9 +319,13 @@
                 <tr
                   v-for="row in filteredConsultants"
                   :key="row.id"
-                  :class="{ 'selected-row': selectedRows.includes(row.id) }"
+                  :class="[
+                    'transition-all duration-200 cursor-pointer',
+                    selectedRows.includes(row.id) ? 'selected-row' : 'hover:bg-black/5 dark:hover:bg-white/5'
+                  ]"
+                  @click="toggleRow(row.id)"
                 >
-                  <td class="p-4 text-center">
+                  <td class="p-4 text-center" @click.stop>
                     <SpatialCheckbox
                       :model-value="selectedRows.includes(row.id)"
                       @update:model-value="toggleRow(row.id)"
@@ -261,7 +348,7 @@
                   <td class="p-4">
                     <SpatialStatusPill :type="row.statusType">{{ row.statusText }}</SpatialStatusPill>
                   </td>
-                  <td class="p-4 text-center">
+                  <td class="p-4 text-center" @click.stop>
                     <button @click="showDetailModal = true" class="spatial-icon-btn w-9 h-9 inline-flex cursor-pointer">
                       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
                     </button>
@@ -273,12 +360,12 @@
         </SpatialCard>
       </section>
 
-      <!-- ===== SECTION 4: FORMS & INPUTS ===== -->
+      <!-- ===== SECTION 5: FORMS & INPUTS ===== -->
       <section id="formsSection" class="space-y-6">
         <div class="flex items-center gap-3">
           <span class="w-3.5 h-9 rounded-full bg-primary shadow-lg shadow-primary/40"></span>
           <div>
-            <h2 class="text-2xl font-black text-slate-900 dark:text-white">4. النماذج والأزرار</h2>
+            <h2 class="text-2xl font-black text-slate-900 dark:text-white">5. النماذج والأزرار</h2>
             <p class="text-xs font-bold text-slate-500 dark:text-white/50">حقول إدخال إلزامية (*)، تحقق فوري (Validation)، وقوائم اختيار مفردة تفاعلية موحدة</p>
           </div>
         </div>
@@ -309,18 +396,18 @@
         </SpatialCard>
       </section>
 
-      <!-- ===== SECTION 5: DYNAMIC TASK COMPONENTS ===== -->
+      <!-- ===== SECTION 6: DYNAMIC TASK COMPONENTS ===== -->
       <section id="taskComponentsSection" class="space-y-6">
         <div class="flex items-center gap-3">
           <span class="w-3.5 h-9 rounded-full bg-primary shadow-lg shadow-primary/40"></span>
           <div>
-            <h2 class="text-2xl font-black text-slate-900 dark:text-white">5. مكونات المهام الديناميكية</h2>
+            <h2 class="text-2xl font-black text-slate-900 dark:text-white">6. مكونات المهام الديناميكية</h2>
             <p class="text-xs font-bold text-slate-500 dark:text-white/50">بطاقات مهام تفاعلية مخصصة: خيارات مرئية، قوائم تفقدية متطورة، مرفقات صور، وحقول تكيفية</p>
           </div>
         </div>
 
         <SpatialCard class="p-6 lg:p-8 space-y-8">
-          <!-- 5.1 Choice Card -->
+          <!-- 6.1 Choice Card -->
           <div class="space-y-4 border-b border-black/10 dark:border-white/10 pb-6">
             <h3 class="font-black text-lg flex items-center gap-2 text-slate-900 dark:text-white"><span class="w-3 h-3 rounded-full bg-primary"></span> 1. اختيار حالة التنفيذ (TaskOptionCard)</h3>
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -348,7 +435,7 @@
             </div>
           </div>
 
-          <!-- 5.2 Interactive Checklist -->
+          <!-- 6.2 Interactive Checklist -->
           <div class="space-y-4 border-b border-black/10 dark:border-white/10 pb-6">
             <div class="flex items-center justify-between">
               <h3 class="font-black text-lg flex items-center gap-2 text-slate-900 dark:text-white"><span class="w-3 h-3 rounded-full bg-emerald-500"></span> 2. قائمة المراجعة التفقدية (Interactive Checklist)</h3>
@@ -367,7 +454,7 @@
             </div>
           </div>
 
-          <!-- 5.3 Rich Inputs & Counter -->
+          <!-- 6.3 Rich Inputs & Counter -->
           <div class="space-y-4 border-b border-black/10 dark:border-white/10 pb-6">
             <h3 class="font-black text-lg flex items-center gap-2 text-slate-900 dark:text-white"><span class="w-3 h-3 rounded-full bg-blue-500"></span> 3. المدخلات النصية والملاحظات (Rich Inputs)</h3>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -382,7 +469,7 @@
             </div>
           </div>
 
-          <!-- 5.4 Stepper & Date -->
+          <!-- 6.4 Stepper & Date -->
           <div class="space-y-4 border-b border-black/10 dark:border-white/10 pb-6">
             <h3 class="font-black text-lg flex items-center gap-2 text-slate-900 dark:text-white"><span class="w-3 h-3 rounded-full bg-purple-500"></span> 4. عداد الكميات والتاريخ الميداني (Stepper & Date)</h3>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -401,13 +488,13 @@
             </div>
           </div>
 
-          <!-- 5.5 Advanced Image Upload Dropzone -->
+          <!-- 6.5 Advanced Image Upload Dropzone -->
           <div class="space-y-4 border-b border-black/10 dark:border-white/10 pb-6">
             <h3 class="font-black text-lg flex items-center gap-2 text-slate-900 dark:text-white"><span class="w-3 h-3 rounded-full bg-amber-500"></span> 5. مرفقات الصور والإثباتات (Interactive Image Upload Dropzone)</h3>
             <SpatialImageUpload @change="handleUploadedImage" />
           </div>
 
-          <!-- 5.6 Smart Conditional Logic Block -->
+          <!-- 6.6 Smart Conditional Logic Block -->
           <div class="space-y-4">
             <div class="flex items-center justify-between">
               <h3 class="font-black text-lg flex items-center gap-2 text-slate-900 dark:text-white"><span class="w-3 h-3 rounded-full bg-red-500"></span> 6. الحقول الشرطية الذكية (Smart Adaptive Form)</h3>
@@ -437,12 +524,12 @@
         </SpatialCard>
       </section>
 
-      <!-- ===== SECTION 6: DROPDOWNS ===== -->
+      <!-- ===== SECTION 7: DROPDOWNS ===== -->
       <section id="dropdownsSection" class="space-y-6">
         <div class="flex items-center gap-3">
           <span class="w-3.5 h-9 rounded-full bg-primary shadow-lg shadow-primary/40"></span>
           <div>
-            <h2 class="text-2xl font-black text-slate-900 dark:text-white">6. القوائم المنسدلة التفاعلية الموحدة</h2>
+            <h2 class="text-2xl font-black text-slate-900 dark:text-white">7. القوائم المنسدلة التفاعلية الموحدة</h2>
             <p class="text-xs font-bold text-slate-500 dark:text-white/50">اختيار مفرد تفاعلي فاخر بارتفاع 56px (h-14)</p>
           </div>
         </div>
@@ -465,58 +552,58 @@
         </div>
       </section>
 
-      <!-- ===== SECTION 7: MODALS ===== -->
+      <!-- ===== SECTION 8: MODALS ===== -->
       <section id="modalsSection" class="space-y-6">
         <div class="flex items-center gap-3">
           <span class="w-3.5 h-9 rounded-full bg-primary shadow-lg shadow-primary/40"></span>
           <div>
-            <h2 class="text-2xl font-black text-slate-900 dark:text-white">7. النوافذ المنبثقة</h2>
+            <h2 class="text-2xl font-black text-slate-900 dark:text-white">8. النوافذ المنبثقة</h2>
             <p class="text-xs font-bold text-slate-500 dark:text-white/50">تأكيد، حذف، وتفاصيل كاملة</p>
           </div>
         </div>
 
         <SpatialCard class="p-6 flex flex-wrap gap-4">
-          <button @click="showConfirmModal = true" class="px-6 py-3 rounded-[18px] bg-amber-500 hover:bg-amber-600 text-white font-bold shadow-md cursor-pointer">
+          <button @click="showConfirmModal = true" class="px-6 py-3 rounded-[18px] bg-amber-500 hover:bg-amber-600 text-white font-bold shadow-md cursor-pointer transition-all hover:scale-105">
             تأكيد العملية
           </button>
-          <button @click="showDeleteModal = true" class="px-6 py-3 rounded-[18px] bg-red-600 hover:bg-red-700 text-white font-bold shadow-md cursor-pointer">
+          <button @click="showDeleteModal = true" class="px-6 py-3 rounded-[18px] bg-red-600 hover:bg-red-700 text-white font-bold shadow-md cursor-pointer transition-all hover:scale-105">
             حذف سجل
           </button>
-          <button @click="showDetailModal = true" class="px-6 py-3 rounded-[18px] bg-primary hover:bg-blue-600 text-white font-bold shadow-md cursor-pointer">
+          <button @click="showDetailModal = true" class="px-6 py-3 rounded-[18px] bg-primary hover:bg-blue-600 text-white font-bold shadow-md cursor-pointer transition-all hover:scale-105">
             عرض تفاصيل الاستشاري
           </button>
         </SpatialCard>
       </section>
 
-      <!-- ===== SECTION 8: FEEDBACK ===== -->
+      <!-- ===== SECTION 9: FEEDBACK ===== -->
       <section id="feedbackSection" class="space-y-6">
         <div class="flex items-center gap-3">
           <span class="w-3.5 h-9 rounded-full bg-primary shadow-lg shadow-primary/40"></span>
           <div>
-            <h2 class="text-2xl font-black text-slate-900 dark:text-white">8. التغذية الراجعة والحالات</h2>
+            <h2 class="text-2xl font-black text-slate-900 dark:text-white">9. التغذية الراجعة والحالات</h2>
             <p class="text-xs font-bold text-slate-500 dark:text-white/50">إشعارات، هيكل تحميل، وحالة فارغة</p>
           </div>
         </div>
 
         <SpatialCard class="p-6 flex flex-wrap gap-4">
-          <button @click="notify('success', 'تمت العملية بنجاح! 🎉')" class="px-4 py-2 rounded-[14px] bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-sm shadow-md cursor-pointer">
+          <button @click="notify('success', 'تمت العملية بنجاح! 🎉')" class="px-4 py-2 rounded-[14px] bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-sm shadow-md cursor-pointer transition-all hover:scale-105">
             Toast نجاح
           </button>
-          <button @click="notify('error', 'حدث خطأ أثناء الحفظ! ❌')" class="px-4 py-2 rounded-[14px] bg-red-500 hover:bg-red-600 text-white font-bold text-sm shadow-md cursor-pointer">
+          <button @click="notify('error', 'حدث خطأ أثناء الحفظ! ❌')" class="px-4 py-2 rounded-[14px] bg-red-500 hover:bg-red-600 text-white font-bold text-sm shadow-md cursor-pointer transition-all hover:scale-105">
             Toast خطأ
           </button>
-          <button @click="showDrawer = true" class="px-4 py-2 rounded-[14px] bg-purple-600 hover:bg-purple-700 text-white font-bold text-sm shadow-md cursor-pointer">
+          <button @click="showDrawer = true" class="px-4 py-2 rounded-[14px] bg-purple-600 hover:bg-purple-700 text-white font-bold text-sm shadow-md cursor-pointer transition-all hover:scale-105">
             📂 فتح Drawer
           </button>
         </SpatialCard>
       </section>
 
-      <!-- ===== SECTION 9: TABS (MIRRORING COMPONENTS_CATALOG.HTML EXACTLY) ===== -->
+      <!-- ===== SECTION 10: TABS (MIRRORING COMPONENTS_CATALOG.HTML EXACTLY) ===== -->
       <section id="tabsSection" class="space-y-6">
         <div class="flex items-center gap-3">
           <span class="w-3.5 h-9 rounded-full bg-primary shadow-lg shadow-primary/40"></span>
           <div>
-            <h2 class="text-2xl font-black text-slate-900 dark:text-white">9. علامات التبويب</h2>
+            <h2 class="text-2xl font-black text-slate-900 dark:text-white">10. علامات التبويب</h2>
             <p class="text-xs font-bold text-slate-500 dark:text-white/50">تبديل المحتوى التفاعلي</p>
           </div>
         </div>
@@ -527,7 +614,7 @@
               @click="activeTab = 'tab1'"
               :class="[
                 'px-6 py-3 rounded-[16px] font-bold text-sm transition-all cursor-pointer',
-                activeTab === 'tab1' ? 'bg-primary text-white shadow-md' : 'text-slate-600 dark:text-white/70 hover:text-slate-900 dark:hover:text-white'
+                activeTab === 'tab1' ? 'bg-primary text-white shadow-md scale-102' : 'text-slate-600 dark:text-white/70 hover:text-slate-900 dark:hover:text-white'
               ]"
             >
               المهام اليومية
@@ -536,7 +623,7 @@
               @click="activeTab = 'tab2'"
               :class="[
                 'px-6 py-3 rounded-[16px] font-bold text-sm transition-all cursor-pointer',
-                activeTab === 'tab2' ? 'bg-primary text-white shadow-md' : 'text-slate-600 dark:text-white/70 hover:text-slate-900 dark:hover:text-white'
+                activeTab === 'tab2' ? 'bg-primary text-white shadow-md scale-102' : 'text-slate-600 dark:text-white/70 hover:text-slate-900 dark:hover:text-white'
               ]"
             >
               المهام الإضافية
@@ -545,7 +632,7 @@
               @click="activeTab = 'tab3'"
               :class="[
                 'px-6 py-3 rounded-[16px] font-bold text-sm transition-all cursor-pointer',
-                activeTab === 'tab3' ? 'bg-primary text-white shadow-md' : 'text-slate-600 dark:text-white/70 hover:text-slate-900 dark:hover:text-white'
+                activeTab === 'tab3' ? 'bg-primary text-white shadow-md scale-102' : 'text-slate-600 dark:text-white/70 hover:text-slate-900 dark:hover:text-white'
               ]"
             >
               التقارير
@@ -553,7 +640,7 @@
           </div>
 
           <!-- Tab Panel 1 -->
-          <div v-if="activeTab === 'tab1'" class="p-6 rounded-[26px] bg-black/5 dark:bg-white/5 space-y-4 animate-spatial-in">
+          <div v-if="activeTab === 'tab1'" class="p-6 rounded-[26px] bg-black/5 dark:bg-white/5 space-y-4 animate-spatial-in border border-black/5 dark:border-white/10">
             <h4 class="font-black text-lg text-slate-900 dark:text-white">المهام اليومية</h4>
             <p class="text-sm text-slate-600 dark:text-white/70">قائمة المهام اليومية ونسب الإنجاز.</p>
             <div class="flex flex-wrap gap-4">
@@ -563,7 +650,7 @@
           </div>
 
           <!-- Tab Panel 2 -->
-          <div v-if="activeTab === 'tab2'" class="p-6 rounded-[26px] bg-black/5 dark:bg-white/5 space-y-4 animate-spatial-in">
+          <div v-if="activeTab === 'tab2'" class="p-6 rounded-[26px] bg-black/5 dark:bg-white/5 space-y-4 animate-spatial-in border border-black/5 dark:border-white/10">
             <h4 class="font-black text-lg text-slate-900 dark:text-white">المهام الإضافية</h4>
             <p class="text-sm text-slate-600 dark:text-white/70">المهام حسب الحاجة.</p>
             <div class="flex flex-wrap gap-4">
@@ -572,7 +659,7 @@
           </div>
 
           <!-- Tab Panel 3 -->
-          <div v-if="activeTab === 'tab3'" class="p-6 rounded-[26px] bg-black/5 dark:bg-white/5 space-y-4 animate-spatial-in">
+          <div v-if="activeTab === 'tab3'" class="p-6 rounded-[26px] bg-black/5 dark:bg-white/5 space-y-4 animate-spatial-in border border-black/5 dark:border-white/10">
             <h4 class="font-black text-lg text-slate-900 dark:text-white">التقارير</h4>
             <p class="text-sm text-slate-600 dark:text-white/70">ملخص الأداء الأسبوعي.</p>
             <div class="progress-bar w-full">
@@ -593,7 +680,7 @@
     >
       <p class="text-sm font-bold text-slate-500 dark:text-white/60">هل أنت متأكد من تنفيذ هذه العملية؟</p>
       <template #footer>
-        <button @click="showConfirmModal = false" class="flex-1 h-11 rounded-[14px] bg-black/10 dark:bg-white/10 font-bold text-sm text-slate-900 dark:text-white cursor-pointer">إلغاء</button>
+        <button @click="showConfirmModal = false" class="flex-1 h-11 rounded-[14px] bg-black/10 dark:bg-white/10 font-bold text-sm text-slate-900 dark:text-white cursor-pointer hover:bg-black/20">إلغاء</button>
         <button @click="showConfirmModal = false; notify('success', 'تم التأكيد بنجاح 🎉')" class="flex-1 h-11 rounded-[14px] bg-amber-500 hover:bg-amber-600 text-white font-bold text-sm shadow-md cursor-pointer">تأكيد</button>
       </template>
     </SpatialModal>
@@ -605,7 +692,7 @@
     >
       <p class="text-sm font-bold text-slate-500 dark:text-white/60">سيتم حذف السجل ولا يمكن التراجع.</p>
       <template #footer>
-        <button @click="showDeleteModal = false" class="flex-1 h-11 rounded-[14px] bg-black/10 dark:bg-white/10 font-bold text-sm text-slate-900 dark:text-white cursor-pointer">إلغاء</button>
+        <button @click="showDeleteModal = false" class="flex-1 h-11 rounded-[14px] bg-black/10 dark:bg-white/10 font-bold text-sm text-slate-900 dark:text-white cursor-pointer hover:bg-black/20">إلغاء</button>
         <button @click="showDeleteModal = false; notify('error', 'تم الحذف نهائياً ❌')" class="flex-1 h-11 rounded-[14px] bg-red-600 hover:bg-red-700 text-white font-bold text-sm shadow-md cursor-pointer">حذف</button>
       </template>
     </SpatialModal>
@@ -666,6 +753,10 @@ import SpatialImageUpload from '@/Components/Spatial/SpatialImageUpload.vue';
 const toastRef = ref(null);
 const isDark = ref(true);
 const activeTab = ref('tab1');
+
+// Font Lab
+const fontSizeVal = ref(22);
+const fontSampleText = ref('نظام متابعة أداء الاستشاريين الميدانيين (FCPMS Spatial System)');
 
 const formName = ref('أحمد السالم');
 const formEmail = ref('ahmed@example.com');
