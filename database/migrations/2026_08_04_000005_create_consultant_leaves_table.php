@@ -1,0 +1,26 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    public function up(): void
+    {
+        Schema::create('consultant_leaves', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('consultant_id')->constrained('consultants')->cascadeOnDelete();
+            $table->date('start_date');
+            $table->date('end_date');
+            $table->string('reason')->nullable();
+            $table->text('notes')->nullable();
+            $table->timestamps();
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::dropIfExists('consultant_leaves');
+    }
+};
