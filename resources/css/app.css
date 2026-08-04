@@ -1,3 +1,60 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+:root {
+  --bg-main: #13131a;
+  --bg-card: rgba(255, 255, 255, 0.05);
+  --text-main: #c9d1d9;
+  --border-glass: rgba(255, 255, 255, 0.1);
+  --radius-card: 30px;
+  --radius-btn: 20px;
+  --radius-input: 18px;
+  --height-dropdown: 56px;
+}
+
+body {
+  background: radial-gradient(circle at 50% 0%, #32323f, #13131a);
+  color: var(--text-main);
+  font-family: 'Alexandria', sans-serif;
+  min-height: 100vh;
+}
+
+.glass-card {
+  background: var(--bg-card);
+  backdrop-filter: blur(40px);
+  -webkit-backdrop-filter: blur(40px);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-card);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+}
+
+.spatial-input, .spatial-dropdown {
+  height: var(--height-dropdown);
+  border-radius: var(--radius-input);
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border-glass);
+  color: #ffffff;
+  padding: 0 1.25rem;
+  transition: all 0.2s ease-in-out;
+}
+
+.spatial-input:focus, .spatial-dropdown:focus {
+  outline: none;
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+}
+
+.spatial-btn-primary {
+  border-radius: var(--radius-btn);
+  background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+  color: #ffffff;
+  font-weight: 600;
+  padding: 0.75rem 1.5rem;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.spatial-btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 20px -5px rgba(99, 102, 241, 0.4);
+}
