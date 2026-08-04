@@ -15,13 +15,13 @@
         "owen-it/laravel-auditing": "^13.0",
         "prettus/l5-repository": "^2.9",
         "spatie/laravel-permission": "^6.0",
-        "spatie/laravel-query-builder": "^5.9",
-        "tightenco/ziggy": "^2.4"
+        "spatie/laravel-query-builder": "^5.8",
+        "tightenco/ziggy": "^2.6"
     },
     "require-dev": {
         "barryvdh/laravel-debugbar": "^3.14",
         "barryvdh/laravel-ide-helper": "^3.5",
-        "brianium/paratest": "^3.6",
+        "brianium/paratest": "^7.0",
         "fakerphp/faker": "^1.23",
         "laravel/pail": "^1.1",
         "laravel/pint": "^1.13",
