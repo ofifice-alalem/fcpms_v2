@@ -1,18 +1,30 @@
 <template>
-  <div class="flex flex-col gap-1.5">
-    <label v-if="label" class="text-sm font-medium text-gray-300">
+  <div class="space-y-1.5 w-full">
+    <label v-if="label" class="text-xs font-bold text-white/75 flex items-center gap-1">
       {{ label }}
-      <span v-if="required" class="text-red-400">*</span>
+      <span v-if="required" class="required-star">*</span>
     </label>
-    <input
-      :type="type"
-      :value="modelValue"
-      @input="$emit('update:modelValue', $event.target.value)"
-      :placeholder="placeholder"
-      :required="required"
-      class="spatial-input w-full"
-    />
-    <span v-if="error" class="text-xs text-red-400 mt-1">{{ error }}</span>
+    <div class="relative">
+      <input
+        :type="type"
+        :value="modelValue"
+        :placeholder="placeholder"
+        :disabled="disabled"
+        :class="[
+          'spatial-input h-14 rounded-[18px] px-5 w-full text-sm font-bold',
+          error ? 'error' : '',
+          success ? 'success' : '',
+          inputClass
+        ]"
+        @input="$emit('update:modelValue', $event.target.value)"
+      />
+    </div>
+    <div v-if="error" class="text-[12px] font-bold text-red-500 flex items-center gap-1">
+      <span>✗</span> {{ error }}
+    </div>
+    <div v-else-if="successMsg" class="text-[12px] font-bold text-emerald-500 flex items-center gap-1">
+      <span>✓</span> {{ successMsg }}
+    </div>
   </div>
 </template>
 
@@ -22,11 +34,15 @@ defineProps({
   label: String,
   type: {
     type: String,
-    default: 'text'
+    default: 'text',
   },
   placeholder: String,
   required: Boolean,
-  error: String
+  disabled: Boolean,
+  error: String,
+  success: Boolean,
+  successMsg: String,
+  inputClass: String,
 });
 
 defineEmits(['update:modelValue']);

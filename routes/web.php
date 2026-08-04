@@ -6,3 +6,7 @@ use Inertia\Inertia;
 Route::get('/', function () {
     return Inertia::render('Welcome');
 });
+
+Route::get('/design-system', function () {
+    return Inertia::render('DesignSystemCatalog');
+});

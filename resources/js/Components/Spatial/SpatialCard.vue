@@ -1,8 +1,18 @@
 <template>
-  <div class="glass-card p-6 border border-white/10 rounded-[30px] backdrop-blur-xl bg-white/[0.05]">
+  <div class="spatial-card" :class="paddingClass">
     <slot />
   </div>
 </template>
 
 <script setup>
+import { computed } from 'vue';
+
+const props = defineProps({
+  padding: {
+    type: String,
+    default: 'p-6',
+  },
+});
+
+const paddingClass = computed(() => props.padding);
 </script>

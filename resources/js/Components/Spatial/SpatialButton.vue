@@ -1,14 +1,16 @@
 <template>
   <button
     :type="type"
+    :disabled="disabled || loading"
     :class="[
-      'spatial-btn-primary transition-all duration-200 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed',
-      variant === 'secondary' ? 'bg-white/10 hover:bg-white/20 text-white shadow-none' : '',
-      variant === 'danger' ? 'bg-red-600/80 hover:bg-red-600 text-white shadow-none' : '',
+      variant === 'icon' ? 'spatial-icon-btn' : 'spatial-button',
+      variant === 'danger' ? '!bg-red-500/20 hover:!bg-red-500/30 !text-red-400 border border-red-500/30' : '',
+      variant === 'secondary' ? '!bg-white/10 hover:!bg-white/20 !text-white border border-white/15 !shadow-none' : '',
+      variant === 'success' ? '!bg-emerald-500 hover:!bg-emerald-600 !text-white' : '',
       customClass
     ]"
-    :disabled="disabled"
   >
+    <span v-if="loading" class="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full"></span>
     <slot />
   </button>
 </template>
@@ -17,19 +19,23 @@
 defineProps({
   type: {
     type: String,
-    default: 'button'
+    default: 'button',
   },
   variant: {
     type: String,
-    default: 'primary'
+    default: 'primary', // primary, secondary, danger, success, icon
+  },
+  loading: {
+    type: Boolean,
+    default: false,
   },
   disabled: {
     type: Boolean,
-    default: false
+    default: false,
   },
   customClass: {
     type: String,
-    default: ''
-  }
+    default: '',
+  },
 });
 </script>
