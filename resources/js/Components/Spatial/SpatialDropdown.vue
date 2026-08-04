@@ -1,6 +1,6 @@
 <template>
   <div class="space-y-1.5 w-full relative" ref="dropdownRef">
-    <label v-if="label" class="text-xs font-bold text-white/75 flex items-center gap-1">
+    <label v-if="label" class="text-xs font-bold text-slate-700 dark:text-white/75 flex items-center gap-1">
       {{ label }}
       <span v-if="required" class="required-star">*</span>
     </label>
@@ -10,7 +10,7 @@
         class="spatial-input spatial-dropdown-trigger"
         :class="{ 'border-primary/50': isOpen }"
       >
-        <span class="font-bold text-sm text-white">
+        <span class="font-bold text-sm text-slate-900 dark:text-white">
           {{ selectedLabel || placeholder }}
         </span>
         <svg
@@ -33,10 +33,13 @@
             v-for="option in options"
             :key="option.value"
             @click="selectOption(option)"
-            class="spatial-dropdown-item"
+            :class="[
+              'spatial-dropdown-item',
+              option.value === modelValue ? 'bg-primary/10 text-primary dark:bg-primary/20 dark:text-blue-400 font-black' : ''
+            ]"
           >
             <span>{{ option.label }}</span>
-            <span v-if="option.value === modelValue" class="text-xs text-primary font-bold">✓</span>
+            <span v-if="option.value === modelValue" class="text-xs text-primary font-black">✓</span>
           </li>
         </ul>
       </div>

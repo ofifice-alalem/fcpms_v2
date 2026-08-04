@@ -1,6 +1,6 @@
 <template>
   <div class="space-y-1.5 w-full">
-    <label v-if="label" class="text-xs font-bold text-white/75 flex items-center gap-1">
+    <label v-if="label" class="text-xs font-bold text-slate-700 dark:text-white/75 flex items-center gap-1">
       {{ label }}
       <span v-if="required" class="required-star">*</span>
     </label>

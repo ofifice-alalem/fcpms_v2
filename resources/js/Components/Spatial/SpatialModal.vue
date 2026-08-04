@@ -12,11 +12,11 @@
         class="relative w-full spatial-modal-card p-6 flex flex-col gap-5 animate-spatial-in"
         :class="maxWidthClass"
       >
-        <div class="flex items-center justify-between border-b border-white/10 pb-3">
-          <h3 class="font-black text-lg text-white">{{ title }}</h3>
+        <div class="flex items-center justify-between border-b border-black/10 dark:border-white/10 pb-3">
+          <h3 class="font-black text-lg text-slate-900 dark:text-white">{{ title }}</h3>
           <button
             @click="$emit('close')"
-            class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-all text-xs"
+            class="w-8 h-8 rounded-full bg-black/5 dark:bg-white/10 hover:bg-black/10 dark:hover:bg-white/20 text-slate-700 dark:text-white flex items-center justify-center transition-all text-xs cursor-pointer"
           >
             ✕
           </button>
@@ -24,7 +24,7 @@
         <div class="space-y-4">
           <slot />
         </div>
-        <div v-if="$slots.footer" class="flex gap-3 pt-2">
+        <div v-if="$slots.footer" class="flex gap-3 pt-2 border-t border-black/5 dark:border-white/10">
           <slot name="footer" />
         </div>
       </div>
