@@ -24,4 +24,11 @@ export default defineConfig({
             'ziggy-js': path.resolve(__dirname, 'vendor/tightenco/ziggy'),
         },
     },
+    server: {
+        host: '0.0.0.0',
+        cors: true,
+        hmr: {
+            host: process.env.VITE_HMR_HOST || '192.168.7.103',
+        },
+    },
 });

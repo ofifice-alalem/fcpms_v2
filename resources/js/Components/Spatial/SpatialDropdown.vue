@@ -9,14 +9,14 @@
       <!-- Trigger Bar -->
       <div
         @click="toggleDropdown"
-        class="spatial-input spatial-dropdown-trigger flex items-center justify-between cursor-pointer select-none"
+        class="spatial-input spatial-dropdown-trigger flex items-center justify-between cursor-pointer select-none min-h-[50px] px-4 rounded-2xl"
         :class="{ 'open': isOpen }"
       >
         <span class="font-bold text-sm text-slate-900 dark:text-white truncate max-w-[88%]">
           {{ selectedLabel || placeholder }}
         </span>
         <svg
-          class="spatial-dropdown-arrow text-primary transition-transform duration-250 shrink-0"
+          class="spatial-dropdown-arrow text-primary transition-transform duration-250 shrink-0 w-5 h-5"
           :class="{ 'rotate-180': isOpen }"
           fill="none"
           stroke="currentColor"
@@ -26,9 +26,9 @@
         </svg>
       </div>
 
-      <!-- Dropdown Menu -->
+      <!-- DESKTOP DROPDOWN MENU (Screens >= 700px) -->
       <div
-        v-if="isOpen"
+        v-if="isOpen && !isMobile"
         class="spatial-dropdown-menu animate-spatial-in z-[100] shadow-2xl space-y-2 p-2 min-w-[220px]"
         :class="openUpward ? 'bottom-full mb-2' : 'top-full mt-2'"
       >
@@ -84,6 +84,87 @@
         </ul>
       </div>
     </div>
+
+    <!-- MOBILE FULLSCREEN WINDOW MODAL (Screens < 700px) -->
+    <Teleport to="body">
+      <div
+        v-if="isOpen && isMobile"
+        class="fixed inset-0 z-[99999] bg-slate-950/80 backdrop-blur-xl flex flex-col justify-start dir-rtl p-3 sm:p-6 transition-all duration-300 overflow-hidden"
+        @click="isOpen = false"
+      >
+        <div
+          class="w-full h-full bg-white dark:bg-slate-900 rounded-3xl p-5 shadow-2xl flex flex-col space-y-4 border border-black/10 dark:border-white/10 overflow-hidden animate-spatial-in"
+          @click.stop
+        >
+          <!-- Header -->
+          <div class="flex items-center justify-between border-b border-slate-200 dark:border-white/10 pb-4 shrink-0">
+            <div class="space-y-0.5">
+              <span class="text-[10px] uppercase font-mono tracking-wider text-primary font-bold">نافذة الاختيار الميدانية</span>
+              <h3 class="text-lg font-black text-slate-900 dark:text-white">
+                {{ label || placeholder || 'اختر من القائمة' }}
+              </h3>
+            </div>
+            <button
+              @click="isOpen = false"
+              class="px-4 py-2 rounded-2xl bg-slate-100 dark:bg-white/10 text-slate-700 dark:text-white flex items-center gap-1.5 font-black text-xs hover:bg-slate-200 active:scale-95 transition-all border border-black/5 dark:border-white/10"
+            >
+              <span>إغلاق</span>
+              <span class="text-sm">✕</span>
+            </button>
+          </div>
+
+          <!-- Search Bar Mobile -->
+          <div v-if="searchable" class="relative shrink-0 space-y-2">
+            <input
+              ref="searchInputRefMobile"
+              v-model="searchQuery"
+              type="text"
+              placeholder="🔍 اكتب للبحث أو اختيار الخيار..."
+              class="w-full px-4 py-4 text-base font-bold rounded-2xl bg-slate-100 dark:bg-white/10 text-slate-900 dark:text-white border border-slate-200 dark:border-white/10 focus:outline-none focus:border-primary placeholder:text-slate-400 dark:placeholder:text-white/40 shadow-inner"
+              @keydown.enter.prevent="selectCustomSearchText"
+            />
+            <div
+              v-if="searchQuery.trim() && allowCustomText"
+              @click.stop="selectCustomSearchText"
+              class="p-3.5 rounded-2xl bg-primary/10 text-primary dark:text-blue-400 text-sm font-black cursor-pointer flex items-center justify-between transition-all border border-primary/20"
+            >
+              <span class="truncate">🔍 تصفية بـ: "{{ searchQuery }}"</span>
+              <span class="text-xs bg-primary/20 px-2.5 py-1 rounded-full font-mono">تأكيد ↵</span>
+            </div>
+          </div>
+
+          <!-- Fullscreen Options List -->
+          <ul class="space-y-3 overflow-y-auto flex-1 custom-scroll py-2 pr-1">
+            <template v-if="filteredOptions.length > 0">
+              <li
+                v-for="option in filteredOptions"
+                :key="option.value"
+                @click="selectOption(option)"
+                :class="[
+                  'p-5 rounded-2xl flex items-center justify-between cursor-pointer text-base font-bold border transition-all active:scale-[0.98]',
+                  isSelected(option.value)
+                    ? 'bg-primary/15 border-primary text-primary dark:bg-primary/25 dark:text-blue-400 font-black shadow-lg'
+                    : 'bg-slate-50 dark:bg-white/5 border-slate-200/80 dark:border-white/5 text-slate-900 dark:text-white hover:bg-slate-100 dark:hover:bg-white/10'
+                ]"
+              >
+                <div class="flex items-center gap-3 truncate">
+                  <SpatialCheckbox v-if="multiple" :model-value="isSelected(option.value)" class="pointer-events-none scale-125" />
+                  <span class="truncate leading-relaxed">{{ option.label }}</span>
+                </div>
+                <span v-if="!multiple && isSelected(option.value)" class="text-xl text-primary font-black shrink-0">✓</span>
+              </li>
+            </template>
+
+            <li v-else-if="!searchQuery.trim()" class="p-10 text-center text-base font-bold text-slate-400 dark:text-white/40">
+              لا توجد خيارات متاحة حالياً
+            </li>
+            <li v-else class="p-10 text-center text-base font-bold text-slate-400 dark:text-white/40">
+              اضغط Enter لتصفية الخيارات حسب "{{ searchQuery }}"
+            </li>
+          </ul>
+        </div>
+      </div>
+    </Teleport>
   </div>
 </template>
 
@@ -120,9 +201,12 @@ const props = defineProps({
 const emit = defineEmits(['update:modelValue', 'change']);
 
 const isOpen = ref(false);
+const isMobile = ref(false);
 const dropdownRef = ref(null);
 const searchInputRef = ref(null);
+const searchInputRefMobile = ref(null);
 const searchQuery = ref('');
+const openUpward = ref(false);
 
 const safeOptions = computed(() => {
   return Array.isArray(props.options) ? props.options : [];
@@ -160,7 +244,9 @@ const selectedLabel = computed(() => {
   return found ? found.label : String(props.modelValue || '');
 });
 
-const openUpward = ref(false);
+function updateIsMobile() {
+  isMobile.value = window.innerWidth < 700;
+}
 
 function checkPosition() {
   if (!dropdownRef.value) return;
@@ -177,7 +263,11 @@ function toggleDropdown() {
     if (props.searchable) {
       searchQuery.value = '';
       nextTick(() => {
-        searchInputRef.value?.focus();
+        if (isMobile.value) {
+          searchInputRefMobile.value?.focus();
+        } else {
+          searchInputRef.value?.focus();
+        }
       });
     }
   }
@@ -227,10 +317,13 @@ function handleClickOutside(e) {
 }
 
 onMounted(() => {
+  updateIsMobile();
+  window.addEventListener('resize', updateIsMobile);
   document.addEventListener('click', handleClickOutside);
 });
 
 onUnmounted(() => {
+  window.removeEventListener('resize', updateIsMobile);
   document.removeEventListener('click', handleClickOutside);
 });
 </script>

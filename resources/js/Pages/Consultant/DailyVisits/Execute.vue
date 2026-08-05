@@ -250,20 +250,20 @@
         </div>
 
         <!-- STICKY ACTION BAR -->
-        <div class="p-6 rounded-3xl bg-white/90 dark:bg-slate-800/90 backdrop-blur-xl border border-black/10 dark:border-white/10 flex items-center justify-between gap-4 sticky bottom-6 shadow-2xl z-20">
-          <SpatialButton variant="ghost" @click="goBack">
+        <div class="p-4 sm:p-6 rounded-3xl bg-white/90 dark:bg-slate-800/90 backdrop-blur-xl border border-black/10 dark:border-white/10 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 sticky bottom-3 sm:bottom-6 shadow-2xl z-20">
+          <SpatialButton variant="ghost" class="w-full sm:w-auto justify-center" @click="goBack">
             العودة لسجل اليوم
           </SpatialButton>
 
-          <div class="flex items-center gap-3">
-            <SpatialButton variant="secondary" :disabled="isSubmitting" @click="handleSaveResponses(false)">
+          <div class="flex items-center gap-2 sm:gap-3 w-full sm:w-auto">
+            <SpatialButton variant="secondary" class="flex-1 sm:flex-none justify-center" :disabled="isSubmitting" @click="handleSaveResponses(false)">
               <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
               </svg>
               <span>حفظ مسودة</span>
             </SpatialButton>
 
-            <SpatialButton variant="primary" size="lg" :disabled="isSubmitting" @click="handleSaveResponses(true)">
+            <SpatialButton variant="primary" size="lg" class="flex-1 sm:flex-none justify-center" :disabled="isSubmitting" @click="handleSaveResponses(true)">
               <svg class="w-5 h-5 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
               </svg>
