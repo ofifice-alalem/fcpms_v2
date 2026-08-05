@@ -41,21 +41,53 @@ class TaskDefinitionRepository extends BaseRepository implements TaskDefinitionR
         }
 
         if (!empty($filters['site_id'])) {
-            $siteId = $filters['site_id'];
-            $query->where(function ($q) use ($siteId) {
-                $q->whereHas('siteAssignments', function ($sq) use ($siteId) {
-                    $sq->where('site_id', $siteId);
-                })->orDoesntHave('siteAssignments');
-            });
+            $rawSites = is_array($filters['site_id']) ? $filters['site_id'] : explode(',', (string) $filters['site_id']);
+            $rawSites = array_filter(array_map('trim', $rawSites), fn($v) => $v !== '');
+            if (!empty($rawSites)) {
+                $numericIds = array_filter($rawSites, fn($v) => is_numeric($v));
+                $textQueries = array_filter($rawSites, fn($v) => !is_numeric($v));
+
+                $query->where(function ($q) use ($numericIds, $textQueries) {
+                    $q->whereHas('siteAssignments.site', function ($sq) use ($numericIds, $textQueries) {
+                        if (!empty($numericIds)) {
+                            $sq->whereIn('id', $numericIds);
+                        }
+                        if (!empty($textQueries)) {
+                            $sq->where(function ($tq) use ($textQueries) {
+                                foreach ($textQueries as $term) {
+                                    $tq->orWhere('name', 'like', "%{$term}%")
+                                       ->orWhere('code', 'like', "%{$term}%");
+                                }
+                            });
+                        }
+                    })->orDoesntHave('siteAssignments');
+                });
+            }
         }
 
         if (!empty($filters['consultant_id'])) {
-            $consultantId = $filters['consultant_id'];
-            $query->where(function ($q) use ($consultantId) {
-                $q->whereHas('consultantAssignments', function ($cq) use ($consultantId) {
-                    $cq->where('consultant_id', $consultantId);
-                })->orDoesntHave('consultantAssignments');
-            });
+            $rawConsultants = is_array($filters['consultant_id']) ? $filters['consultant_id'] : explode(',', (string) $filters['consultant_id']);
+            $rawConsultants = array_filter(array_map('trim', $rawConsultants), fn($v) => $v !== '');
+            if (!empty($rawConsultants)) {
+                $numericIds = array_filter($rawConsultants, fn($v) => is_numeric($v));
+                $textQueries = array_filter($rawConsultants, fn($v) => !is_numeric($v));
+
+                $query->where(function ($q) use ($numericIds, $textQueries) {
+                    $q->whereHas('consultantAssignments.consultant', function ($cq) use ($numericIds, $textQueries) {
+                        if (!empty($numericIds)) {
+                            $cq->whereIn('id', $numericIds);
+                        }
+                        if (!empty($textQueries)) {
+                            $cq->where(function ($tq) use ($textQueries) {
+                                foreach ($textQueries as $term) {
+                                    $tq->orWhere('full_name', 'like', "%{$term}%")
+                                       ->orWhere('employee_number', 'like', "%{$term}%");
+                                }
+                            });
+                        }
+                    })->orDoesntHave('consultantAssignments');
+                });
+            }
         }
 
         $sort = $filters['sort'] ?? 'latest';

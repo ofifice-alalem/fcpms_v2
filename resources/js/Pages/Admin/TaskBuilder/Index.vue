@@ -95,37 +95,47 @@
             @change="applyFilters"
           />
 
-          <!-- Site Spatial Dropdown -->
+          <!-- Site Spatial Dropdown (Multi-Select & Searchable) -->
           <SpatialDropdown
             v-model="selectedSiteId"
             label="تصفية حسب الموقع"
-            placeholder="جميع المواقع"
+            placeholder="جميع المواقع (اختر موقع أو أكثر)"
             :options="siteOptions"
+            multiple
+            searchable
             @change="applyFilters"
           />
 
-          <!-- Consultant Spatial Dropdown -->
+          <!-- Consultant Spatial Dropdown (Multi-Select & Searchable) -->
           <SpatialDropdown
             v-model="selectedConsultantId"
             label="تصفية حسب الاستشاري"
-            placeholder="جميع الاستشاريين"
+            placeholder="جميع الاستشاريين (اختر استشاري أو أكثر)"
             :options="consultantOptions"
+            multiple
+            searchable
             @change="applyFilters"
           />
 
         </div>
 
         <!-- Filter Reset Quick Action -->
-        <div v-if="hasActiveFilters" class="flex items-center justify-end pt-2">
-          <button
+        <div v-if="hasActiveFilters" class="flex items-center justify-between pt-3 border-t border-slate-200/60 dark:border-white/10">
+          <span class="text-xs font-bold text-slate-500 dark:text-white/60 flex items-center gap-1.5">
+            <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
+            <span>تم تطبيق فلاتر تصفية مخصصة على النتائج الحالية</span>
+          </span>
+
+          <SpatialButton
+            variant="danger"
+            size="sm"
             @click="resetFilters"
-            class="text-xs font-bold text-red-500 hover:text-red-600 dark:text-red-400 flex items-center gap-1.5 cursor-pointer"
           >
             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/>
             </svg>
             <span>إعادة ضبط الفلاتر</span>
-          </button>
+          </SpatialButton>
         </div>
       </SpatialCard>
 
@@ -443,11 +453,23 @@ const props = defineProps({
 const toastRef = ref(null);
 const viewMode = ref('grid'); // 'grid' | 'table'
 
+const parseMultiFilter = (val) => {
+  if (!val) return [];
+  if (Array.isArray(val)) {
+    return val.map(v => (isNaN(v) ? String(v).trim() : Number(v)));
+  }
+  return String(val)
+    .split(',')
+    .map(v => v.trim())
+    .filter(v => Boolean(v))
+    .map(v => (isNaN(v) ? v : Number(v)));
+};
+
 const searchQuery = ref(props.filters.search || '');
 const selectedTaskType = ref(props.filters.task_type || '');
 const selectedStatus = ref(props.filters.is_active !== undefined ? String(props.filters.is_active) : '');
-const selectedSiteId = ref(props.filters.site_id || '');
-const selectedConsultantId = ref(props.filters.consultant_id || '');
+const selectedSiteId = ref(parseMultiFilter(props.filters.site_id));
+const selectedConsultantId = ref(parseMultiFilter(props.filters.consultant_id));
 
 const taskTypeOptions = [
   { label: 'جميع أنواع المهام', value: '' },
@@ -462,25 +484,17 @@ const statusOptions = [
 ];
 
 const siteOptions = computed(() => {
-  const list = [{ label: 'جميع المواقع', value: '' }];
-  props.sites.forEach(s => {
-    list.push({
-      label: `${s.name} (${s.code})`,
-      value: s.id,
-    });
-  });
-  return list;
+  return props.sites.map(s => ({
+    label: `${s.name} (${s.code})`,
+    value: s.id,
+  }));
 });
 
 const consultantOptions = computed(() => {
-  const list = [{ label: 'جميع الاستشاريين', value: '' }];
-  props.consultants.forEach(c => {
-    list.push({
-      label: `${c.full_name} (${c.employee_number})`,
-      value: c.id,
-    });
-  });
-  return list;
+  return props.consultants.map(c => ({
+    label: `${c.full_name} (${c.employee_number})`,
+    value: c.id,
+  }));
 });
 
 const hasActiveFilters = computed(() => {
@@ -488,8 +502,8 @@ const hasActiveFilters = computed(() => {
     searchQuery.value ||
     selectedTaskType.value ||
     selectedStatus.value !== '' ||
-    selectedSiteId.value ||
-    selectedConsultantId.value
+    (Array.isArray(selectedSiteId.value) && selectedSiteId.value.length > 0) ||
+    (Array.isArray(selectedConsultantId.value) && selectedConsultantId.value.length > 0)
   );
 });
 
@@ -499,14 +513,21 @@ const isDeleting = ref(false);
 const selectedTask = ref(null);
 
 function applyFilters() {
+  const siteVal = Array.isArray(selectedSiteId.value) && selectedSiteId.value.length > 0
+    ? selectedSiteId.value.join(',')
+    : undefined;
+  const consultantVal = Array.isArray(selectedConsultantId.value) && selectedConsultantId.value.length > 0
+    ? selectedConsultantId.value.join(',')
+    : undefined;
+
   router.get(
     route('admin.tasks.index'),
     {
       search: searchQuery.value || undefined,
       task_type: selectedTaskType.value || undefined,
       is_active: selectedStatus.value !== '' ? selectedStatus.value : undefined,
-      site_id: selectedSiteId.value || undefined,
-      consultant_id: selectedConsultantId.value || undefined,
+      site_id: siteVal,
+      consultant_id: consultantVal,
     },
     {
       preserveState: true,
@@ -519,8 +540,8 @@ function resetFilters() {
   searchQuery.value = '';
   selectedTaskType.value = '';
   selectedStatus.value = '';
-  selectedSiteId.value = '';
-  selectedConsultantId.value = '';
+  selectedSiteId.value = [];
+  selectedConsultantId.value = [];
   applyFilters();
 }
 
