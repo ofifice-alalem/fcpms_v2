@@ -90,9 +90,10 @@ import { Link, router } from '@inertiajs/vue3';
 
 const isDark = ref(true);
 
-function toggleTheme() {
-  isDark.value = !isDark.value;
-  if (isDark.value) {
+function applyTheme(dark) {
+  isDark.value = dark;
+  localStorage.setItem('fcpms_theme', dark ? 'dark' : 'light');
+  if (dark) {
     document.documentElement.classList.add('dark');
     document.body.classList.remove('body-bg-light');
     document.body.classList.add('body-bg-dark');
@@ -103,9 +104,17 @@ function toggleTheme() {
   }
 }
 
+function toggleTheme() {
+  applyTheme(!isDark.value);
+}
+
 onMounted(() => {
-  document.documentElement.classList.add('dark');
-  document.body.classList.add('body-bg-dark');
+  const savedTheme = localStorage.getItem('fcpms_theme');
+  if (savedTheme) {
+    applyTheme(savedTheme === 'dark');
+  } else {
+    applyTheme(true);
+  }
 });
 
 function logout() {

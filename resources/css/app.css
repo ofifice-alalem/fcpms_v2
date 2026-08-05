@@ -38,10 +38,10 @@
 
   .body-bg-light {
     background: 
-      radial-gradient(at 0% 0%, rgba(191, 219, 254, 0.85) 0px, transparent 60%),
-      radial-gradient(at 100% 0%, rgba(199, 210, 254, 0.75) 0px, transparent 60%),
-      radial-gradient(at 50% 100%, rgba(224, 231, 255, 0.8) 0px, transparent 70%),
-      linear-gradient(135deg, #f8fafc 0%, #edf2f7 50%, #f1f5f9 100%) fixed !important;
+      radial-gradient(at 0% 0%, rgba(219, 234, 254, 0.5) 0px, transparent 55%),
+      radial-gradient(at 100% 0%, rgba(224, 231, 255, 0.45) 0px, transparent 55%),
+      radial-gradient(at 50% 100%, rgba(241, 245, 249, 0.8) 0px, transparent 65%),
+      #f8fafc fixed !important;
     color: #0f172a !important;
   }
 }
@@ -61,17 +61,18 @@
 }
 
 .spatial-card {
-  backdrop-filter: blur(50px);
-  -webkit-backdrop-filter: blur(50px);
+  backdrop-filter: blur(40px);
+  -webkit-backdrop-filter: blur(40px);
   border-radius: 26px;
-  border: 1px solid rgba(255, 255, 255, 0.8);
-  background: linear-gradient(145deg, rgba(255, 255, 255, 0.92), rgba(243, 248, 255, 0.82));
-  box-shadow: 0 20px 50px -15px rgba(15, 23, 42, 0.05), inset 0 1.5px 0 rgba(255, 255, 255, 1);
+  border: 1px solid #e2e8f0;
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.98), rgba(248, 250, 252, 0.92));
+  box-shadow: 0 14px 35px -10px rgba(15, 23, 42, 0.04), 0 2px 6px -1px rgba(15, 23, 42, 0.02), inset 0 1px 0 rgba(255, 255, 255, 1);
   transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .spatial-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 25px 60px -15px rgba(59, 130, 246, 0.15), inset 0 1.5px 0 rgba(255, 255, 255, 1);
+  border-color: #cbd5e1;
+  box-shadow: 0 20px 45px -12px rgba(59, 130, 246, 0.1), inset 0 1px 0 rgba(255, 255, 255, 1);
 }
 .dark .spatial-card {
   border: 1px solid rgba(255, 255, 255, 0.12);
@@ -98,11 +99,11 @@
 
 /* ===== Spatial Buttons ===== */
 .spatial-button {
-  background: linear-gradient(135deg, hsl(217, 100%, 55%), hsl(217, 100%, 45%));
+  background: linear-gradient(135deg, hsl(217, 100%, 52%), hsl(217, 100%, 42%));
   color: #ffffff !important;
-  border-radius: 20px;
+  border-radius: 18px;
   transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-  font-weight: 700;
+  font-weight: 800;
   padding: 0.75rem 1.5rem;
   display: inline-flex;
   align-items: center;
@@ -110,26 +111,26 @@
   gap: 0.5rem;
   border: none;
   cursor: pointer;
-  box-shadow: 0 8px 20px rgba(59, 130, 246, 0.35);
+  box-shadow: 0 8px 20px rgba(59, 130, 246, 0.3);
 }
 .spatial-button:hover {
-  background: linear-gradient(135deg, hsl(217, 100%, 60%), hsl(217, 100%, 50%));
+  background: linear-gradient(135deg, hsl(217, 100%, 58%), hsl(217, 100%, 48%));
   transform: translateY(-2px);
-  box-shadow: 0 14px 30px rgba(59,130,246,0.5);
+  box-shadow: 0 14px 28px rgba(59, 130, 246, 0.42);
 }
 .spatial-button:active {
   transform: translateY(0) scale(0.97);
 }
 
 .spatial-icon-btn {
-  width: 3rem;
-  height: 3rem;
+  width: 2.75rem;
+  height: 2.75rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 9999px;
-  background: rgba(0,0,0,0.05);
-  border: 1px solid rgba(0,0,0,0.06);
+  border-radius: 14px;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   color: #475569;
   cursor: pointer;
@@ -140,9 +141,10 @@
   color: rgba(255,255,255,0.85);
 }
 .spatial-icon-btn:hover {
-  transform: scale(1.08);
-  background: rgba(59,130,246,0.18);
-  color: hsl(217, 100%, 50%);
+  transform: scale(1.06);
+  background: rgba(59,130,246,0.15);
+  color: #2563eb;
+  border-color: rgba(59,130,246,0.3);
 }
 .dark .spatial-icon-btn:hover {
   background: rgba(255,255,255,0.18);
@@ -154,24 +156,36 @@
 .spatial-input {
   height: 3.35rem /* 54px */;
   border-radius: 18px;
-  border: 1px solid rgba(0, 0, 0, 0.12);
-  background: rgba(255, 255, 255, 0.88);
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
   color: #0f172a;
   padding-left: 1.15rem;
   padding-right: 1.15rem;
   font-size: 0.875rem;
   font-weight: 700;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
   transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   outline: none;
+}
+.spatial-input::placeholder {
+  color: #94a3b8;
+  font-weight: 600;
+}
+.spatial-input:hover {
+  border-color: #94a3b8;
 }
 .dark .spatial-input {
   border: 1px solid rgba(255, 255, 255, 0.14);
   background: linear-gradient(135deg, rgba(25, 40, 78, 0.4), rgba(12, 18, 38, 0.3));
   color: #ffffff;
+  box-shadow: none;
+}
+.dark .spatial-input::placeholder {
+  color: rgba(255, 255, 255, 0.4);
 }
 .spatial-input:focus, .spatial-dropdown-trigger.open {
-  border-color: #3b82f6 !important;
-  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.22), 0 10px 25px rgba(59, 130, 246, 0.12);
+  border-color: #2563eb !important;
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.15), 0 6px 18px rgba(37, 99, 235, 0.08);
   transform: translateY(-1px);
 }
 .dark .spatial-input:focus, .dark .spatial-dropdown-trigger.open {
@@ -181,11 +195,11 @@
 }
 .spatial-input.error {
   border-color: #ef4444 !important;
-  background: rgba(239, 68, 68, 0.12) !important;
+  background: #fef2f2 !important;
 }
 .spatial-input.success {
   border-color: #10b981 !important;
-  background: rgba(16, 185, 129, 0.12) !important;
+  background: #ecfdf5 !important;
 }
 
 .spatial-dropdown-trigger {
@@ -201,9 +215,9 @@
   transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .spatial-dropdown-trigger:hover {
-  border-color: rgba(59, 130, 246, 0.5);
+  border-color: #94a3b8;
   transform: translateY(-1px);
-  box-shadow: 0 8px 22px rgba(59, 130, 246, 0.15);
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06);
 }
 
 .spatial-dropdown-menu {
@@ -211,19 +225,20 @@
   z-index: 100 !important;
   width: 100%;
   margin-top: 0.5rem;
-  backdrop-filter: blur(50px);
-  -webkit-backdrop-filter: blur(50px);
+  backdrop-filter: blur(40px);
+  -webkit-backdrop-filter: blur(40px);
   border-radius: 20px;
   overflow: hidden;
-  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.22);
-  border: 1px solid rgba(0, 0, 0, 0.1);
-  background: rgba(255, 255, 255, 0.98);
+  box-shadow: 0 20px 40px -10px rgba(15, 23, 42, 0.12), 0 0 0 1px rgba(226, 232, 240, 0.8);
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
   color: #0f172a;
 }
 .dark .spatial-dropdown-menu {
   border: 1px solid rgba(255, 255, 255, 0.16);
   background: linear-gradient(145deg, rgba(20, 30, 58, 0.97), rgba(10, 15, 32, 0.97));
   color: #ffffff;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4);
 }
 
 .spatial-dropdown-item {
@@ -231,6 +246,7 @@
   border-radius: 14px;
   font-weight: 700;
   font-size: 0.875rem;
+  color: #334155;
   cursor: pointer;
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   display: flex;
@@ -238,9 +254,12 @@
   justify-content: space-between;
 }
 .spatial-dropdown-item:hover {
-  background: rgba(59, 130, 246, 0.14);
-  color: #2563eb;
+  background: #f1f5f9;
+  color: #1d4ed8;
   padding-right: 1.4rem;
+}
+.dark .spatial-dropdown-item {
+  color: #f8fafc;
 }
 .dark .spatial-dropdown-item:hover {
   background: rgba(59, 130, 246, 0.25);

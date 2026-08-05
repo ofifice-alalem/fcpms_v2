@@ -72,7 +72,7 @@
         <div class="overflow-x-auto">
           <table class="w-full text-right border-collapse">
             <thead>
-              <tr class="border-b border-black/10 dark:border-white/10 text-xs font-black text-slate-500 dark:text-white/60 bg-black/5 dark:bg-white/5">
+              <tr class="border-b border-slate-200 dark:border-white/10 text-xs font-black text-slate-600 dark:text-white/70 bg-slate-100/90 dark:bg-white/5">
                 <th class="p-4 w-12 text-center">
                   <SpatialCheckbox v-model="selectAll" @change="toggleSelectAll" />
                 </th>
@@ -84,13 +84,13 @@
                 <th class="p-4 text-center">الإجراءات</th>
               </tr>
             </thead>
-            <tbody class="divide-y divide-black/5 dark:divide-white/5 text-sm font-bold">
+            <tbody class="divide-y divide-slate-100 dark:divide-white/5 text-sm font-bold">
               <tr
                 v-for="site in sites.data"
                 :key="site.id"
                 :class="[
-                  'transition-colors hover:bg-black/5 dark:hover:bg-white/5',
-                  selectedIds.includes(site.id) ? 'bg-primary/10 dark:bg-primary/20 border-r-4 border-r-primary' : ''
+                  'transition-colors hover:bg-slate-50/80 dark:hover:bg-white/5',
+                  selectedIds.includes(site.id) ? 'bg-blue-100/90 dark:bg-primary/25 border-r-4 border-r-primary text-blue-950 dark:text-white shadow-sm' : ''
                 ]"
               >
                 <!-- Checkbox -->
