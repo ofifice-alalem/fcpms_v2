@@ -16,13 +16,17 @@
           </p>
         </div>
 
-        <button
+        <SpatialButton
+          variant="primary"
           @click="openCreateDrawer"
-          class="spatial-button text-sm px-5 py-3 shadow-lg flex items-center gap-2 cursor-pointer shrink-0"
         >
-          <span class="text-lg font-black">+</span>
-          إضافة موقع جديد
-        </button>
+          <div class="w-6 h-6 rounded-xl bg-white/20 flex items-center justify-center text-white">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 4v16m8-8H4"/>
+            </svg>
+          </div>
+          <span>إضافة موقع جديد</span>
+        </SpatialButton>
       </div>
 
       <!-- Filter & Search Bar -->
@@ -387,6 +391,7 @@ import { ref } from 'vue';
 import { router, useForm, Link } from '@inertiajs/vue3';
 import HRLayout from '@/Layouts/HRLayout.vue';
 import SpatialCard from '@/Components/Spatial/SpatialCard.vue';
+import SpatialButton from '@/Components/Spatial/SpatialButton.vue';
 import SpatialInput from '@/Components/Spatial/SpatialInput.vue';
 import SpatialDropdown from '@/Components/Spatial/SpatialDropdown.vue';
 import SpatialStatusPill from '@/Components/Spatial/SpatialStatusPill.vue';

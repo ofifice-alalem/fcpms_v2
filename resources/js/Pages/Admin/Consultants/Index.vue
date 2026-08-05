@@ -16,10 +16,10 @@
           </p>
         </div>
 
-        <!-- Premium Spatial UI Primary Button -->
-        <button
+        <!-- Premium Spatial UI Primary Button Component -->
+        <SpatialButton
+          variant="primary"
           @click="openCreateDrawer"
-          class="px-5 py-2.5 rounded-2xl bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-500 hover:from-blue-500 hover:to-indigo-600 text-white font-black text-xs shadow-xl shadow-blue-500/25 hover:shadow-blue-500/40 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 flex items-center gap-2.5 border border-white/20 cursor-pointer shrink-0"
         >
           <div class="w-6 h-6 rounded-xl bg-white/20 flex items-center justify-center text-white">
             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -27,7 +27,7 @@
             </svg>
           </div>
           <span>إضافة استشاري جديد</span>
-        </button>
+        </SpatialButton>
       </div>
 
       <!-- KPI Overview Cards -->
@@ -322,6 +322,7 @@ import { router, usePage } from '@inertiajs/vue3';
 import HRLayout from '@/Layouts/HRLayout.vue';
 import SpatialToast from '@/Components/Spatial/SpatialToast.vue';
 import SpatialCard from '@/Components/Spatial/SpatialCard.vue';
+import SpatialButton from '@/Components/Spatial/SpatialButton.vue';
 import SpatialInput from '@/Components/Spatial/SpatialInput.vue';
 import SpatialDropdown from '@/Components/Spatial/SpatialDropdown.vue';
 import SpatialIconButton from '@/Components/Spatial/SpatialIconButton.vue';
