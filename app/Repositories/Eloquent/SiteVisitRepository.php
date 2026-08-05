@@ -47,9 +47,10 @@ class SiteVisitRepository extends BaseRepository implements SiteVisitRepositoryI
     public function openVisit(DailyRecord $dailyRecord, int $siteId, ?string $notes = null): SiteVisit
     {
         return DB::transaction(function () use ($dailyRecord, $siteId, $notes) {
-            $visit = SiteVisit::create([
+            $visit = SiteVisit::firstOrCreate([
                 'daily_record_id' => $dailyRecord->id,
                 'site_id' => $siteId,
+            ], [
                 'status' => 'in_progress',
                 'visit_started_at' => Carbon::now(),
                 'notes' => $notes,

@@ -52,10 +52,12 @@ class ConsultantVisitService
 
     public function openSiteVisit(DailyRecord $dailyRecord, int $siteId, ?string $notes = null): SiteVisit
     {
-        // Check if there is already an active visit to prevent duplicate active visits
-        $active = $this->siteVisitRepo->getActiveVisit($dailyRecord);
-        if ($active && $active->site_id === $siteId) {
-            return $active;
+        $existing = SiteVisit::where('daily_record_id', $dailyRecord->id)
+            ->where('site_id', $siteId)
+            ->first();
+
+        if ($existing) {
+            return $this->siteVisitRepo->findWithDetails($existing->id);
         }
 
         return $this->siteVisitRepo->openVisit($dailyRecord, $siteId, $notes);

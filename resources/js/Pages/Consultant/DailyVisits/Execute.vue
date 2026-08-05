@@ -1,11 +1,12 @@
 <template>
-  <div class="min-h-screen bg-slate-900 text-slate-100 p-4 sm:p-6 lg:p-8 dir-rtl text-right font-sans">
-    
-    <!-- MAIN CONTAINER -->
+  <ConsultantLayout :title="pageTitle">
     <div class="max-w-5xl mx-auto space-y-6">
+      
+      <!-- Toast Feedback Component -->
+      <SpatialToast ref="toastRef" />
 
-      <!-- NAVIGATION BREADCRUMB & HEADER -->
-      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-6 rounded-3xl bg-slate-800/80 backdrop-blur-xl border border-white/10 shadow-2xl">
+      <!-- Page Header Bar -->
+      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-6 rounded-3xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl border border-black/10 dark:border-white/10 shadow-xl">
         <div class="space-y-1">
           <div class="flex items-center gap-2">
             <SpatialButton variant="ghost" size="sm" @click="goBack">
@@ -24,34 +25,34 @@
             </SpatialStatusPill>
           </div>
 
-          <h1 class="text-xl sm:text-2xl font-black text-white tracking-tight mt-1">
+          <h1 class="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight mt-1">
             {{ pageTitle }}
           </h1>
-          <p v-if="visit && visit.site" class="text-xs text-white/60 font-bold">
+          <p v-if="visit && visit.site" class="text-xs text-slate-500 dark:text-white/60 font-bold">
             كود الموقع: <span class="font-mono text-primary font-bold dir-ltr inline-block">{{ visit.site.code }}</span>
           </p>
         </div>
 
-        <div v-if="visit && visit.site" class="px-4 py-2 rounded-2xl bg-white/5 border border-white/10 text-left">
-          <span class="text-[10px] text-white/50 block">اسم الموقع الميداني</span>
-          <span class="text-sm font-black text-white">{{ visit.site.name }}</span>
+        <div v-if="visit && visit.site" class="px-4 py-2 rounded-2xl bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 text-left">
+          <span class="text-[10px] text-slate-500 dark:text-white/50 block">الموقع الميداني</span>
+          <span class="text-sm font-black text-slate-900 dark:text-white">{{ visit.site.name }}</span>
         </div>
       </div>
 
       <!-- MODE A: OPEN NEW SITE VISIT FORM -->
-      <div v-if="!visit" class="p-6 rounded-3xl bg-slate-800/80 backdrop-blur-xl border border-white/10 space-y-6 shadow-2xl">
-        <div class="space-y-1 border-b border-white/10 pb-4">
-          <h3 class="text-lg font-black text-white flex items-center gap-2">
+      <SpatialCard v-if="!visit" padding="p-6" class="space-y-6">
+        <div class="space-y-1 border-b border-black/10 dark:border-white/10 pb-4">
+          <h3 class="text-lg font-black text-slate-900 dark:text-white flex items-center gap-2">
             <span>اختيار الموقع الميداني للزيارة</span>
           </h3>
-          <p class="text-xs text-white/60 font-bold">
+          <p class="text-xs text-slate-500 dark:text-white/60 font-bold">
             اختر الموقع من القائمة المنسدلة لبدء الزيارة وجلب المهام اليومية الدورية المسندة فوراً.
           </p>
         </div>
 
         <div class="space-y-4">
           <div class="space-y-1.5">
-            <label class="text-xs font-black text-white/80">الموقع الميداني:</label>
+            <label class="text-xs font-black text-slate-700 dark:text-white/80">الموقع الميداني:</label>
             <SpatialDropdown
               v-model="selectedSiteId"
               placeholder="ابحث واختر الموقع الميداني..."
@@ -61,7 +62,7 @@
           </div>
 
           <div class="space-y-1.5">
-            <label class="text-xs font-black text-white/80">ملاحظات افتتاح الزيارة (اختياري):</label>
+            <label class="text-xs font-black text-slate-700 dark:text-white/80">ملاحظات افتتاح الزيارة (اختياري):</label>
             <SpatialInput
               v-model="notes"
               placeholder="أدخل أي ملاحظات قبل افتتاح الزيارة..."
@@ -69,7 +70,7 @@
           </div>
         </div>
 
-        <div class="flex justify-end pt-4 border-t border-white/10">
+        <div class="flex justify-end pt-4 border-t border-black/10 dark:border-white/10">
           <SpatialButton
             variant="primary"
             size="lg"
@@ -82,7 +83,7 @@
             <span>افتتاح زيارة الموقع وبدء المهام</span>
           </SpatialButton>
         </div>
-      </div>
+      </SpatialCard>
 
       <!-- MODE B: EXECUTE & FILL TASKS FORM -->
       <div v-else class="space-y-6">
@@ -90,26 +91,27 @@
         <!-- SECTION 1: DAILY TASKS -->
         <div class="space-y-4">
           <div class="flex items-center justify-between px-1">
-            <h3 class="text-sm font-black text-blue-400 uppercase tracking-wider flex items-center gap-1.5">
+            <h3 class="text-sm font-black text-blue-600 dark:text-blue-400 uppercase tracking-wider flex items-center gap-1.5">
               <span>📅 المهام اليومية الدورية المعتمدة ({{ activeDailyTasks.length }})</span>
             </h3>
-            <span class="text-xs font-mono text-white/50">تظهر تلقائياً فور افتتاح الزيارة</span>
+            <span class="text-xs font-mono text-slate-500 dark:text-white/50">تظهر تلقائياً فور افتتاح الزيارة</span>
           </div>
 
           <div v-if="activeDailyTasks.length > 0" class="space-y-4">
-            <div
+            <SpatialCard
               v-for="resp in activeDailyTasks"
               :key="resp.id"
-              class="p-6 rounded-3xl bg-slate-800/80 backdrop-blur-xl border border-white/10 space-y-4 shadow-xl"
+              padding="p-6"
+              class="space-y-4 shadow-xl"
             >
-              <div class="space-y-1 border-b border-white/10 pb-3">
+              <div class="space-y-1 border-b border-slate-200/60 dark:border-white/10 pb-3">
                 <SpatialStatusPill type="completed">
                   مهمة يومية
                 </SpatialStatusPill>
-                <h4 class="text-base font-black text-white mt-1">
+                <h4 class="text-base font-black text-slate-900 dark:text-white mt-1">
                   {{ resp.taskDefinition ? resp.taskDefinition.title : 'مهمة' }}
                 </h4>
-                <p v-if="resp.taskDefinition && resp.taskDefinition.description" class="text-xs text-white/60 font-bold">
+                <p v-if="resp.taskDefinition && resp.taskDefinition.description" class="text-xs text-slate-500 dark:text-white/60 font-bold">
                   {{ resp.taskDefinition.description }}
                 </p>
               </div>
@@ -119,11 +121,11 @@
                 <div
                   v-for="comp in getVisibleComponentsForTask(resp)"
                   :key="comp.id"
-                  class="p-4 rounded-2xl bg-white/5 border border-white/10 space-y-2"
+                  class="p-4 rounded-2xl bg-slate-50 dark:bg-white/5 border border-slate-200/60 dark:border-white/10 space-y-2"
                 >
-                  <label class="text-xs font-black text-white flex items-center gap-1">
+                  <label class="text-xs font-black text-slate-900 dark:text-white flex items-center gap-1">
                     <span>{{ comp.label }}</span>
-                    <span v-if="comp.is_required" class="text-red-400">*</span>
+                    <span v-if="comp.is_required" class="text-red-500">*</span>
                   </label>
 
                   <div v-if="comp.component_type === 'text'">
@@ -153,11 +155,11 @@
                     <div
                       v-for="opt in getComponentOptions(comp)"
                       :key="opt.value"
-                      class="flex items-center gap-2 cursor-pointer p-2.5 rounded-xl bg-white/5 hover:bg-white/10 transition-colors"
+                      class="flex items-center gap-2 cursor-pointer p-2.5 rounded-xl bg-white dark:bg-white/5 hover:bg-slate-100 dark:hover:bg-white/10 border border-slate-200/60 dark:border-white/5 transition-colors"
                       @click="toggleCheckbox(resp.task_definition_id, comp.id, opt.value)"
                     >
                       <SpatialCheckbox :model-value="isCheckboxChecked(resp.task_definition_id, comp.id, opt.value)" />
-                      <span class="text-xs font-bold text-white/90">{{ opt.label }}</span>
+                      <span class="text-xs font-bold text-slate-800 dark:text-white/90">{{ opt.label }}</span>
                     </div>
                   </div>
 
@@ -166,33 +168,34 @@
                   </div>
                 </div>
               </div>
-            </div>
+            </SpatialCard>
           </div>
 
-          <div v-else class="p-6 text-center text-xs font-bold text-white/40 border border-dashed border-white/10 rounded-3xl bg-slate-800/40">
+          <div v-else class="p-6 text-center text-xs font-bold text-slate-400 dark:text-white/40 border border-dashed border-slate-300 dark:border-white/10 rounded-3xl bg-slate-100/50 dark:bg-white/5">
             لا توجد مهام يومية مسندة لهذا الموقع.
           </div>
         </div>
 
         <!-- SECTION 2: TRIGGERED ON-DEMAND TASKS (RENDERED DIRECTLY ABOVE ON-DEMAND DROPDOWN) -->
-        <div class="space-y-4 pt-4 border-t border-white/10">
+        <div class="space-y-4 pt-4 border-t border-slate-200/60 dark:border-white/10">
           <div v-if="activeOnDemandTasks.length > 0" class="space-y-4">
             <div class="px-1 border-b border-amber-500/20 pb-2">
-              <h3 class="text-sm font-black text-amber-400 uppercase tracking-wider flex items-center gap-1.5">
+              <h3 class="text-sm font-black text-amber-600 dark:text-amber-400 uppercase tracking-wider flex items-center gap-1.5">
                 <span>⚡ المهام المضافة عند الحاجة ({{ activeOnDemandTasks.length }})</span>
               </h3>
             </div>
 
-            <div
+            <SpatialCard
               v-for="resp in activeOnDemandTasks"
               :key="resp.id"
-              class="p-6 rounded-3xl bg-amber-950/20 backdrop-blur-xl border border-amber-500/30 space-y-4 shadow-xl"
+              padding="p-6"
+              class="border-amber-500/30 space-y-4 shadow-xl"
             >
               <div class="space-y-1 border-b border-amber-500/20 pb-3">
                 <SpatialStatusPill type="pending">
                   مهمة عند الحاجة
                 </SpatialStatusPill>
-                <h4 class="text-base font-black text-white mt-1">
+                <h4 class="text-base font-black text-slate-900 dark:text-white mt-1">
                   {{ resp.taskDefinition ? resp.taskDefinition.title : 'مهمة عند الحاجة' }}
                 </h4>
               </div>
@@ -201,9 +204,9 @@
                 <div
                   v-for="comp in getVisibleComponentsForTask(resp)"
                   :key="comp.id"
-                  class="p-4 rounded-2xl bg-white/5 border border-white/10 space-y-2"
+                  class="p-4 rounded-2xl bg-slate-50 dark:bg-white/5 border border-slate-200/60 dark:border-white/10 space-y-2"
                 >
-                  <label class="text-xs font-black text-white block">{{ comp.label }}</label>
+                  <label class="text-xs font-black text-slate-900 dark:text-white block">{{ comp.label }}</label>
                   <div v-if="comp.component_type === 'text'">
                     <SpatialInput v-model="formValues[getTaskKey(resp.task_definition_id, comp.id)]" />
                   </div>
@@ -215,12 +218,12 @@
                   </div>
                 </div>
               </div>
-            </div>
+            </SpatialCard>
           </div>
 
           <!-- ON-DEMAND TASK DROPDOWN TRIGGER (LOCATED AT THE BOTTOM OF THE TASK LIST) -->
-          <div class="p-6 rounded-3xl bg-amber-500/10 border border-amber-500/20 space-y-3 shadow-xl">
-            <label class="text-xs font-black text-amber-300 block">إضافة مهمة حسب الحاجة لهذا الموقع:</label>
+          <SpatialCard padding="p-6" class="border-amber-500/30 bg-amber-500/5 space-y-3 shadow-xl">
+            <label class="text-xs font-black text-amber-700 dark:text-amber-300 block">إضافة مهمة حسب الحاجة لهذا الموقع:</label>
             <div class="grid grid-cols-1 sm:grid-cols-4 gap-3 items-center">
               <div class="sm:col-span-3">
                 <SpatialDropdown
@@ -243,11 +246,11 @@
                 <span>إضافة المهمة</span>
               </SpatialButton>
             </div>
-          </div>
+          </SpatialCard>
         </div>
 
         <!-- STICKY ACTION BAR -->
-        <div class="p-6 rounded-3xl bg-slate-800/90 backdrop-blur-xl border border-white/10 flex items-center justify-between gap-4 sticky bottom-6 shadow-2xl z-40">
+        <div class="p-6 rounded-3xl bg-white/90 dark:bg-slate-800/90 backdrop-blur-xl border border-black/10 dark:border-white/10 flex items-center justify-between gap-4 sticky bottom-6 shadow-2xl z-40">
           <SpatialButton variant="ghost" @click="goBack">
             العودة لسجل اليوم
           </SpatialButton>
@@ -272,19 +275,21 @@
       </div>
 
     </div>
-
-  </div>
+  </ConsultantLayout>
 </template>
 
 <script setup>
 import { ref, computed, watch } from 'vue';
 import { router } from '@inertiajs/vue3';
+import ConsultantLayout from '@/Layouts/ConsultantLayout.vue';
+import SpatialCard from '@/Components/Spatial/SpatialCard.vue';
 import SpatialButton from '@/Components/Spatial/SpatialButton.vue';
 import SpatialInput from '@/Components/Spatial/SpatialInput.vue';
 import SpatialDropdown from '@/Components/Spatial/SpatialDropdown.vue';
 import SpatialCheckbox from '@/Components/Spatial/SpatialCheckbox.vue';
 import SpatialImageUpload from '@/Components/Spatial/SpatialImageUpload.vue';
 import SpatialStatusPill from '@/Components/Spatial/SpatialStatusPill.vue';
+import SpatialToast from '@/Components/Spatial/SpatialToast.vue';
 
 const props = defineProps({
   consultant: { type: Object, required: true },
