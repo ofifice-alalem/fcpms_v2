@@ -428,6 +428,14 @@ const handleCancelVisit = () => {
     onSuccess: () => {
       showCancelModal.value = false;
       visitToCancel.value = null;
+      if (toastRef.value) {
+        toastRef.value.show('تم إلغاء ومسح الزيارة المعلقة بنجاح', 'success');
+      }
+    },
+    onError: () => {
+      if (toastRef.value) {
+        toastRef.value.show('عذراً، لا يمكن إلغاء أو مسح زيادة موثقة ومكتملة نهائياً', 'error');
+      }
     },
     onFinish: () => (isSubmitting.value = false),
   });

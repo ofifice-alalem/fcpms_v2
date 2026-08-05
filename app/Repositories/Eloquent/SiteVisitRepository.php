@@ -116,11 +116,34 @@ class SiteVisitRepository extends BaseRepository implements SiteVisitRepositoryI
 
     public function cancelVisit(SiteVisit $siteVisit): bool
     {
-        if ($siteVisit->status === 'completed' && $siteVisit->visit_finished_at) {
-            return false;
-        }
+        return (bool) DB::transaction(function () use ($siteVisit) {
+            $dailyRecord = $siteVisit->dailyRecord;
 
-        return (bool) $siteVisit->delete();
+            $responses = $siteVisit->taskResponses()->get();
+            foreach ($responses as $resp) {
+                $resp->values()->delete();
+                $resp->attachments()->delete();
+                $resp->delete();
+            }
+
+            $deleted = $siteVisit->delete();
+
+            if ($dailyRecord) {
+                $completedCount = TaskResponse::whereHas('siteVisit', fn ($q) => $q->where('daily_record_id', $dailyRecord->id))
+                    ->where('status', 'submitted')
+                    ->count();
+
+                $totalRequired = max(1, $dailyRecord->required_daily_tasks);
+                $percentage = min(100, round(($completedCount / $totalRequired) * 100, 2));
+
+                $dailyRecord->update([
+                    'completed_daily_tasks' => $completedCount,
+                    'completion_percentage' => $percentage,
+                ]);
+            }
+
+            return $deleted;
+        });
     }
 
     public function saveTaskResponses(SiteVisit $siteVisit, array $responsesData, array $attachmentsData = []): SiteVisit

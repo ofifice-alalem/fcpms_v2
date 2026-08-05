@@ -219,25 +219,15 @@ class DailyVisitController extends Controller
 
     public function destroy(SiteVisit $visit): JsonResponse|RedirectResponse
     {
-        $cancelled = $this->visitService->cancelVisit($visit);
-
-        if (!$cancelled) {
-            if (request()->wantsJson() && !request()->header('X-Inertia')) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'لا يمكن إلغاء زيارة مكتملة وموثقة نهائياً.',
-                ], 422);
-            }
-            return redirect()->back()->with('error', 'لا يمكن إلغاء زيارة مكتملة وموثقة نهائياً.');
-        }
+        $this->visitService->cancelVisit($visit);
 
         if (request()->wantsJson() && !request()->header('X-Inertia')) {
             return response()->json([
                 'success' => true,
-                'message' => 'تم إلغاء الزيارة المعلقة بنجاح',
+                'message' => 'تم إلغاء ومسح الزيارة بنجاح',
             ]);
         }
 
-        return redirect()->back()->with('success', 'تم إلغاء الزيارة المعلقة بنجاح');
+        return redirect()->route('consultant.visits.index')->with('success', 'تم إلغاء ومسح الزيارة بنجاح');
     }
 }
