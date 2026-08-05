@@ -86,20 +86,12 @@
           </div>
 
           <!-- 4. Single Select / Choice -->
-          <div v-else-if="comp.component_type === 'select' || comp.component_type === 'choice'" class="space-y-2">
-            <select
+          <div v-else-if="comp.component_type === 'select' || comp.component_type === 'choice'">
+            <SpatialDropdown
               v-model="formValues[getCompKey(comp)]"
-              class="w-full h-12 px-4 rounded-xl bg-white dark:bg-slate-900 border border-black/10 dark:border-white/10 text-slate-900 dark:text-white text-xs font-bold focus:ring-2 focus:ring-primary outline-none"
-            >
-              <option value="">اختر إجابة...</option>
-              <option
-                v-for="opt in getOptions(comp)"
-                :key="opt.value || opt.option_value || opt"
-                :value="opt.value || opt.option_value || opt"
-              >
-                {{ opt.label || opt.option_label || opt }}
-              </option>
-            </select>
+              placeholder="اختر إجابة..."
+              :options="getFormattedOptions(comp)"
+            />
           </div>
 
           <!-- 5. Checkbox -->
@@ -120,20 +112,8 @@
           </div>
 
           <!-- 6. Interactive Image Upload Dropzone (BR-028) -->
-          <div v-else-if="comp.component_type === 'image_upload' || comp.component_type === 'image'" class="space-y-2">
-            <div class="border-2 border-dashed border-primary/30 rounded-2xl p-6 text-center bg-primary/5 hover:bg-primary/10 transition-all cursor-pointer">
-              <div class="w-12 h-12 mx-auto rounded-2xl bg-primary/10 flex items-center justify-center text-primary mb-2">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                </svg>
-              </div>
-              <span class="text-xs font-black text-slate-900 dark:text-white block">
-                اضغط هنا أو اسحب وأسقط الصورة الإثباتية
-              </span>
-              <span class="text-[11px] font-bold text-slate-500 dark:text-white/50 block mt-1">
-                صورة الإثبات الحية مأخوذة بكاميرا الهاتف (JPEG, PNG حتى 10MB)
-              </span>
-            </div>
+          <div v-else-if="comp.component_type === 'image_upload' || comp.component_type === 'image'">
+            <SpatialImageUpload />
           </div>
         </div>
 
@@ -157,7 +137,9 @@
 import { ref, computed, watch } from 'vue';
 import SpatialModal from '@/Components/Spatial/SpatialModal.vue';
 import SpatialInput from '@/Components/Spatial/SpatialInput.vue';
+import SpatialDropdown from '@/Components/Spatial/SpatialDropdown.vue';
 import SpatialCheckbox from '@/Components/Spatial/SpatialCheckbox.vue';
+import SpatialImageUpload from '@/Components/Spatial/SpatialImageUpload.vue';
 import SpatialButton from '@/Components/Spatial/SpatialButton.vue';
 
 const props = defineProps({
@@ -190,6 +172,19 @@ const getCompKey = (comp) => {
 const getOptions = (comp) => {
   if (!comp.options) return [];
   return comp.options;
+};
+
+const getFormattedOptions = (comp) => {
+  const opts = getOptions(comp);
+  return opts.map((opt) => {
+    if (typeof opt === 'string') {
+      return { label: opt, value: opt };
+    }
+    return {
+      label: opt.label || opt.option_label || opt.value,
+      value: opt.value || opt.option_value,
+    };
+  });
 };
 
 const visibleComponents = computed(() => {

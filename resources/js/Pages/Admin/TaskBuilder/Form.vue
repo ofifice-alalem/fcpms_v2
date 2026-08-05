@@ -1,101 +1,101 @@
 <template>
   <HRLayout :title="isEditing ? 'تعديل المهمة الميدانية' : 'بناء مهمة ميدانية جديدة'">
-    <div class="space-y-6 max-w-7xl mx-auto pb-12">
-      <!-- Breadcrumb & Top Bar -->
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <div class="flex items-center gap-2 text-xs font-bold text-slate-500 dark:text-white/50 mb-1">
-            <Link :href="route('admin.tasks.index')" class="hover:text-primary transition-colors">
-              منشئ المهام والتكليفات
-            </Link>
-            <span>/</span>
-            <span class="text-slate-900 dark:text-white">
-              {{ isEditing ? 'تعديل بنية المهمة' : 'بناء مهمة جديدة' }}
-            </span>
+    <div class="space-y-6 max-w-7xl mx-auto pb-16">
+      
+      <!-- Top Bar / Action Header -->
+      <SpatialCard padding="p-6" class="relative z-40">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <div class="flex items-center gap-2 text-xs font-bold text-slate-500 dark:text-white/60 mb-1">
+              <Link :href="route('admin.tasks.index')" class="hover:text-primary transition-colors">
+                منشئ المهام والتكليفات
+              </Link>
+              <span>/</span>
+              <span class="text-slate-900 dark:text-white">
+                {{ isEditing ? 'تعديل بنية المهمة' : 'بناء مهمة جديدة' }}
+              </span>
+            </div>
+
+            <h1 class="text-2xl font-black text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
+              <span>{{ isEditing ? `تعديل: ${form.title || 'مهمة بدون عنوان'}` : 'منصة تصميم الاستبيانات والمهام الميدانية' }}</span>
+              <span class="px-2.5 py-0.5 rounded-full bg-primary/10 text-primary text-xs font-bold border border-primary/20 font-mono">
+                BR-027 / BR-031
+              </span>
+            </h1>
           </div>
 
-          <h1 class="text-2xl font-black text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
-            <span>{{ isEditing ? `تعديل: ${form.title || 'مهمة بدون عنوان'}` : 'منصة تصميم الاستبيانات والمهام الميدانية' }}</span>
-            <span class="px-2.5 py-0.5 rounded-full bg-primary/10 text-primary text-xs font-bold border border-primary/20 font-mono">
-              BR-027 / BR-031
-            </span>
-          </h1>
-        </div>
+          <div class="flex items-center gap-3">
+            <Link :href="route('admin.tasks.index')">
+              <SpatialButton variant="ghost" size="md">
+                ← إلغاء والعودة
+              </SpatialButton>
+            </Link>
 
-        <div class="flex items-center gap-3">
-          <Link :href="route('admin.tasks.index')">
-            <SpatialButton variant="ghost" size="md">
-              ← إلغاء والعودة
+            <SpatialButton
+              variant="primary"
+              size="md"
+              :loading="form.processing"
+              @click="handleSubmit"
+            >
+              {{ isEditing ? 'حفظ التعديلات' : 'حفظ ونشر المهمة الميدانية' }}
             </SpatialButton>
-          </Link>
-
-          <SpatialButton
-            variant="primary"
-            size="md"
-            :loading="form.processing"
-            @click="handleSubmit"
-          >
-            {{ isEditing ? 'حفظ التعديلات' : 'حفظ ونشر المهمة الميدانية' }}
-          </SpatialButton>
+          </div>
         </div>
-      </div>
+      </SpatialCard>
 
-      <!-- Main Section Grid (Form vs Live Preview Side Panel) -->
+      <!-- Main Section Grid (Form Canvas vs Sticky Live Preview Panel) -->
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         <!-- Main Form Canvas (8 cols) -->
         <div class="lg:col-span-8 space-y-6">
 
           <!-- Section 1: Basic Information -->
-          <div class="p-6 rounded-3xl bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 space-y-5">
-            <div class="flex items-center gap-3 pb-3 border-b border-black/5 dark:border-white/5">
-              <span class="w-8 h-8 rounded-xl bg-primary/10 text-primary font-black flex items-center justify-center text-sm">
+          <SpatialCard padding="p-6" class="relative z-30 space-y-5">
+            <div class="flex items-center gap-3 pb-4 border-b border-black/10 dark:border-white/10">
+              <span class="w-9 h-9 rounded-2xl bg-primary/10 text-primary font-black flex items-center justify-center text-sm shadow-sm">
                 1
               </span>
               <div>
                 <h3 class="text-sm font-black text-slate-900 dark:text-white">البيانات الأساسية ونوع التشغيل</h3>
-                <p class="text-xs font-bold text-slate-500 dark:text-white/50">عنوان المهمة وتحديد ما إذا كانت دورية أو عند الطلب</p>
+                <p class="text-xs font-bold text-slate-500 dark:text-white/60">عنوان المهمة وتحديد ما إذا كانت دورية أو عند الطلب</p>
               </div>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div class="space-y-1.5 md:col-span-2">
-                <label class="text-xs font-black text-slate-900 dark:text-white block">عنوان المهمة الميدانية *</label>
                 <SpatialInput
                   v-model="form.title"
+                  label="عنوان المهمة الميدانية *"
                   placeholder="مثال: تفقد أجهزة السلامة ومطابقة المخزون"
                   :error="errors.title"
                 />
               </div>
 
               <div class="space-y-1.5 md:col-span-2">
-                <label class="text-xs font-black text-slate-900 dark:text-white block">الوصف التوجيهي للاستشاري الميداني</label>
+                <label class="text-xs font-black text-slate-900 dark:text-white/90 block">الوصف التوجيهي للاستشاري الميداني</label>
                 <textarea
                   v-model="form.description"
                   rows="3"
                   placeholder="اكتب تعليمات واضحة تشرح طريقة التنفيذ والإثبات المطلوب..."
-                  class="w-full p-3.5 rounded-2xl bg-white dark:bg-slate-900 border border-black/10 dark:border-white/10 text-slate-900 dark:text-white text-xs font-bold focus:ring-2 focus:ring-primary outline-none transition-all resize-none"
+                  class="w-full p-3.5 rounded-2xl bg-white dark:bg-[#121a2c] border border-black/10 dark:border-white/10 text-slate-900 dark:text-white text-xs font-bold focus:ring-2 focus:ring-primary outline-none transition-all resize-none shadow-xs"
                 ></textarea>
               </div>
 
-              <div class="space-y-1.5">
-                <label class="text-xs font-black text-slate-900 dark:text-white block">نوع وتكرار المهمة (BR-027)</label>
-                <select
+              <div>
+                <SpatialDropdown
                   v-model="form.task_type"
-                  class="w-full h-12 px-4 rounded-xl bg-white dark:bg-slate-900 border border-black/10 dark:border-white/10 text-slate-900 dark:text-white text-xs font-bold focus:ring-2 focus:ring-primary outline-none cursor-pointer"
-                >
-                  <option value="daily">📅 مهمة يومية دورية (Daily)</option>
-                  <option value="on_demand">⚡ مهمة عند الطلب (On-Demand)</option>
-                </select>
+                  label="نوع وتكرار المهمة (BR-027)"
+                  :options="taskTypeOptions"
+                />
               </div>
 
-              <div class="space-y-1.5 flex flex-col justify-end">
+              <div class="flex flex-col justify-end">
                 <div
                   @click="form.is_active = !form.is_active"
                   :class="[
-                    'h-12 px-4 rounded-xl border flex items-center justify-between cursor-pointer select-none transition-all',
+                    'h-[52px] px-4 rounded-2xl border flex items-center justify-between cursor-pointer select-none transition-all',
                     form.is_active
                       ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-600 dark:text-emerald-400'
-                      : 'bg-black/5 dark:bg-white/5 border-black/10 dark:border-white/10 text-slate-500 dark:text-white/50'
+                      : 'bg-white dark:bg-[#121a2c] border-black/10 dark:border-white/10 text-slate-500 dark:text-white/50'
                   ]"
                 >
                   <span class="text-xs font-black">حالة التفعيل التشغيلي</span>
@@ -103,35 +103,32 @@
                 </div>
               </div>
             </div>
-          </div>
+          </SpatialCard>
 
           <!-- Section 2: Dynamic Form Builder -->
-          <div class="p-6 rounded-3xl bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 space-y-5">
-            <div class="flex items-center justify-between pb-3 border-b border-black/5 dark:border-white/5">
+          <SpatialCard padding="p-6" class="relative z-20 space-y-5">
+            <div class="flex items-center justify-between pb-4 border-b border-black/10 dark:border-white/10">
               <div class="flex items-center gap-3">
-                <span class="w-8 h-8 rounded-xl bg-purple-500/10 text-purple-500 font-black flex items-center justify-center text-sm">
+                <span class="w-9 h-9 rounded-2xl bg-purple-500/10 text-purple-500 font-black flex items-center justify-center text-sm shadow-sm">
                   2
                 </span>
                 <div>
                   <h3 class="text-sm font-black text-slate-900 dark:text-white">تصميم عناصر الاستبيان والشروط الذكية (Form Builder)</h3>
-                  <p class="text-xs font-bold text-slate-500 dark:text-white/50">إضافة أسئلة الاستبيان ومناطق رفع الإثباتات وقواعد الإظهار الشرطي (BR-028 / BR-030)</p>
+                  <p class="text-xs font-bold text-slate-500 dark:text-white/60">إضافة أسئلة الاستبيان ومناطق رفع الإثباتات وقواعد الإظهار الشرطي (BR-028 / BR-030)</p>
                 </div>
               </div>
-
-              <SpatialButton type="button" variant="secondary" size="sm" @click="addComponent">
-                + إضافة حقل جديد
-              </SpatialButton>
             </div>
 
-            <!-- Components Cards List -->
+            <!-- Components Cards List with Reverse Stack Z-Index to avoid overlap -->
             <div class="space-y-4">
               <div
                 v-for="(comp, index) in form.components"
                 :key="comp.temp_id || comp.id"
-                class="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-black/10 dark:border-white/10 space-y-4 shadow-sm"
+                :style="{ zIndex: form.components.length - index + 10 }"
+                class="p-5 rounded-2xl bg-white/80 dark:bg-[#121a2c] border border-black/10 dark:border-white/10 space-y-4 shadow-sm relative transition-all focus-within:z-[100]"
               >
                 <!-- Card Header Actions -->
-                <div class="flex items-center justify-between pb-3 border-b border-black/5 dark:border-white/5">
+                <div class="flex items-center justify-between pb-3 border-b border-black/5 dark:border-white/10">
                   <div class="flex items-center gap-2">
                     <span class="w-6 h-6 rounded-lg bg-primary/10 text-primary text-xs font-black flex items-center justify-center font-mono">
                       #{{ index + 1 }}
@@ -171,46 +168,39 @@
                 </div>
 
                 <!-- Field Setup Grid -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-                  <div class="space-y-1 md:col-span-2">
-                    <label class="text-[11px] font-black text-slate-700 dark:text-white/80 block">عنوان السؤال / الحقل</label>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-3 items-end">
+                  <div class="md:col-span-2">
                     <SpatialInput
                       v-model="comp.label"
+                      label="عنوان السؤال / الحقل *"
                       placeholder="مثال: هل طفايات الحريق صالحة؟"
                     />
                   </div>
 
-                  <div class="space-y-1">
-                    <label class="text-[11px] font-black text-slate-700 dark:text-white/80 block">نوع عنصر الإدخال (BR-028)</label>
-                    <select
+                  <div class="relative z-[60]">
+                    <SpatialDropdown
                       v-model="comp.component_type"
-                      class="w-full h-12 px-3 rounded-xl bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-slate-900 dark:text-white text-xs font-bold focus:ring-2 focus:ring-primary outline-none cursor-pointer"
-                    >
-                      <option value="text">✏️ نص عادي (Text)</option>
-                      <option value="number">🔢 رقم (Number)</option>
-                      <option value="select">📋 قائمة اختيار (Select)</option>
-                      <option value="checkbox">☑️ مربع اختيار (Checkbox)</option>
-                      <option value="image_upload">📸 منطقة رفع الإثبات الحية (Image Upload)</option>
-                      <option value="date">📅 تاريخ (Date)</option>
-                    </select>
+                      label="نوع عنصر الإدخال (BR-028)"
+                      :options="componentTypeOptions"
+                    />
                   </div>
 
-                  <div class="space-y-1 md:col-span-2">
-                    <label class="text-[11px] font-black text-slate-700 dark:text-white/80 block">تلميح ممتد / Placeholder</label>
+                  <div class="md:col-span-2">
                     <SpatialInput
                       v-model="comp.placeholder"
+                      label="تلميح ممتد / Placeholder"
                       placeholder="أدخل القيمة المسجلة..."
                     />
                   </div>
 
-                  <div class="space-y-1 flex items-end">
+                  <div>
                     <div
                       @click="comp.is_required = !comp.is_required"
                       :class="[
-                        'w-full h-12 px-3 rounded-xl border flex items-center justify-between cursor-pointer select-none transition-all',
+                        'w-full h-[52px] px-3 rounded-2xl border flex items-center justify-between cursor-pointer select-none transition-all',
                         comp.is_required
                           ? 'bg-amber-500/10 border-amber-500/30 text-amber-600 dark:text-amber-400'
-                          : 'bg-black/5 dark:bg-white/5 border-black/10 dark:border-white/10 text-slate-500 dark:text-white/50'
+                          : 'bg-white dark:bg-[#0c121e] border-black/10 dark:border-white/10 text-slate-500 dark:text-white/50'
                       ]"
                     >
                       <span class="text-xs font-black">حقل إلزامي *</span>
@@ -220,13 +210,13 @@
                 </div>
 
                 <!-- Dynamic Options Manager -->
-                <div v-if="['select', 'checkbox'].includes(comp.component_type)" class="p-3.5 rounded-xl bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/5 space-y-2">
+                <div v-if="['select', 'checkbox'].includes(comp.component_type)" class="p-4 rounded-2xl bg-black/5 dark:bg-[#0c121e] border border-black/5 dark:border-white/10 space-y-3">
                   <div class="flex items-center justify-between">
-                    <label class="text-[11px] font-black text-slate-700 dark:text-white/80">خيارات الاختيار</label>
+                    <label class="text-xs font-black text-slate-900 dark:text-white">خيارات الاختيار</label>
                     <button
                       type="button"
                       @click="addOption(comp)"
-                      class="text-[11px] font-black text-primary hover:underline cursor-pointer"
+                      class="text-xs font-black text-primary hover:underline cursor-pointer"
                     >
                       + إضافة خيار
                     </button>
@@ -260,41 +250,37 @@
                 </div>
 
                 <!-- Smart Conditional Logic Panel (BR-030) -->
-                <div class="p-3.5 rounded-xl bg-purple-500/5 border border-purple-500/20 space-y-3">
+                <div class="p-4 rounded-2xl bg-purple-500/5 dark:bg-purple-500/10 border border-purple-500/20 space-y-3">
                   <div class="flex items-center justify-between">
-                    <span class="text-xs font-black text-purple-600 dark:text-purple-400 flex items-center gap-1.5">
+                    <span class="text-xs font-black text-purple-600 dark:text-purple-300 flex items-center gap-1.5">
                       <span>🔗</span>
                       <span>الربط الشرطي الذكي (Smart Adaptive Rules)</span>
                     </span>
                   </div>
 
-                  <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    <div>
-                      <label class="text-[10px] font-bold text-slate-500 dark:text-white/60 block mb-1">
-                        يظهر فقط عند إجابة الحقل:
-                      </label>
-                      <select
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-3 items-end">
+                    <div class="relative z-[50]">
+                      <SpatialDropdown
                         v-model="comp.conditional_parent_temp_id"
-                        class="w-full h-10 px-3 rounded-lg bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-slate-900 dark:text-white text-xs font-bold outline-none cursor-pointer"
-                      >
-                        <option :value="null">بدون شرط (يظهر دائماً)</option>
-                        <option
-                          v-for="parentComp in getAvailableParents(index)"
-                          :key="parentComp.temp_id || parentComp.id"
-                          :value="parentComp.temp_id || parentComp.id"
-                        >
-                          #{{ parentComp.label || 'حقل غير معنون' }}
-                        </option>
-                      </select>
+                        label="يظهر فقط عند إجابة الحقل:"
+                        placeholder="بدون شرط (يظهر دائماً)"
+                        :options="getParentOptions(index)"
+                      />
                     </div>
 
-                    <div v-if="comp.conditional_parent_temp_id">
-                      <label class="text-[10px] font-bold text-slate-500 dark:text-white/60 block mb-1">
-                        القيمة التريجر المطلوبة:
-                      </label>
-                      <SpatialInput
+                    <div v-if="comp.conditional_parent_temp_id" class="relative z-[40]">
+                      <SpatialDropdown
+                        v-if="getTriggerOptions(comp.conditional_parent_temp_id).length > 0"
                         v-model="comp.conditional_value"
-                        placeholder="مثال: no"
+                        label="القيمة التريجر المطلوبة:"
+                        placeholder="اختر خيار التفعيل..."
+                        :options="getTriggerOptions(comp.conditional_parent_temp_id)"
+                      />
+                      <SpatialInput
+                        v-else
+                        v-model="comp.conditional_value"
+                        label="القيمة التريجر المطلوبة:"
+                        placeholder="مثال: no أو غير مطابق"
                       />
                     </div>
                   </div>
@@ -302,23 +288,35 @@
 
               </div>
             </div>
-          </div>
+
+            <!-- Prominent "Add New Field" Button at the BOTTOM of Section 2 -->
+            <div class="pt-4 border-t border-black/10 dark:border-white/10">
+              <button
+                type="button"
+                @click="addComponent"
+                class="w-full py-4 rounded-2xl border-2 border-dashed border-primary/40 hover:border-primary bg-primary/5 hover:bg-primary/10 text-primary font-black text-xs flex items-center justify-center gap-2 transition-all cursor-pointer shadow-xs active:scale-[0.99]"
+              >
+                <span class="w-6 h-6 rounded-lg bg-primary text-white flex items-center justify-center text-sm font-black">+</span>
+                <span>إضافة حقل جديد للاستبيان الميداني</span>
+              </button>
+            </div>
+          </SpatialCard>
 
           <!-- Section 3: Assignments Matrix -->
-          <div class="p-6 rounded-3xl bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 space-y-5">
-            <div class="flex items-center gap-3 pb-3 border-b border-black/5 dark:border-white/5">
-              <span class="w-8 h-8 rounded-xl bg-amber-500/10 text-amber-500 font-black flex items-center justify-center text-sm">
+          <SpatialCard padding="p-6" class="relative z-10 space-y-5">
+            <div class="flex items-center gap-3 pb-4 border-b border-black/10 dark:border-white/10">
+              <span class="w-9 h-9 rounded-2xl bg-amber-500/10 text-amber-500 font-black flex items-center justify-center text-sm shadow-sm">
                 3
               </span>
               <div>
                 <h3 class="text-sm font-black text-slate-900 dark:text-white">مصفوفة التكليفات الميدانية (BR-029)</h3>
-                <p class="text-xs font-bold text-slate-500 dark:text-white/50">تحديد المواقع الميدانية أو الاستشاريين المخولين بهذه المهمة</p>
+                <p class="text-xs font-bold text-slate-500 dark:text-white/60">تحديد المواقع الميدانية أو الاستشاريين المخولين بهذه المهمة</p>
               </div>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <!-- Sites Matrix -->
-              <div class="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-black/10 dark:border-white/10 space-y-3">
+              <div class="p-4 rounded-2xl bg-white/80 dark:bg-[#121a2c] border border-black/10 dark:border-white/10 space-y-3">
                 <div class="flex items-center justify-between">
                   <label class="text-xs font-black text-slate-900 dark:text-white">المواقع الميدانية</label>
                   <span class="text-[10px] font-bold text-slate-500 dark:text-white/50">
@@ -326,16 +324,16 @@
                   </span>
                 </div>
 
-                <div class="max-h-52 overflow-y-auto space-y-1.5 pr-1">
+                <div class="max-h-52 overflow-y-auto space-y-1.5 pr-1 custom-scroll">
                   <div
                     v-for="site in sites"
                     :key="site.id"
                     @click="toggleSiteAssignment(site.id)"
                     :class="[
-                      'p-2.5 rounded-xl border flex items-center justify-between text-xs font-bold cursor-pointer transition-all select-none',
+                      'p-3 rounded-xl border flex items-center justify-between text-xs font-bold cursor-pointer transition-all select-none',
                       form.site_ids.includes(site.id)
-                        ? 'bg-primary/10 border-primary/30 text-slate-900 dark:text-white'
-                        : 'bg-black/5 dark:bg-white/5 border-transparent text-slate-600 dark:text-white/70'
+                        ? 'bg-primary/15 border-primary/40 text-slate-900 dark:text-white shadow-sm'
+                        : 'bg-white dark:bg-[#0c121e] border-black/5 dark:border-white/5 text-slate-600 dark:text-white/70 hover:border-slate-300'
                     ]"
                   >
                     <span>{{ site.name }} ({{ site.code }})</span>
@@ -345,7 +343,7 @@
               </div>
 
               <!-- Consultants Matrix -->
-              <div class="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-black/10 dark:border-white/10 space-y-3">
+              <div class="p-4 rounded-2xl bg-white/80 dark:bg-[#121a2c] border border-black/10 dark:border-white/10 space-y-3">
                 <div class="flex items-center justify-between">
                   <label class="text-xs font-black text-slate-900 dark:text-white">الاستشاريين الميدانيين</label>
                   <span class="text-[10px] font-bold text-slate-500 dark:text-white/50">
@@ -353,16 +351,16 @@
                   </span>
                 </div>
 
-                <div class="max-h-52 overflow-y-auto space-y-1.5 pr-1">
+                <div class="max-h-52 overflow-y-auto space-y-1.5 pr-1 custom-scroll">
                   <div
                     v-for="consultant in consultants"
                     :key="consultant.id"
                     @click="toggleConsultantAssignment(consultant.id)"
                     :class="[
-                      'p-2.5 rounded-xl border flex items-center justify-between text-xs font-bold cursor-pointer transition-all select-none',
+                      'p-3 rounded-xl border flex items-center justify-between text-xs font-bold cursor-pointer transition-all select-none',
                       form.consultant_ids.includes(consultant.id)
-                        ? 'bg-primary/10 border-primary/30 text-slate-900 dark:text-white'
-                        : 'bg-black/5 dark:bg-white/5 border-transparent text-slate-600 dark:text-white/70'
+                        ? 'bg-primary/15 border-primary/40 text-slate-900 dark:text-white shadow-sm'
+                        : 'bg-white dark:bg-[#0c121e] border-black/5 dark:border-white/5 text-slate-600 dark:text-white/70 hover:border-slate-300'
                     ]"
                   >
                     <span>{{ consultant.full_name }} ({{ consultant.employee_number }})</span>
@@ -371,29 +369,29 @@
                 </div>
               </div>
             </div>
-          </div>
+          </SpatialCard>
 
         </div>
 
         <!-- Sticky Side Column: Live Interactive Form Preview (4 cols) -->
-        <div class="lg:col-span-4 sticky top-6 self-start">
-          <div class="p-5 rounded-3xl bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 space-y-5">
-            <div class="flex items-center justify-between pb-3 border-b border-black/5 dark:border-white/5">
+        <div class="lg:col-span-4 sticky top-6 self-start z-30">
+          <SpatialCard padding="p-5" class="space-y-5">
+            <div class="flex items-center justify-between pb-3.5 border-b border-black/10 dark:border-white/10">
               <span class="text-xs font-black text-slate-900 dark:text-white flex items-center gap-1.5">
                 <span>👁️</span>
                 <span>المعاينة الحية التفاعلية للميدان</span>
               </span>
 
-              <span class="px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 text-[10px] font-bold">
+              <span class="px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 text-[10px] font-bold">
                 مباشر Live
               </span>
             </div>
 
             <!-- Simulated Card Header -->
-            <div class="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-black/10 dark:border-white/10 space-y-2">
+            <div class="p-4 rounded-2xl bg-white/70 dark:bg-[#121a2c] border border-black/10 dark:border-white/10 space-y-2">
               <span
                 :class="[
-                  'px-2 py-0.5 rounded-full text-[10px] font-black inline-block',
+                  'px-2.5 py-0.5 rounded-full text-[10px] font-black inline-block',
                   form.task_type === 'daily'
                     ? 'bg-blue-500/15 text-blue-600 dark:text-blue-400'
                     : 'bg-amber-500/15 text-amber-600 dark:text-amber-400'
@@ -411,12 +409,12 @@
               </p>
             </div>
 
-            <!-- Simulated Form Inputs -->
-            <div class="space-y-3 max-h-[450px] overflow-y-auto pr-1">
+            <!-- Simulated Form Inputs (Dynamic Height Growth) -->
+            <div class="space-y-3">
               <div
                 v-for="comp in visibleComponents"
                 :key="comp.temp_id || comp.id"
-                class="p-3.5 rounded-2xl bg-white dark:bg-slate-900 border border-black/10 dark:border-white/10 space-y-2 text-xs"
+                class="p-4 rounded-2xl bg-white/70 dark:bg-[#121a2c] border border-black/10 dark:border-white/10 space-y-2.5 text-xs shadow-xs"
               >
                 <div class="flex items-center justify-between">
                   <label class="font-black text-slate-900 dark:text-white">
@@ -437,34 +435,30 @@
                   <SpatialInput v-model="previewValues[getCompKey(comp)]" type="number" :placeholder="comp.placeholder || 'أدخل الرقم...'" />
                 </div>
 
-                <div v-else-if="comp.component_type === 'select'" class="space-y-1">
-                  <select
+                <div v-else-if="comp.component_type === 'select'">
+                  <SpatialDropdown
                     v-model="previewValues[getCompKey(comp)]"
-                    class="w-full h-10 px-3 rounded-lg bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-slate-900 dark:text-white text-xs font-bold outline-none"
-                  >
-                    <option value="">اختر إجابة...</option>
-                    <option v-for="opt in comp.options" :key="opt.value" :value="opt.value">
-                      {{ opt.label }}
-                    </option>
-                  </select>
+                    placeholder="اختر إجابة..."
+                    :options="comp.options ? comp.options.map(o => ({ label: o.label, value: o.value })) : []"
+                  />
                 </div>
 
-                <div v-else-if="comp.component_type === 'image_upload'" class="p-3 rounded-xl border border-dashed border-primary/40 bg-primary/5 text-center">
-                  <span class="text-[10px] font-black text-primary block">📸 اسحب وأسقط صورة الإثبات</span>
+                <div v-else-if="comp.component_type === 'image_upload'">
+                  <SpatialImageUpload />
                 </div>
               </div>
 
-              <div v-if="visibleComponents.length === 0" class="p-6 text-center text-xs font-bold text-slate-400">
+              <div v-if="visibleComponents.length === 0" class="p-6 text-center text-xs font-bold text-slate-400 dark:text-white/40">
                 لم تقم ببدء تصميم أي عناصر حتى الآن.
               </div>
             </div>
 
             <!-- Bottom Quick Summary -->
-            <div class="pt-3 border-t border-black/5 dark:border-white/5 flex items-center justify-between text-[11px] font-bold text-slate-500 dark:text-white/60">
+            <div class="pt-3.5 border-t border-black/10 dark:border-white/10 flex items-center justify-between text-[11px] font-bold text-slate-500 dark:text-white/60">
               <span>إجمالي المكونات: {{ form.components.length }}</span>
               <span>المواقع: {{ form.site_ids.length || 'الكل' }}</span>
             </div>
-          </div>
+          </SpatialCard>
         </div>
       </div>
     </div>
@@ -475,9 +469,12 @@
 import { ref, computed, watch } from 'vue';
 import { useForm, Link } from '@inertiajs/vue3';
 import HRLayout from '@/Layouts/HRLayout.vue';
+import SpatialCard from '@/Components/Spatial/SpatialCard.vue';
 import SpatialButton from '@/Components/Spatial/SpatialButton.vue';
 import SpatialInput from '@/Components/Spatial/SpatialInput.vue';
+import SpatialDropdown from '@/Components/Spatial/SpatialDropdown.vue';
 import SpatialCheckbox from '@/Components/Spatial/SpatialCheckbox.vue';
+import SpatialImageUpload from '@/Components/Spatial/SpatialImageUpload.vue';
 
 const props = defineProps({
   task: {
@@ -495,6 +492,20 @@ const props = defineProps({
 });
 
 const isEditing = computed(() => !!props.task);
+
+const taskTypeOptions = [
+  { label: '📅 مهمة يومية دورية (Daily)', value: 'daily' },
+  { label: '⚡ مهمة عند الطلب (On-Demand)', value: 'on_demand' },
+];
+
+const componentTypeOptions = [
+  { label: '✏️ نص عادي (Text)', value: 'text' },
+  { label: '🔢 رقم (Number)', value: 'number' },
+  { label: '📋 قائمة اختيار (Select)', value: 'select' },
+  { label: '☑️ مربع اختيار (Checkbox)', value: 'checkbox' },
+  { label: '📸 منطقة رفع الإثبات الحية (Image Upload)', value: 'image_upload' },
+  { label: '📅 تاريخ (Date)', value: 'date' },
+];
 
 const form = useForm({
   title: '',
@@ -589,8 +600,31 @@ function removeOption(comp, optIdx) {
   comp.options.splice(optIdx, 1);
 }
 
-function getAvailableParents(currentIndex) {
-  return form.components.slice(0, currentIndex);
+function getParentOptions(currentIndex) {
+  const parents = form.components.slice(0, currentIndex);
+  const options = [{ label: 'بدون شرط (يظهر دائماً)', value: null }];
+  parents.forEach((p) => {
+    options.push({
+      label: `#${p.label || 'حقل غير معنون'}`,
+      value: p.temp_id || `comp_${p.id}`,
+    });
+  });
+  return options;
+}
+
+function getTriggerOptions(parentTempId) {
+  if (!parentTempId) return [];
+  const parentComp = form.components.find(
+    (c) => (c.temp_id || `comp_${c.id}`) === parentTempId
+  );
+  if (!parentComp || !parentComp.options || parentComp.options.length === 0) return [];
+
+  return parentComp.options
+    .filter((opt) => opt.value || opt.label)
+    .map((opt) => ({
+      label: opt.label || opt.value,
+      value: opt.value || opt.label,
+    }));
 }
 
 function toggleSiteAssignment(siteId) {

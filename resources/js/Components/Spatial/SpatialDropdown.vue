@@ -1,5 +1,5 @@
 <template>
-  <div class="space-y-1.5 w-full relative" :class="{ 'z-50': isOpen }" ref="dropdownRef">
+  <div class="space-y-1.5 w-full relative transition-all" :class="isOpen ? 'z-[999]' : 'z-10'" ref="dropdownRef">
     <label v-if="label" class="text-xs font-black tracking-wide text-slate-700 dark:text-white/85 flex items-center gap-1">
       {{ label }}
       <span v-if="required" class="required-star">*</span>

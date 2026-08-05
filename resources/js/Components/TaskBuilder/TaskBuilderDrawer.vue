@@ -33,22 +33,19 @@
             ></textarea>
           </div>
 
-          <div class="space-y-1.5">
-            <label class="text-xs font-black text-slate-900 dark:text-white block">نوع وتكرار المهمة</label>
-            <select
+          <div>
+            <SpatialDropdown
               v-model="form.task_type"
-              class="w-full h-12 px-4 rounded-xl bg-white dark:bg-slate-900 border border-black/10 dark:border-white/10 text-slate-900 dark:text-white text-xs font-bold focus:ring-2 focus:ring-primary outline-none cursor-pointer"
-            >
-              <option value="daily">📅 مهمة يومية دورية (Daily)</option>
-              <option value="on_demand">⚡ مهمة عند الطلب (On-Demand)</option>
-            </select>
+              label="نوع وتكرار المهمة"
+              :options="taskTypeOptions"
+            />
           </div>
 
-          <div class="space-y-1.5 flex flex-col justify-end">
+          <div class="flex flex-col justify-end">
             <div
               @click="form.is_active = !form.is_active"
               :class="[
-                'h-12 px-4 rounded-xl border flex items-center justify-between cursor-pointer select-none transition-all',
+                'h-[52px] px-4 rounded-xl border flex items-center justify-between cursor-pointer select-none transition-all',
                 form.is_active
                   ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-600 dark:text-emerald-400'
                   : 'bg-black/5 dark:bg-white/5 border-black/10 dark:border-white/10 text-slate-500 dark:text-white/50'
@@ -127,43 +124,36 @@
             </div>
 
             <!-- Field Setup Grid -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-              <div class="space-y-1 md:col-span-2">
-                <label class="text-[11px] font-black text-slate-700 dark:text-white/80 block">عنوان السؤال / الحقل</label>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-3 items-end">
+              <div class="md:col-span-2">
                 <SpatialInput
                   v-model="comp.label"
+                  label="عنوان السؤال / الحقل"
                   placeholder="مثال: هل طفايات الحريق صالحة؟"
                 />
               </div>
 
-              <div class="space-y-1">
-                <label class="text-[11px] font-black text-slate-700 dark:text-white/80 block">نوع عنصر الإدخال (BR-028)</label>
-                <select
+              <div>
+                <SpatialDropdown
                   v-model="comp.component_type"
-                  class="w-full h-12 px-3 rounded-xl bg-white dark:bg-slate-900 border border-black/10 dark:border-white/10 text-slate-900 dark:text-white text-xs font-bold focus:ring-2 focus:ring-primary outline-none cursor-pointer"
-                >
-                  <option value="text">✏️ نص عادي (Text)</option>
-                  <option value="number">🔢 رقم (Number)</option>
-                  <option value="select">📋 قائمة اختيار (Select)</option>
-                  <option value="checkbox">☑️ مربع اختيار (Checkbox)</option>
-                  <option value="image_upload">📸 منطقة رفع الإثبات الحية (Image Upload)</option>
-                  <option value="date">📅 تاريخ (Date)</option>
-                </select>
+                  label="نوع عنصر الإدخال (BR-028)"
+                  :options="componentTypeOptions"
+                />
               </div>
 
-              <div class="space-y-1 md:col-span-2">
-                <label class="text-[11px] font-black text-slate-700 dark:text-white/80 block">ملاحظات مساعدة / Placeholder</label>
+              <div class="md:col-span-2">
                 <SpatialInput
                   v-model="comp.placeholder"
+                  label="ملاحظات مساعدة / Placeholder"
                   placeholder="مثال: أدخل القيمة المسجلة بالعداد..."
                 />
               </div>
 
-              <div class="space-y-1 flex items-end">
+              <div>
                 <div
                   @click="comp.is_required = !comp.is_required"
                   :class="[
-                    'w-full h-12 px-3 rounded-xl border flex items-center justify-between cursor-pointer select-none transition-all',
+                    'w-full h-[52px] px-3 rounded-xl border flex items-center justify-between cursor-pointer select-none transition-all',
                     comp.is_required
                       ? 'bg-amber-500/10 border-amber-500/30 text-amber-600 dark:text-amber-400'
                       : 'bg-black/5 dark:bg-white/5 border-black/10 dark:border-white/10 text-slate-500 dark:text-white/50'
@@ -224,32 +214,28 @@
                 </span>
               </div>
 
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-3 items-end">
                 <div>
-                  <label class="text-[10px] font-bold text-slate-500 dark:text-white/60 block mb-1">
-                    يظهر فقط إذا كانت إجابة الحقل التالي:
-                  </label>
-                  <select
+                  <SpatialDropdown
                     v-model="comp.conditional_parent_temp_id"
-                    class="w-full h-10 px-3 rounded-lg bg-white dark:bg-slate-900 border border-black/10 dark:border-white/10 text-slate-900 dark:text-white text-xs font-bold outline-none cursor-pointer"
-                  >
-                    <option :value="null">بدون شرط (يظهر دائماً)</option>
-                    <option
-                      v-for="parentComp in getAvailableParents(index)"
-                      :key="parentComp.temp_id || parentComp.id"
-                      :value="parentComp.temp_id || parentComp.id"
-                    >
-                      #{{ parentComp.label || 'حقل غير معنون' }}
-                    </option>
-                  </select>
+                    label="يظهر فقط إذا كانت إجابة الحقل التالي:"
+                    placeholder="بدون شرط (يظهر دائماً)"
+                    :options="getParentOptions(index)"
+                  />
                 </div>
 
                 <div v-if="comp.conditional_parent_temp_id">
-                  <label class="text-[10px] font-bold text-slate-500 dark:text-white/60 block mb-1">
-                    القيمة المشروطة المطلوبة لإظهاره:
-                  </label>
-                  <SpatialInput
+                  <SpatialDropdown
+                    v-if="getTriggerOptions(comp.conditional_parent_temp_id).length > 0"
                     v-model="comp.conditional_value"
+                    label="القيمة المشروطة المطلوبة لإظهاره:"
+                    placeholder="اختر قيمة التفعيل..."
+                    :options="getTriggerOptions(comp.conditional_parent_temp_id)"
+                  />
+                  <SpatialInput
+                    v-else
+                    v-model="comp.conditional_value"
+                    label="القيمة المشروطة المطلوبة لإظهاره:"
                     placeholder="مثال: no أو غير مطابق"
                   />
                 </div>
@@ -278,7 +264,7 @@
               </span>
             </div>
 
-            <div class="max-h-48 overflow-y-auto space-y-1.5 pr-1">
+            <div class="max-h-48 overflow-y-auto space-y-1.5 pr-1 custom-scroll">
               <div
                 v-for="site in sites"
                 :key="site.id"
@@ -305,7 +291,7 @@
               </span>
             </div>
 
-            <div class="max-h-48 overflow-y-auto space-y-1.5 pr-1">
+            <div class="max-h-48 overflow-y-auto space-y-1.5 pr-1 custom-scroll">
               <div
                 v-for="consultant in consultants"
                 :key="consultant.id"
@@ -344,6 +330,7 @@ import { reactive, computed, watch } from 'vue';
 import { useForm } from '@inertiajs/vue3';
 import SpatialDrawer from '@/Components/Spatial/SpatialDrawer.vue';
 import SpatialInput from '@/Components/Spatial/SpatialInput.vue';
+import SpatialDropdown from '@/Components/Spatial/SpatialDropdown.vue';
 import SpatialButton from '@/Components/Spatial/SpatialButton.vue';
 import SpatialCheckbox from '@/Components/Spatial/SpatialCheckbox.vue';
 
@@ -369,6 +356,20 @@ const props = defineProps({
 const emit = defineEmits(['close', 'success']);
 
 const isEditing = computed(() => !!props.taskToEdit);
+
+const taskTypeOptions = [
+  { label: '📅 مهمة يومية دورية (Daily)', value: 'daily' },
+  { label: '⚡ مهمة عند الطلب (On-Demand)', value: 'on_demand' },
+];
+
+const componentTypeOptions = [
+  { label: '✏️ نص عادي (Text)', value: 'text' },
+  { label: '🔢 رقم (Number)', value: 'number' },
+  { label: '📋 قائمة اختيار (Select)', value: 'select' },
+  { label: '☑️ مربع اختيار (Checkbox)', value: 'checkbox' },
+  { label: '📸 منطقة رفع الإثبات الحية (Image Upload)', value: 'image_upload' },
+  { label: '📅 تاريخ (Date)', value: 'date' },
+];
 
 const form = useForm({
   title: '',
@@ -475,8 +476,31 @@ function removeOption(comp, optIdx) {
   comp.options.splice(optIdx, 1);
 }
 
-function getAvailableParents(currentIndex) {
-  return form.components.slice(0, currentIndex);
+function getParentOptions(currentIndex) {
+  const parents = form.components.slice(0, currentIndex);
+  const options = [{ label: 'بدون شرط (يظهر دائماً)', value: null }];
+  parents.forEach((p) => {
+    options.push({
+      label: `#${p.label || 'حقل غير معنون'}`,
+      value: p.temp_id || p.id,
+    });
+  });
+  return options;
+}
+
+function getTriggerOptions(parentTempId) {
+  if (!parentTempId) return [];
+  const parentComp = form.components.find(
+    (c) => (c.temp_id || c.id) === parentTempId
+  );
+  if (!parentComp || !parentComp.options || parentComp.options.length === 0) return [];
+
+  return parentComp.options
+    .filter((opt) => opt.value || opt.label)
+    .map((opt) => ({
+      label: opt.label || opt.value,
+      value: opt.value || opt.label,
+    }));
 }
 
 function toggleSiteAssignment(siteId) {
