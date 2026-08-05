@@ -28,7 +28,7 @@ class SiteRepository extends BaseRepository implements SiteRepositoryInterface
         return $query->exists();
     }
 
-    public function getFilteredSites(?string $search = null, ?string $city = null, ?string $status = null, int $perPage = 15): LengthAwarePaginator
+    public function getFilteredSites(?string $search = null, ?string $city = null, ?string $status = null, ?string $sort = null, int $perPage = 15): LengthAwarePaginator
     {
         $query = $this->model->newQuery()->withCount(['visits', 'taskAssignments']);
 
@@ -48,7 +48,24 @@ class SiteRepository extends BaseRepository implements SiteRepositoryInterface
             $query->where('status', $status);
         }
 
-        return $query->latest()->paginate($perPage)->withQueryString();
+        // Apply Sorting Options
+        switch ($sort) {
+            case 'visits_desc':
+                $query->orderBy('visits_count', 'desc');
+                break;
+            case 'visits_asc':
+                $query->orderBy('visits_count', 'asc');
+                break;
+            case 'name_asc':
+                $query->orderBy('name', 'asc');
+                break;
+            case 'latest':
+            default:
+                $query->latest();
+                break;
+        }
+
+        return $query->paginate($perPage)->withQueryString();
     }
 
     public function hasVisits(int $siteId): bool

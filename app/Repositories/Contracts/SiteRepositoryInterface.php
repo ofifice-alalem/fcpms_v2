@@ -18,9 +18,9 @@ interface SiteRepositoryInterface extends BaseRepositoryInterface
     public function isCodeExists(string $code, ?int $ignoreId = null): bool;
 
     /**
-     * Get paginated sites list with optional search and filters.
+     * Get paginated sites list with optional search, filters, and sorting.
      */
-    public function getFilteredSites(?string $search = null, ?string $city = null, ?string $status = null, int $perPage = 15): LengthAwarePaginator;
+    public function getFilteredSites(?string $search = null, ?string $city = null, ?string $status = null, ?string $sort = null, int $perPage = 15): LengthAwarePaginator;
 
     /**
      * Check if site has any registered visits (BR-020 code lock check).

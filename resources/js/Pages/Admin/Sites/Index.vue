@@ -27,18 +27,20 @@
 
       <!-- Filter & Search Bar -->
       <SpatialCard padding="p-5" class="relative z-30">
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
           
           <!-- Live Search Input -->
           <SpatialInput
             v-model="searchQuery"
-            placeholder="بحث بالاسم، الرمز، أو العنوان..."
+            label="البحث المباشر"
+            placeholder="اسم، رمز، أو عنوان الموقع..."
             @input="handleFilterChange"
           />
 
           <!-- City Spatial Dropdown -->
           <SpatialDropdown
             v-model="selectedCity"
+            label="تصفية حسب المدينة"
             placeholder="جميع المدن"
             :options="cityFilterOptions"
             @change="handleFilterChange"
@@ -47,8 +49,18 @@
           <!-- Status Spatial Dropdown -->
           <SpatialDropdown
             v-model="selectedStatus"
+            label="الحالة التشغيلية"
             placeholder="جميع الحالات"
             :options="statusFilterOptions"
+            @change="handleFilterChange"
+          />
+
+          <!-- Sort Spatial Dropdown -->
+          <SpatialDropdown
+            v-model="selectedSort"
+            label="ترتيب النتائج"
+            placeholder="اختر الترتيب..."
+            :options="sortFilterOptions"
             @change="handleFilterChange"
           />
 
@@ -140,13 +152,20 @@
                       </svg>
                     </SpatialIconButton>
 
+                    <!-- Dynamic Toggle Status Button -->
                     <SpatialIconButton
-                      variant="warning"
+                      :variant="site.status === 'active' ? 'warning' : 'success'"
                       :title="site.status === 'active' ? 'تعطيل الموقع' : 'تفعيل الموقع'"
                       @click="toggleSiteStatus(site)"
                     >
-                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <!-- Previous Lightning/Zap Icon if Active -->
+                      <svg v-if="site.status === 'active'" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                      </svg>
+                      <!-- Play / Activate Icon if Inactive -->
+                      <svg v-else class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
                       </svg>
                     </SpatialIconButton>
 
@@ -387,6 +406,7 @@ const toastRef = ref(null);
 const searchQuery = ref(props.filters.search || '');
 const selectedCity = ref(props.filters.city || '');
 const selectedStatus = ref(props.filters.status || '');
+const selectedSort = ref(props.filters.sort || 'latest');
 
 const selectedIds = ref([]);
 const selectAll = ref(false);
@@ -411,6 +431,13 @@ const statusFilterOptions = [
   { label: 'جميع الحالات', value: '' },
   { label: 'نشط (Active)', value: 'active' },
   { label: 'غير نشط (Inactive)', value: 'inactive' },
+];
+
+const sortFilterOptions = [
+  { label: 'الأحدث إضافة (افتراضي)', value: 'latest' },
+  { label: 'الأكثر زيارات 📈', value: 'visits_desc' },
+  { label: 'الأقل زيارات 📉', value: 'visits_asc' },
+  { label: 'اسم الموقع (أ - ي)', value: 'name_asc' },
 ];
 
 const cityFormOptions = [
@@ -443,6 +470,7 @@ function handleFilterChange() {
       search: searchQuery.value,
       city: selectedCity.value,
       status: selectedStatus.value,
+      sort: selectedSort.value,
     },
     { preserveState: true, replace: true }
   );

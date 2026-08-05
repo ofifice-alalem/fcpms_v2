@@ -46,6 +46,8 @@ const variantClasses = computed(() => {
       return 'bg-blue-500/10 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400 hover:bg-blue-600 hover:text-white dark:hover:bg-blue-500 hover:shadow-blue-500/30 hover:border-blue-500/40';
     case 'info':
       return 'bg-indigo-500/10 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-600 hover:text-white dark:hover:bg-indigo-500 hover:shadow-indigo-500/30 hover:border-indigo-500/40';
+    case 'success':
+      return 'bg-emerald-500/10 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-600 hover:text-white dark:hover:bg-emerald-500 hover:shadow-emerald-500/30 hover:border-emerald-500/40';
     case 'warning':
       return 'bg-amber-500/10 dark:bg-amber-500/20 text-amber-600 dark:text-amber-400 hover:bg-amber-500 hover:text-white dark:hover:bg-amber-500 hover:shadow-amber-500/30 hover:border-amber-500/40';
     case 'danger':

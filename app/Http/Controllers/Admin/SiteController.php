@@ -20,18 +20,20 @@ class SiteController extends Controller
     ) {}
 
     /**
-     * Display paginated sites listing with search and filters.
+     * Display paginated sites listing with search, filters, and sorting.
      */
     public function index(Request $request): Response
     {
         $search = $request->query('search');
         $city = $request->query('city');
         $status = $request->query('status');
+        $sort = $request->query('sort');
 
         $sites = $this->siteRepository->getFilteredSites(
             search: $search,
             city: $city,
             status: $status,
+            sort: $sort,
             perPage: 15
         );
 
@@ -41,6 +43,7 @@ class SiteController extends Controller
                 'search' => $search,
                 'city' => $city,
                 'status' => $status,
+                'sort' => $sort,
             ],
         ]);
     }
