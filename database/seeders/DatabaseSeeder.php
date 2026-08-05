@@ -155,5 +155,7 @@ class DatabaseSeeder extends Seeder
                 'notes' => 'استشاري ميداني لمواقع بنغازي ومصراتة',
             ]
         );
+
+        $this->call(ConsultantTasksSeeder::class);
     }
 }

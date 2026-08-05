@@ -222,7 +222,7 @@
           </div>
 
           <!-- ON-DEMAND TASK DROPDOWN TRIGGER (LOCATED AT THE BOTTOM OF THE TASK LIST) -->
-          <SpatialCard padding="p-6" class="border-amber-500/30 bg-amber-500/5 space-y-3 shadow-xl">
+          <SpatialCard padding="p-6" class="border-amber-500/30 bg-amber-500/5 space-y-3 shadow-xl relative z-30">
             <label class="text-xs font-black text-amber-700 dark:text-amber-300 block">إضافة مهمة حسب الحاجة لهذا الموقع:</label>
             <div class="grid grid-cols-1 sm:grid-cols-4 gap-3 items-center">
               <div class="sm:col-span-3">
@@ -250,7 +250,7 @@
         </div>
 
         <!-- STICKY ACTION BAR -->
-        <div class="p-6 rounded-3xl bg-white/90 dark:bg-slate-800/90 backdrop-blur-xl border border-black/10 dark:border-white/10 flex items-center justify-between gap-4 sticky bottom-6 shadow-2xl z-40">
+        <div class="p-6 rounded-3xl bg-white/90 dark:bg-slate-800/90 backdrop-blur-xl border border-black/10 dark:border-white/10 flex items-center justify-between gap-4 sticky bottom-6 shadow-2xl z-20">
           <SpatialButton variant="ghost" @click="goBack">
             العودة لسجل اليوم
           </SpatialButton>

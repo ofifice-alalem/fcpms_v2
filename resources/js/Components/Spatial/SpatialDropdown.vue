@@ -30,6 +30,7 @@
       <div
         v-if="isOpen"
         class="spatial-dropdown-menu animate-spatial-in z-[100] shadow-2xl space-y-2 p-2 min-w-[220px]"
+        :class="openUpward ? 'bottom-full mb-2' : 'top-full mt-2'"
       >
         <!-- Search Input Box -->
         <div v-if="searchable" class="relative px-1 pt-1 space-y-1.5">
@@ -159,13 +160,26 @@ const selectedLabel = computed(() => {
   return found ? found.label : String(props.modelValue || '');
 });
 
+const openUpward = ref(false);
+
+function checkPosition() {
+  if (!dropdownRef.value) return;
+  const rect = dropdownRef.value.getBoundingClientRect();
+  const spaceBelow = window.innerHeight - rect.bottom;
+  const menuEstimatedHeight = 280;
+  openUpward.value = spaceBelow < menuEstimatedHeight && rect.top > menuEstimatedHeight;
+}
+
 function toggleDropdown() {
   isOpen.value = !isOpen.value;
-  if (isOpen.value && props.searchable) {
-    searchQuery.value = '';
-    nextTick(() => {
-      searchInputRef.value?.focus();
-    });
+  if (isOpen.value) {
+    checkPosition();
+    if (props.searchable) {
+      searchQuery.value = '';
+      nextTick(() => {
+        searchInputRef.value?.focus();
+      });
+    }
   }
 }
 
