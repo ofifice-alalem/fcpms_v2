@@ -8,24 +8,26 @@
       <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-6 rounded-3xl bg-slate-800/80 backdrop-blur-xl border border-white/10 shadow-2xl">
         <div class="space-y-1">
           <div class="flex items-center gap-2">
-            <span class="px-3 py-1 rounded-full text-xs font-black bg-primary/20 text-primary border border-primary/30">
-              ⚡ البوابة الميدانية للاستشاري
-            </span>
-            <span class="text-xs text-white/50 font-mono">{{ todayDateFormatted }}</span>
+            <SpatialStatusPill type="completed" :pulse="true">
+              البوابة الميدانية للاستشاري
+            </SpatialStatusPill>
+            <span class="text-xs text-white/50 font-mono dir-ltr">{{ todayDateFormatted }}</span>
           </div>
           <h1 class="text-xl sm:text-2xl font-black text-white tracking-tight">
             تنفيذ الزيارات اليومية الميدانية
           </h1>
           <p class="text-xs text-white/60 font-bold">
-            تسجيل الحضور اليومي، فتح زيارات المواقع، واستكمال النماذج الميدانية والإثباتات الحية.
+            تسجيل الحضور اليومي، إشعار زيارات المواقع الميدانية، واستكمال التوثيق عبر النماذج الذكية.
           </p>
         </div>
 
-        <!-- START DAY ACTION BUTTON & STATUS -->
+        <!-- START DAY ACTION BUTTON -->
         <div class="flex items-center gap-3">
           <div v-if="dailyRecord && dailyRecord.check_in_time" class="text-left">
-            <span class="text-[11px] text-emerald-400 font-black block">🟢 اليوم العملي قيد التنفيذ</span>
-            <span class="text-[10px] text-white/50 font-mono">بدء: {{ formatTime(dailyRecord.check_in_time) }}</span>
+            <SpatialStatusPill type="completed" :pulse="true">
+              اليوم العملي قائم
+            </SpatialStatusPill>
+            <span class="text-[10px] text-white/50 font-mono block mt-1 dir-ltr">بدء: {{ formatTime(dailyRecord.check_in_time) }}</span>
           </div>
 
           <SpatialButton
@@ -35,14 +37,17 @@
             :disabled="isSubmitting"
             @click="handleStartDay"
           >
-            🚀 بدء اليوم العملي
+            <svg class="w-5 h-5 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+            </svg>
+            <span>بدء اليوم العملي</span>
           </SpatialButton>
         </div>
       </div>
 
-      <!-- CONSULTANT & DAILY STATS CARDS -->
+      <!-- STATS OVERVIEW CARDS & NEW VISIT ACTION -->
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <!-- Card 1: Consultant Info -->
+        <!-- Card 1: Consultant Details -->
         <SpatialCard padding="p-5" class="space-y-2">
           <div class="flex items-center justify-between">
             <span class="text-xs font-black text-white/50">الاستشاري الميداني</span>
@@ -55,352 +60,141 @@
         <!-- Card 2: Daily Progress -->
         <SpatialCard padding="p-5" class="space-y-2">
           <div class="flex items-center justify-between">
-            <span class="text-xs font-black text-white/50">نسبة إنجاز مهام اليوم</span>
+            <span class="text-xs font-black text-white/50">إجمالي إنجاز اليوم</span>
             <span class="text-xs font-mono text-emerald-400 font-bold">{{ dailyRecord.completion_percentage || 0 }}%</span>
           </div>
           <SpatialProgressBar :value="dailyRecord.completion_percentage || 0" />
           <div class="flex justify-between text-[11px] text-white/60 font-bold pt-1">
-            <span>المهام المنجزة: {{ dailyRecord.completed_daily_tasks || 0 }}</span>
-            <span>الإجمالي: {{ dailyRecord.required_daily_tasks || 0 }}</span>
+            <span>المهام المكتملة: {{ dailyRecord.completed_daily_tasks || 0 }}</span>
+            <span>المطلوبة: {{ dailyRecord.required_daily_tasks || 0 }}</span>
           </div>
         </SpatialCard>
 
-        <!-- Card 3: Visited Sites Count -->
-        <SpatialCard padding="p-5" class="space-y-2">
-          <div class="flex items-center justify-between">
-            <span class="text-xs font-black text-white/50">المواقع المزارة اليوم</span>
-            <span class="text-xs font-mono text-amber-400 font-bold">BR-023</span>
+        <!-- Card 3: New Visit Trigger Button -->
+        <SpatialCard padding="p-5" class="flex flex-col justify-between space-y-3 bg-gradient-to-br from-primary/10 via-slate-800 to-slate-800 border-primary/30">
+          <div class="space-y-1">
+            <span class="text-xs font-black text-primary">المواقع المزارة</span>
+            <h3 class="text-xl font-black text-white">
+              {{ dailyRecord.site_visits ? dailyRecord.site_visits.length : 0 }} موقع اليوم
+            </h3>
           </div>
-          <h3 class="text-xl font-black text-white">
-            {{ dailyRecord.site_visits ? dailyRecord.site_visits.length : 0 }} موقع
-          </h3>
-          <p class="text-xs text-white/60 font-bold">مسجلة في سجل اليوم الروزنامي الحالي</p>
+
+          <SpatialButton
+            variant="primary"
+            size="md"
+            class="w-full justify-center"
+            :disabled="isSubmitting"
+            @click="goToCreateVisit"
+          >
+            <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+            </svg>
+            <span>بدء زيارة موقع جديد</span>
+          </SpatialButton>
         </SpatialCard>
       </div>
 
-      <!-- SITE SELECTION BAR & OPEN VISIT (BR-023 & Dropdown) -->
-      <SpatialCard padding="p-6" class="space-y-4 relative z-30">
-        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 border-b border-white/10 pb-3">
-          <div>
-            <h3 class="text-base font-black text-white flex items-center gap-2">
-              📍 اختيار الموقع الميداني وفتح زيارة جديدة
-            </h3>
-            <p class="text-xs text-white/60 font-bold">
-              اختر الموقع من القائمة المنسدلة لإضافته لسجلك اليومي وعرض المهام المنسدلة فوراً.
-            </p>
-          </div>
-
-          <span v-if="activeVisit" class="px-3 py-1 rounded-full text-xs font-black bg-amber-500/15 text-amber-400 border border-amber-500/20">
-            ⏳ توجد زيارة جارية حالياً
+      <!-- VISITED SITES SECTION (SPATIAL CARDS GRID) -->
+      <div class="space-y-4">
+        <div class="flex items-center justify-between px-1">
+          <h2 class="text-base font-black text-white flex items-center gap-2">
+            <span>سجل المواقع المزارة اليوم</span>
+          </h2>
+          <span class="text-xs font-mono text-white/50 font-bold">
+            {{ siteVisits.length }} موقع مسجل
           </span>
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-4 gap-3 items-end">
-          <div class="sm:col-span-3 space-y-1.5">
-            <label class="text-xs font-black text-white/80">الموقع الميداني المتاح:</label>
-            <SpatialDropdown
-              v-model="selectedSiteId"
-              placeholder="ابحث واختر الموقع الميداني..."
-              :options="formattedSiteOptions"
-              :searchable="true"
-            />
-          </div>
-
-          <div>
-            <SpatialButton
-              variant="primary"
-              size="md"
-              class="w-full justify-center h-[54px]"
-              :disabled="!selectedSiteId || isSubmitting"
-              @click="handleOpenSiteVisit"
-            >
-              ➕ فتح زيارة الموقع
-            </SpatialButton>
-          </div>
-        </div>
-      </SpatialCard>
-
-      <!-- ACTIVE SITE VISIT EXECUTION PORTAL (BR-019: Daily vs On-Demand Separation) -->
-      <div v-if="currentActiveVisit" class="space-y-6">
-        
-        <!-- ACTIVE VISIT BANNER -->
-        <div class="p-6 rounded-3xl bg-gradient-to-r from-blue-900/40 via-indigo-900/40 to-slate-900 backdrop-blur-xl border border-blue-500/30 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-          <div class="space-y-1">
-            <div class="flex items-center gap-2">
-              <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
-              <span class="text-xs font-black text-emerald-400">زيارة قائمة (قيد التنفيذ)</span>
-              <span class="text-xs text-white/50 font-mono">#{{ currentActiveVisit.id }}</span>
-            </div>
-            <h2 class="text-xl font-black text-white">
-              📍 {{ currentActiveVisit.site ? currentActiveVisit.site.name : 'الموقع الميداني' }}
-            </h2>
-            <p class="text-xs text-white/60 font-bold">
-              كود: {{ currentActiveVisit.site ? currentActiveVisit.site.code : '' }}
-            </p>
-          </div>
-
-          <div class="flex items-center gap-2">
-            <SpatialButton
-              variant="secondary"
-              size="sm"
-              @click="openDetailsModal(currentActiveVisit)"
-            >
-              👁️ معاينة
-            </SpatialButton>
-            <SpatialButton
-              variant="danger"
-              size="sm"
-              @click="confirmCancelVisit(currentActiveVisit)"
-            >
-              🗑️ إلغاء الزيارة المعلقة
-            </SpatialButton>
-          </div>
-        </div>
-
-        <!-- SECTION A: DAILY TASKS (AUTOMATICALLY LOADED BR-019) -->
-        <div class="space-y-4">
-          <div class="flex items-center justify-between px-1">
-            <h3 class="text-sm font-black text-white uppercase tracking-wider flex items-center gap-2">
-              📅 المهام اليومية الدورية الإجبارية (تظهر فوراً عند فتح الزيارة)
-            </h3>
-            <span class="text-xs font-mono text-blue-400 font-bold">
-              {{ activeDailyTasks.length }} مهام يومية
-            </span>
-          </div>
-
-          <div v-if="activeDailyTasks.length > 0" class="space-y-4">
-            <div
-              v-for="resp in activeDailyTasks"
-              :key="resp.id"
-              class="p-6 rounded-3xl bg-slate-800/80 backdrop-blur-xl border border-white/10 space-y-4"
-            >
-              <div class="flex items-center justify-between border-b border-white/10 pb-3">
+        <div v-if="siteVisits.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <SpatialCard
+            v-for="visit in siteVisits"
+            :key="visit.id"
+            padding="p-5"
+            class="space-y-4 hover:border-white/20 transition-all flex flex-col justify-between"
+          >
+            <!-- Card Header -->
+            <div class="space-y-2">
+              <div class="flex items-start justify-between gap-2">
                 <div class="space-y-0.5">
-                  <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-blue-500/15 text-blue-400 border border-blue-500/20">
-                    📅 مهمة يومية دورية
-                  </span>
-                  <h4 class="text-base font-black text-white mt-1">
-                    {{ resp.taskDefinition ? resp.taskDefinition.title : 'مهمة ميدانية' }}
-                  </h4>
-                  <p v-if="resp.taskDefinition && resp.taskDefinition.description" class="text-xs text-white/60 font-bold">
-                    {{ resp.taskDefinition.description }}
+                  <h3 class="text-base font-black text-white">
+                    {{ visit.site ? visit.site.name : 'موقع ميداني' }}
+                  </h3>
+                  <p class="text-xs text-white/50 font-mono">
+                    كود: {{ visit.site ? visit.site.code : '' }}
                   </p>
                 </div>
-              </div>
 
-              <!-- SMART ADAPTIVE FORM COMPONENTS -->
-              <div class="space-y-4">
-                <div
-                  v-for="comp in getVisibleComponentsForTask(resp)"
-                  :key="comp.id"
-                  class="p-4 rounded-2xl bg-white/5 border border-white/10 space-y-2"
+                <SpatialStatusPill
+                  :type="visit.status === 'completed' ? 'completed' : 'pending'"
+                  :pulse="visit.status !== 'completed'"
                 >
-                  <div class="flex items-center justify-between">
-                    <label class="text-xs font-black text-white flex items-center gap-1.5">
-                      <span>{{ comp.label }}</span>
-                      <span v-if="comp.is_required" class="text-red-400 font-mono">*</span>
-                    </label>
-
-                    <span v-if="comp.conditional_parent_id" class="px-2 py-0.5 rounded-md bg-purple-500/15 text-purple-400 text-[10px] font-bold">
-                      🔗 حقل شرطي ذكي
-                    </span>
-                  </div>
-
-                  <!-- Text Input -->
-                  <div v-if="comp.component_type === 'text'">
-                    <SpatialInput
-                      v-model="formValues[getTaskKey(resp.task_definition_id, comp.id)]"
-                      :placeholder="comp.placeholder || 'أدخل النص...'"
-                    />
-                  </div>
-
-                  <!-- Number Input -->
-                  <div v-else-if="comp.component_type === 'number'">
-                    <SpatialInput
-                      v-model="formValues[getTaskKey(resp.task_definition_id, comp.id)]"
-                      type="number"
-                      :placeholder="comp.placeholder || 'أدخل رقم...'"
-                    />
-                  </div>
-
-                  <!-- Dropdown Input -->
-                  <div v-else-if="comp.component_type === 'select' || comp.component_type === 'choice'">
-                    <SpatialDropdown
-                      v-model="formValues[getTaskKey(resp.task_definition_id, comp.id)]"
-                      placeholder="اختر الخيار المناسب..."
-                      :options="getComponentOptions(comp)"
-                    />
-                  </div>
-
-                  <!-- Checkbox Input -->
-                  <div v-else-if="comp.component_type === 'checkbox'" class="space-y-2 pt-1">
-                    <div
-                      v-for="opt in getComponentOptions(comp)"
-                      :key="opt.value"
-                      class="flex items-center gap-2 cursor-pointer p-2 rounded-xl bg-white/5 hover:bg-white/10 transition-colors"
-                      @click="toggleCheckbox(resp.task_definition_id, comp.id, opt.value)"
-                    >
-                      <SpatialCheckbox
-                        :model-value="isCheckboxChecked(resp.task_definition_id, comp.id, opt.value)"
-                      />
-                      <span class="text-xs font-bold text-white/90">{{ opt.label }}</span>
-                    </div>
-                  </div>
-
-                  <!-- Image Upload Dropzone (BR-028) -->
-                  <div v-else-if="comp.component_type === 'image_upload' || comp.component_type === 'image'">
-                    <SpatialImageUpload />
-                  </div>
-                </div>
+                  {{ visit.status === 'completed' ? 'مكتملة' : 'قيد التنفيذ' }}
+                </SpatialStatusPill>
               </div>
-            </div>
-          </div>
 
-          <div v-else class="p-6 text-center rounded-3xl border border-dashed border-white/10 text-white/50 text-xs font-bold">
-            لا توجد مهام يومية دورية مرتبطة بهذا الموقع حالياً.
-          </div>
-        </div>
+              <!-- Metrics inside Card -->
+              <div class="p-3 rounded-2xl bg-white/5 space-y-2 border border-white/5">
+                <div class="flex items-center justify-between text-xs">
+                  <span class="font-bold text-white/60">نسبة الإنجاز:</span>
+                  <span class="font-black text-emerald-400 font-mono">{{ getVisitProgress(visit) }}%</span>
+                </div>
+                <SpatialProgressBar :value="getVisitProgress(visit)" />
 
-        <!-- SECTION B: ON-DEMAND TASKS (TRIGGERED VIA DROPDOWN BR-019) -->
-        <div class="space-y-4 pt-4 border-t border-white/10">
-          <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 px-1">
-            <div>
-              <h3 class="text-sm font-black text-amber-400 uppercase tracking-wider flex items-center gap-2">
-                ⚡ المهام عند الحاجة (تُضاف حتمياً عبر القائمة المنسدلة المخصصة)
-              </h3>
-              <p class="text-xs text-white/60 font-bold">
-                تطبيق قاعدة الفصل التشغيلي (BR-019): اختر مهمة طارئة أو عند الحاجة لإضافتها لهذه الزيارة.
-              </p>
-            </div>
-          </div>
-
-          <!-- ON-DEMAND TRIGGER DROPDOWN -->
-          <div class="p-5 rounded-3xl bg-amber-500/10 border border-amber-500/20 grid grid-cols-1 sm:grid-cols-4 gap-3 items-end">
-            <div class="sm:col-span-3 space-y-1.5">
-              <label class="text-xs font-black text-amber-300">اختر مهمة عند الحاجة لإضافتها للزيارة الحالية:</label>
-              <SpatialDropdown
-                v-model="selectedOnDemandTaskId"
-                placeholder="⚡ اختر مهمة طارئة / عند الحاجة..."
-                :options="formattedOnDemandOptions"
-                :searchable="true"
-              />
-            </div>
-
-            <div>
-              <SpatialButton
-                variant="amber"
-                size="md"
-                class="w-full justify-center h-[54px]"
-                :disabled="!selectedOnDemandTaskId || isSubmitting"
-                @click="handleTriggerOnDemand"
-              >
-                ➕ إضافة المهمة
-              </SpatialButton>
-            </div>
-          </div>
-
-          <!-- TRIGGERED ON-DEMAND TASKS LIST -->
-          <div v-if="activeOnDemandTasks.length > 0" class="space-y-4">
-            <div
-              v-for="resp in activeOnDemandTasks"
-              :key="resp.id"
-              class="p-6 rounded-3xl bg-amber-950/20 backdrop-blur-xl border border-amber-500/30 space-y-4"
-            >
-              <div class="flex items-center justify-between border-b border-amber-500/20 pb-3">
-                <div class="space-y-0.5">
-                  <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-amber-500/20 text-amber-300 border border-amber-500/30">
-                    ⚡ مهمة عند الحاجة (مُفعلة)
+                <div class="flex items-center justify-between text-[11px] pt-1">
+                  <span class="text-white/60 font-bold">المهام الإضافية المنجزة:</span>
+                  <span class="px-2 py-0.5 rounded-md bg-amber-500/15 text-amber-400 font-black font-mono">
+                    {{ getOnDemandTasksCount(visit) }} مهام
                   </span>
-                  <h4 class="text-base font-black text-white mt-1">
-                    {{ resp.taskDefinition ? resp.taskDefinition.title : 'مهمة عند الحاجة' }}
-                  </h4>
                 </div>
               </div>
+            </div>
 
-              <!-- Component inputs for on-demand task -->
-              <div class="space-y-4">
-                <div
-                  v-for="comp in getVisibleComponentsForTask(resp)"
-                  :key="comp.id"
-                  class="p-4 rounded-2xl bg-white/5 border border-white/10 space-y-2"
+            <!-- Card Actions Footer -->
+            <div class="pt-3 border-t border-slate-200/60 dark:border-white/10 flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <SpatialIconButton
+                  variant="ghost"
+                  title="عرض التفاصيل"
+                  @click="openDetailsModal(visit)"
                 >
-                  <label class="text-xs font-black text-white block">{{ comp.label }}</label>
-                  <div v-if="comp.component_type === 'text'">
-                    <SpatialInput v-model="formValues[getTaskKey(resp.task_definition_id, comp.id)]" />
-                  </div>
-                  <div v-else-if="comp.component_type === 'number'">
-                    <SpatialInput v-model="formValues[getTaskKey(resp.task_definition_id, comp.id)]" type="number" />
-                  </div>
-                  <div v-else-if="comp.component_type === 'image_upload' || comp.component_type === 'image'">
-                    <SpatialImageUpload />
-                  </div>
-                </div>
+                  <svg class="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                  </svg>
+                </SpatialIconButton>
+
+                <SpatialIconButton
+                  variant="warning"
+                  title="فتح صفحة إدخال وتعديل المهام"
+                  @click="goToExecuteVisit(visit)"
+                >
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                  </svg>
+                </SpatialIconButton>
               </div>
-            </div>
-          </div>
-        </div>
 
-        <!-- FORM ACTION BAR -->
-        <div class="p-6 rounded-3xl bg-slate-800/90 backdrop-blur-xl border border-white/10 flex items-center justify-between gap-4 sticky bottom-6 shadow-2xl z-40">
-          <SpatialButton variant="secondary" :disabled="isSubmitting" @click="handleSaveResponses(false)">
-            💾 حفظ مسودة الإجابات
-          </SpatialButton>
-
-          <SpatialButton variant="primary" size="lg" :disabled="isSubmitting" @click="handleSaveResponses(true)">
-            ✅ إنهاء واعتمد زيارة الموقع
-          </SpatialButton>
-        </div>
-
-      </div>
-
-      <!-- VISITED SITES HISTORY TIMELINE -->
-      <SpatialCard padding="p-6" class="space-y-4">
-        <h3 class="text-base font-black text-white border-b border-white/10 pb-3">
-          📜 سجل زيارات اليوم الفعال (Timeline)
-        </h3>
-
-        <div v-if="dailyRecord.site_visits && dailyRecord.site_visits.length > 0" class="space-y-3">
-          <div
-            v-for="visit in dailyRecord.site_visits"
-            :key="visit.id"
-            class="p-4 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-between gap-4"
-          >
-            <div>
-              <h4 class="text-sm font-black text-white">
-                📍 {{ visit.site ? visit.site.name : 'موقع ميداني' }}
-              </h4>
-              <p class="text-xs text-white/50 font-mono">
-                بدء الزيارة: {{ formatTime(visit.visit_started_at) }}
-              </p>
-            </div>
-
-            <div class="flex items-center gap-3">
-              <span
-                :class="[
-                  'px-3 py-1 rounded-full text-xs font-black',
-                  visit.status === 'completed'
-                    ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/20'
-                    : 'bg-amber-500/15 text-amber-400 border border-amber-500/20'
-                ]"
+              <SpatialIconButton
+                variant="danger"
+                title="إلغاء أو مسح الزيارة"
+                @click="confirmCancelVisit(visit)"
               >
-                {{ visit.status === 'completed' ? '✓ مكتملة' : '⏳ قيد التنفيذ' }}
-              </span>
-
-              <SpatialButton variant="ghost" size="sm" @click="openDetailsModal(visit)">
-                👁️ التفاصيل
-              </SpatialButton>
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                </svg>
+              </SpatialIconButton>
             </div>
-          </div>
+          </SpatialCard>
         </div>
 
-        <div v-else class="p-8 text-center text-xs font-bold text-white/40">
-          لم يتم فتح زيارات مواقع بعد في هذا اليوم.
+        <div v-else class="p-12 text-center rounded-3xl bg-slate-800/50 border border-dashed border-white/10 text-white/50 space-y-3">
+          <p class="text-xs font-bold">لم تقم بزيارة أي موقع اليوم بعد. انقر على "بدء زيارة موقع جديد" للبدء.</p>
         </div>
-      </SpatialCard>
+      </div>
 
     </div>
 
-    <!-- REUSABLE MODALS -->
+    <!-- MODALS -->
     <VisitDetailModal
       :is-open="showDetailModal"
       :visit="selectedModalVisit"
@@ -418,14 +212,12 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue';
+import { ref, computed } from 'vue';
 import { router } from '@inertiajs/vue3';
 import SpatialCard from '@/Components/Spatial/SpatialCard.vue';
 import SpatialButton from '@/Components/Spatial/SpatialButton.vue';
-import SpatialInput from '@/Components/Spatial/SpatialInput.vue';
-import SpatialDropdown from '@/Components/Spatial/SpatialDropdown.vue';
-import SpatialCheckbox from '@/Components/Spatial/SpatialCheckbox.vue';
-import SpatialImageUpload from '@/Components/Spatial/SpatialImageUpload.vue';
+import SpatialIconButton from '@/Components/Spatial/SpatialIconButton.vue';
+import SpatialStatusPill from '@/Components/Spatial/SpatialStatusPill.vue';
 import SpatialProgressBar from '@/Components/Spatial/SpatialProgressBar.vue';
 import VisitDetailModal from '@/Components/Consultant/VisitDetailModal.vue';
 import CancelVisitModal from '@/Components/Consultant/CancelVisitModal.vue';
@@ -438,18 +230,14 @@ const props = defineProps({
   availableOnDemandTasks: { type: Array, default: () => [] },
 });
 
-const selectedSiteId = ref(null);
-const selectedOnDemandTaskId = ref(null);
 const isSubmitting = ref(false);
-const formValues = ref({});
 
-// Modals state
+// Modals State
 const showDetailModal = ref(false);
 const selectedModalVisit = ref(null);
+
 const showCancelModal = ref(false);
 const visitToCancel = ref(null);
-
-const currentActiveVisit = computed(() => props.activeVisit);
 
 const todayDateFormatted = computed(() => {
   return new Date().toLocaleDateString('ar-LY', {
@@ -460,93 +248,21 @@ const todayDateFormatted = computed(() => {
   });
 });
 
-const formattedSiteOptions = computed(() => {
-  return props.availableSites.map((site) => ({
-    label: `${site.name} (${site.code})`,
-    value: site.id,
-  }));
+const siteVisits = computed(() => {
+  return props.dailyRecord && props.dailyRecord.site_visits ? props.dailyRecord.site_visits : [];
 });
 
-const formattedOnDemandOptions = computed(() => {
-  return props.availableOnDemandTasks.map((t) => ({
-    label: `⚡ ${t.title}`,
-    value: t.id,
-  }));
-});
+const getVisitProgress = (visit) => {
+  if (!visit.task_responses || visit.task_responses.length === 0) return 0;
+  const completed = visit.task_responses.filter((r) => r.status === 'submitted' || r.completed_at).length;
+  return Math.round((completed / visit.task_responses.length) * 100);
+};
 
-const activeDailyTasks = computed(() => {
-  if (!currentActiveVisit.value || !currentActiveVisit.value.task_responses) return [];
-  return currentActiveVisit.value.task_responses.filter(
-    (r) => r.task_definition && r.task_definition.task_type === 'daily'
-  );
-});
-
-const activeOnDemandTasks = computed(() => {
-  if (!currentActiveVisit.value || !currentActiveVisit.value.task_responses) return [];
-  return currentActiveVisit.value.task_responses.filter(
+const getOnDemandTasksCount = (visit) => {
+  if (!visit.task_responses) return 0;
+  return visit.task_responses.filter(
     (r) => r.task_definition && r.task_definition.task_type === 'on_demand'
-  );
-});
-
-// Watch active visit to preload existing form response values
-watch(
-  () => props.activeVisit,
-  (visit) => {
-    if (!visit || !visit.task_responses) return;
-    const initial = {};
-    visit.task_responses.forEach((resp) => {
-      if (resp.values) {
-        resp.values.forEach((v) => {
-          const key = getTaskKey(resp.task_definition_id, v.task_component_id);
-          try {
-            initial[key] = JSON.parse(v.value);
-          } catch {
-            initial[key] = v.value;
-          }
-        });
-      }
-    });
-    formValues.value = initial;
-  },
-  { immediate: true }
-);
-
-const getTaskKey = (taskId, compId) => `t_${taskId}_c_${compId}`;
-
-const getComponentOptions = (comp) => {
-  if (!comp.options) return [];
-  return comp.options.map((opt) => ({
-    label: typeof opt === 'string' ? opt : opt.label || opt.option_label || opt.value,
-    value: typeof opt === 'string' ? opt : opt.value || opt.option_value,
-  }));
-};
-
-const getVisibleComponentsForTask = (resp) => {
-  if (!resp.taskDefinition || !resp.taskDefinition.components) return [];
-  const comps = resp.taskDefinition.components;
-  return comps.filter((comp) => {
-    if (!comp.conditional_parent_id) return true;
-    const parentKey = getTaskKey(resp.task_definition_id, comp.conditional_parent_id);
-    const parentVal = formValues.value[parentKey];
-    if (!parentVal) return false;
-    return String(parentVal) === String(comp.conditional_value);
-  });
-};
-
-const isCheckboxChecked = (taskId, compId, val) => {
-  const current = formValues.value[getTaskKey(taskId, compId)];
-  return Array.isArray(current) ? current.includes(val) : false;
-};
-
-const toggleCheckbox = (taskId, compId, val) => {
-  const key = getTaskKey(taskId, compId);
-  if (!formValues.value[key] || !Array.isArray(formValues.value[key])) {
-    formValues.value[key] = [val];
-  } else {
-    const idx = formValues.value[key].indexOf(val);
-    if (idx > -1) formValues.value[key].splice(idx, 1);
-    else formValues.value[key].push(val);
-  }
+  ).length;
 };
 
 const formatTime = (isoString) => {
@@ -554,7 +270,7 @@ const formatTime = (isoString) => {
   return new Date(isoString).toLocaleTimeString('ar-LY', { hour: '2-digit', minute: '2-digit' });
 };
 
-// Handlers
+// Navigation Handlers
 const handleStartDay = () => {
   isSubmitting.value = true;
   router.post('/consultant/daily-visits/start-day', {}, {
@@ -562,54 +278,12 @@ const handleStartDay = () => {
   });
 };
 
-const handleOpenSiteVisit = () => {
-  if (!selectedSiteId.value) return;
-  isSubmitting.value = true;
-  router.post('/consultant/site-visits', { site_id: selectedSiteId.value }, {
-    onSuccess: () => (selectedSiteId.value = null),
-    onFinish: () => (isSubmitting.value = false),
-  });
+const goToCreateVisit = () => {
+  router.get('/consultant/site-visits/create');
 };
 
-const handleTriggerOnDemand = () => {
-  if (!selectedOnDemandTaskId.value || !currentActiveVisit.value) return;
-  isSubmitting.value = true;
-  router.post(`/consultant/site-visits/${currentActiveVisit.value.id}/trigger-on-demand`, {
-    task_definition_id: selectedOnDemandTaskId.value,
-  }, {
-    onSuccess: () => (selectedOnDemandTaskId.value = null),
-    onFinish: () => (isSubmitting.value = false),
-  });
-};
-
-const handleSaveResponses = (completeVisit = false) => {
-  if (!currentActiveVisit.value) return;
-  isSubmitting.value = true;
-
-  const responses = (currentActiveVisit.value.task_responses || []).map((resp) => {
-    const valuesObj = {};
-    if (resp.taskDefinition && resp.taskDefinition.components) {
-      resp.taskDefinition.components.forEach((comp) => {
-        const key = getTaskKey(resp.task_definition_id, comp.id);
-        if (formValues.value[key] !== undefined) {
-          valuesObj[comp.id] = formValues.value[key];
-        }
-      });
-    }
-
-    return {
-      task_definition_id: resp.task_definition_id,
-      values: valuesObj,
-      is_completed: completeVisit,
-    };
-  });
-
-  router.post(`/consultant/site-visits/${currentActiveVisit.value.id}/save-responses`, {
-    responses,
-    complete_visit: completeVisit,
-  }, {
-    onFinish: () => (isSubmitting.value = false),
-  });
+const goToExecuteVisit = (visit) => {
+  router.get(`/consultant/site-visits/${visit.id}/execute`);
 };
 
 const openDetailsModal = (visit) => {

@@ -96,6 +96,38 @@ class DailyVisitController extends Controller
         return redirect()->back()->with('success', 'تم بدء اليوم العملي بنجاح');
     }
 
+    public function createVisit(): Response
+    {
+        $consultant = $this->getConsultant();
+        $dailyRecord = $this->visitService->getTodayRecord($consultant);
+        $availableSites = $this->visitService->getAvailableSites();
+
+        return Inertia::render('Consultant/DailyVisits/Execute', [
+            'consultant' => $consultant,
+            'dailyRecord' => $dailyRecord,
+            'visit' => null,
+            'availableSites' => $availableSites,
+            'availableOnDemandTasks' => [],
+        ]);
+    }
+
+    public function executeVisit(SiteVisit $visit): Response
+    {
+        $consultant = $this->getConsultant();
+        $dailyRecord = $this->visitService->getTodayRecord($consultant);
+        $visitDetails = $this->visitService->getVisitDetails($visit->id);
+        $availableSites = $this->visitService->getAvailableSites();
+        $availableOnDemandTasks = $this->visitService->getAvailableOnDemandTasks($visit->site_id, $consultant);
+
+        return Inertia::render('Consultant/DailyVisits/Execute', [
+            'consultant' => $consultant,
+            'dailyRecord' => $dailyRecord,
+            'visit' => $visitDetails,
+            'availableSites' => $availableSites,
+            'availableOnDemandTasks' => $availableOnDemandTasks,
+        ]);
+    }
+
     public function storeVisit(OpenSiteVisitRequest $request): RedirectResponse|JsonResponse
     {
         $consultant = $this->getConsultant();
@@ -123,7 +155,7 @@ class DailyVisitController extends Controller
             ], 201);
         }
 
-        return redirect()->back()->with('success', 'تم فتح زيارة الموقع بنجاح');
+        return redirect()->route('consultant.site-visits.execute', $visit->id)->with('success', 'تم فتح زيارة الموقع بنجاح');
     }
 
     public function triggerOnDemand(Request $request, SiteVisit $visit): JsonResponse|RedirectResponse

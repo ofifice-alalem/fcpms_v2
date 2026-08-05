@@ -78,6 +78,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/daily-visits', [\App\Http\Controllers\Consultant\DailyVisitController::class, 'index'])->name('visits.index');
         Route::post('/daily-visits/start-day', [\App\Http\Controllers\Consultant\DailyVisitController::class, 'startDay'])->name('visits.start-day');
         
+        Route::get('/site-visits/create', [\App\Http\Controllers\Consultant\DailyVisitController::class, 'createVisit'])->name('site-visits.create');
+        Route::get('/site-visits/{visit}/execute', [\App\Http\Controllers\Consultant\DailyVisitController::class, 'executeVisit'])->name('site-visits.execute');
         Route::post('/site-visits', [\App\Http\Controllers\Consultant\DailyVisitController::class, 'storeVisit'])->name('site-visits.store');
         Route::post('/site-visits/{visit}/trigger-on-demand', [\App\Http\Controllers\Consultant\DailyVisitController::class, 'triggerOnDemand'])->name('site-visits.trigger-ondemand');
         Route::post('/site-visits/{visit}/save-responses', [\App\Http\Controllers\Consultant\DailyVisitController::class, 'saveResponses'])->name('site-visits.save-responses');

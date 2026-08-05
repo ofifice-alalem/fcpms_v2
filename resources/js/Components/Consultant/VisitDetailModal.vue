@@ -1,35 +1,31 @@
 <template>
   <SpatialModal
     :is-open="isOpen"
-    title="📋 تفاصيل وقائع زيارة الموقع الميدانية"
+    title="تفاصيل وقائع زيارة الموقع الميدانية"
     max-width="2xl"
     @close="$emit('close')"
   >
-    <div v-if="visit" class="space-y-6 text-right">
+    <div v-if="visit" class="space-y-6 text-right dir-rtl">
       <!-- Site & Time Overview Header -->
       <div class="p-4 rounded-2xl bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 flex items-center justify-between">
         <div>
-          <h3 class="text-base font-black text-slate-900 dark:text-white">
-            📍 {{ visit.site ? visit.site.name : 'الموقع الميداني' }}
+          <h3 class="text-base font-black text-slate-900 dark:text-white flex items-center gap-1.5">
+            <span>{{ visit.site ? visit.site.name : 'الموقع الميداني' }}</span>
           </h3>
-          <p v-if="visit.site" class="text-xs text-slate-500 dark:text-white/60 font-mono mt-0.5">
+          <p v-if="visit.site" class="text-xs text-slate-500 dark:text-white/60 font-mono mt-0.5 dir-ltr text-right">
             كود الموقع: {{ visit.site.code }}
           </p>
         </div>
 
         <div class="text-left space-y-1">
-          <span
-            :class="[
-              'px-3 py-1 rounded-full text-xs font-black inline-block',
-              visit.status === 'completed'
-                ? 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20'
-                : 'bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/20'
-            ]"
+          <SpatialStatusPill
+            :type="visit.status === 'completed' ? 'completed' : 'pending'"
+            :pulse="visit.status !== 'completed'"
           >
-            {{ visit.status === 'completed' ? '✓ مكتملة' : '⏳ قيد التنفيذ' }}
-          </span>
+            {{ visit.status === 'completed' ? 'مكتملة' : 'قيد التنفيذ' }}
+          </SpatialStatusPill>
 
-          <span v-if="visit.visit_started_at" class="text-[11px] text-slate-500 dark:text-white/50 block font-mono">
+          <span v-if="visit.visit_started_at" class="text-[11px] text-slate-500 dark:text-white/50 block font-mono dir-ltr">
             بدء: {{ formatTime(visit.visit_started_at) }}
           </span>
         </div>
@@ -51,16 +47,11 @@
               {{ resp.taskDefinition ? resp.taskDefinition.title : 'مهمة ميدانية' }}
             </span>
 
-            <span
-              :class="[
-                'px-2.5 py-0.5 rounded-full text-[10px] font-black',
-                resp.taskDefinition && resp.taskDefinition.task_type === 'daily'
-                  ? 'bg-blue-500/15 text-blue-600 dark:text-blue-400'
-                  : 'bg-purple-500/15 text-purple-600 dark:text-purple-400'
-              ]"
+            <SpatialStatusPill
+              :type="resp.taskDefinition && resp.taskDefinition.task_type === 'daily' ? 'completed' : 'pending'"
             >
-              {{ resp.taskDefinition && resp.taskDefinition.task_type === 'daily' ? '📅 يومية' : '⚡ عند الحاجة' }}
-            </span>
+              {{ resp.taskDefinition && resp.taskDefinition.task_type === 'daily' ? 'مهمة يومية' : 'عند الحاجة' }}
+            </SpatialStatusPill>
           </div>
 
           <!-- Component Values -->
@@ -70,10 +61,10 @@
               :key="val.id"
               class="flex items-center justify-between text-xs py-1"
             >
-              <span class="font-bold text-slate-600 dark:text-white/70">
+              <span class="font-bold text-slate-500 dark:text-white/70">
                 {{ val.component ? val.component.label : 'العنصر' }}:
               </span>
-              <span class="font-black text-slate-900 dark:text-white dir-ltr">
+              <span class="font-black text-slate-900 dark:text-white">
                 {{ val.value || '-' }}
               </span>
             </div>
@@ -82,7 +73,7 @@
           <!-- Photo Attachments Gallery -->
           <div v-if="resp.attachments && resp.attachments.length > 0" class="space-y-1.5 pt-2">
             <span class="text-[11px] font-black text-slate-500 dark:text-white/50 block">
-              📸 إثباتات الصور المرفوعة ({{ resp.attachments.length }}):
+              إثباتات الصور المرفوعة ({{ resp.attachments.length }}):
             </span>
             <div class="grid grid-cols-3 gap-2">
               <a
@@ -118,6 +109,7 @@
 import { computed } from 'vue';
 import SpatialModal from '@/Components/Spatial/SpatialModal.vue';
 import SpatialButton from '@/Components/Spatial/SpatialButton.vue';
+import SpatialStatusPill from '@/Components/Spatial/SpatialStatusPill.vue';
 
 const props = defineProps({
   isOpen: {
