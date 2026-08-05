@@ -220,10 +220,11 @@ class SiteVisitRepository extends BaseRepository implements SiteVisitRepositoryI
                     'visit_finished_at' => Carbon::now(),
                 ]);
 
-                // Update completion stats on daily record
+                // Update completion stats on daily record (counting ONLY standard daily tasks, excluding on-demand)
                 $dailyRecord = $siteVisit->dailyRecord;
                 if ($dailyRecord) {
                     $completedCount = TaskResponse::whereHas('siteVisit', fn ($q) => $q->where('daily_record_id', $dailyRecord->id))
+                        ->whereHas('taskDefinition', fn ($q) => $q->where('task_type', 'daily'))
                         ->where('status', 'submitted')
                         ->count();
 

@@ -49,6 +49,23 @@ class DailyVisitController extends Controller
     {
         $consultant = $this->getConsultant();
         $dailyRecord = $this->visitService->getTodayRecord($consultant);
+
+        // Recalculate daily task stats strictly for task_type = 'daily' (excluding on-demand tasks)
+        $completedDailyCount = \App\Models\TaskResponse::whereHas('siteVisit', fn ($q) => $q->where('daily_record_id', $dailyRecord->id))
+            ->whereHas('taskDefinition', fn ($q) => $q->where('task_type', 'daily'))
+            ->where('status', 'submitted')
+            ->count();
+
+        $requiredCount = max(1, $dailyRecord->required_daily_tasks);
+        $calcPercentage = min(100, round(($completedDailyCount / $requiredCount) * 100, 2));
+
+        if ($dailyRecord->completed_daily_tasks !== $completedDailyCount || (float)$dailyRecord->completion_percentage !== (float)$calcPercentage) {
+            $dailyRecord->update([
+                'completed_daily_tasks' => $completedDailyCount,
+                'completion_percentage' => $calcPercentage,
+            ]);
+        }
+
         $availableSites = $this->visitService->getAvailableSites();
         $activeVisit = $this->visitService->getActiveVisit($dailyRecord);
 
