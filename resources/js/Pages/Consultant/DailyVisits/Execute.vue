@@ -109,10 +109,10 @@
                   مهمة يومية
                 </SpatialStatusPill>
                 <h4 class="text-base font-black text-slate-900 dark:text-white mt-1">
-                  {{ resp.taskDefinition ? resp.taskDefinition.title : 'مهمة' }}
+                  {{ getTaskDef(resp)?.title || 'مهمة' }}
                 </h4>
-                <p v-if="resp.taskDefinition && resp.taskDefinition.description" class="text-xs text-slate-500 dark:text-white/60 font-bold">
-                  {{ resp.taskDefinition.description }}
+                <p v-if="getTaskDef(resp)?.description" class="text-xs text-slate-500 dark:text-white/60 font-bold">
+                  {{ getTaskDef(resp)?.description }}
                 </p>
               </div>
 
@@ -196,7 +196,7 @@
                   مهمة عند الحاجة
                 </SpatialStatusPill>
                 <h4 class="text-base font-black text-slate-900 dark:text-white mt-1">
-                  {{ resp.taskDefinition ? resp.taskDefinition.title : 'مهمة عند الحاجة' }}
+                  {{ getTaskDef(resp)?.title || 'مهمة عند الحاجة' }}
                 </h4>
               </div>
 
@@ -324,17 +324,21 @@ const formattedOnDemandOptions = computed(() => {
   }));
 });
 
+const getTaskDef = (resp) => {
+  return resp?.task_definition || resp?.taskDefinition || null;
+};
+
 const activeDailyTasks = computed(() => {
   if (!props.visit || !props.visit.task_responses) return [];
   return props.visit.task_responses.filter(
-    (r) => r.task_definition && r.task_definition.task_type === 'daily'
+    (r) => getTaskDef(r)?.task_type === 'daily'
   );
 });
 
 const activeOnDemandTasks = computed(() => {
   if (!props.visit || !props.visit.task_responses) return [];
   return props.visit.task_responses.filter(
-    (r) => r.task_definition && r.task_definition.task_type === 'on_demand'
+    (r) => getTaskDef(r)?.task_type === 'on_demand'
   );
 });
 
@@ -374,8 +378,9 @@ const getComponentOptions = (comp) => {
 };
 
 const getVisibleComponentsForTask = (resp) => {
-  if (!resp.taskDefinition || !resp.taskDefinition.components) return [];
-  return resp.taskDefinition.components.filter((comp) => {
+  const taskDef = getTaskDef(resp);
+  if (!taskDef || !taskDef.components) return [];
+  return taskDef.components.filter((comp) => {
     if (!comp.conditional_parent_id) return true;
     const parentKey = getTaskKey(resp.task_definition_id, comp.conditional_parent_id);
     const parentVal = formValues.value[parentKey];
@@ -431,8 +436,9 @@ const handleSaveResponses = (completeVisit = false) => {
   isSubmitting.value = true;
   const responses = (props.visit.task_responses || []).map((resp) => {
     const valuesObj = {};
-    if (resp.taskDefinition && resp.taskDefinition.components) {
-      resp.taskDefinition.components.forEach((comp) => {
+    const taskDef = getTaskDef(resp);
+    if (taskDef && taskDef.components) {
+      taskDef.components.forEach((comp) => {
         const key = getTaskKey(resp.task_definition_id, comp.id);
         if (formValues.value[key] !== undefined) {
           valuesObj[comp.id] = formValues.value[key];
