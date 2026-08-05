@@ -72,6 +72,18 @@ Route::middleware('auth')->group(function () {
         Route::patch('/task-builder/{task}/toggle-active', [\App\Http\Controllers\Admin\TaskBuilderController::class, 'toggleActive'])->name('tasks.toggle-active');
         Route::delete('/task-builder/{task}', [\App\Http\Controllers\Admin\TaskBuilderController::class, 'destroy'])->name('tasks.destroy');
     });
+
+    // Phase 05: Consultant Daily Visits Portal Routes
+    Route::prefix('consultant')->name('consultant.')->group(function () {
+        Route::get('/daily-visits', [\App\Http\Controllers\Consultant\DailyVisitController::class, 'index'])->name('visits.index');
+        Route::post('/daily-visits/start-day', [\App\Http\Controllers\Consultant\DailyVisitController::class, 'startDay'])->name('visits.start-day');
+        
+        Route::post('/site-visits', [\App\Http\Controllers\Consultant\DailyVisitController::class, 'storeVisit'])->name('site-visits.store');
+        Route::post('/site-visits/{visit}/trigger-on-demand', [\App\Http\Controllers\Consultant\DailyVisitController::class, 'triggerOnDemand'])->name('site-visits.trigger-ondemand');
+        Route::post('/site-visits/{visit}/save-responses', [\App\Http\Controllers\Consultant\DailyVisitController::class, 'saveResponses'])->name('site-visits.save-responses');
+        Route::get('/site-visits/{visit}', [\App\Http\Controllers\Consultant\DailyVisitController::class, 'show'])->name('site-visits.show');
+        Route::delete('/site-visits/{visit}', [\App\Http\Controllers\Consultant\DailyVisitController::class, 'destroy'])->name('site-visits.destroy');
+    });
 });
 
 // Public Design System Catalog

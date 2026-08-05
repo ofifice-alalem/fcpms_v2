@@ -16,9 +16,14 @@ class SiteVisit extends Model implements Auditable
     protected $fillable = [
         'daily_record_id',
         'site_id',
+        'status',
         'visit_started_at',
         'visit_finished_at',
         'notes',
+    ];
+
+    protected $appends = [
+        'status_name',
     ];
 
     protected function casts(): array
@@ -27,6 +32,12 @@ class SiteVisit extends Model implements Auditable
             'visit_started_at' => 'datetime',
             'visit_finished_at' => 'datetime',
         ];
+    }
+
+    public function getStatusNameAttribute(): string
+    {
+        $status = $this->status ?? ($this->visit_finished_at ? 'completed' : 'in_progress');
+        return $status === 'completed' ? 'مكتملة' : 'قيد التنفيذ';
     }
 
     public function dailyRecord(): BelongsTo

@@ -16,12 +16,15 @@ class TaskResponse extends Model implements Auditable
     protected $fillable = [
         'site_visit_id',
         'task_definition_id',
+        'status',
+        'submitted_at',
         'completed_at',
     ];
 
     protected function casts(): array
     {
         return [
+            'submitted_at' => 'datetime',
             'completed_at' => 'datetime',
         ];
     }

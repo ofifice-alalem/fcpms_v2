@@ -16,6 +16,9 @@ class DailyRecord extends Model implements Auditable
     protected $fillable = [
         'consultant_id',
         'work_date',
+        'check_in_time',
+        'check_out_time',
+        'notes',
         'required_daily_tasks',
         'completed_daily_tasks',
         'completion_percentage',
@@ -25,6 +28,8 @@ class DailyRecord extends Model implements Auditable
     {
         return [
             'work_date' => 'date',
+            'check_in_time' => 'datetime',
+            'check_out_time' => 'datetime',
             'required_daily_tasks' => 'integer',
             'completed_daily_tasks' => 'integer',
             'completion_percentage' => 'decimal:2',
