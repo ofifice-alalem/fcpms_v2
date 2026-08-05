@@ -44,6 +44,12 @@
       #f8fafc fixed !important;
     color: #0f172a !important;
   }
+
+  .font-stat-number {
+    font-family: 'Outfit', 'Plus Jakarta Sans', 'Tajawal', system-ui, -apple-system, sans-serif !important;
+    font-variant-numeric: tabular-nums lining-nums;
+    letter-spacing: -0.03em;
+  }
 }
 
 /* ===== Spatial Window & Cards Glassmorphism ===== */

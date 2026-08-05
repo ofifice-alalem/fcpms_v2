@@ -78,22 +78,28 @@
         </div>
       </div>
 
-      <!-- Top Summary Widgets (Vibrant Executive Cards with Circular Rings) -->
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <!-- Top Summary Widgets (Glassmorphic Frosted Executive Cards) -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 relative z-10">
         <!-- Widget 1: Consultant Profile -->
-        <SpatialCard padding="p-7" class="min-h-[290px] flex flex-col justify-between border-t-4 border-t-primary rounded-3xl relative overflow-hidden group shadow-md text-center space-y-4">
+        <SpatialCard
+          padding="p-7"
+          class="min-h-[295px] flex flex-col justify-between border-t-4 border-t-primary rounded-3xl relative overflow-hidden text-center space-y-4 bg-white/70 dark:bg-slate-950/60 backdrop-blur-xl border border-white/50 dark:border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.06)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.36)] transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl"
+        >
+          <!-- Ambient Glass Radial Glow -->
+          <div class="absolute -top-14 -right-14 w-44 h-44 rounded-full bg-primary/20 blur-3xl pointer-events-none"></div>
+
           <!-- Top Centered Avatar Ring -->
-          <div class="flex flex-col items-center space-y-2">
-            <div class="w-20 h-20 rounded-full border-2 border-primary/40 bg-gradient-to-br from-primary/20 to-blue-500/10 text-primary flex items-center justify-center text-3xl font-black shadow-lg shadow-primary/20 p-1">
+          <div class="flex flex-col items-center space-y-2.5 relative z-10">
+            <div class="w-20 h-20 rounded-full border-2 border-primary/40 bg-gradient-to-br from-primary/30 via-primary/10 to-transparent text-primary flex items-center justify-center text-3xl font-black shadow-lg shadow-primary/20 ring-4 ring-primary/10 backdrop-blur-md p-1">
               👨‍💼
             </div>
-            <span class="text-xs font-mono font-black text-primary px-3 py-1 rounded-full bg-primary/10 border border-primary/20">
+            <span class="text-xs font-mono font-black text-primary px-3.5 py-1 rounded-full bg-primary/15 dark:bg-primary/20 border border-primary/30 backdrop-blur-md shadow-sm">
               {{ consultant.employee_number }}
             </span>
           </div>
 
           <!-- Middle Name & Subtitle -->
-          <div class="space-y-1">
+          <div class="space-y-1 relative z-10">
             <h3 class="text-xl font-black text-slate-900 dark:text-white leading-tight">
               {{ consultant.full_name }}
             </h3>
@@ -102,104 +108,120 @@
             </p>
           </div>
 
-          <!-- Bottom Grid Boxes (Number inside Circular Ring + Text Underneath) -->
-          <div class="grid grid-cols-2 gap-3 pt-2 text-xs font-bold">
-            <div class="p-3.5 rounded-2xl border border-primary/20 bg-slate-50 dark:bg-white/5 text-center flex flex-col items-center space-y-2 shadow-sm">
-              <div class="w-11 h-11 rounded-full border-2 border-emerald-500 bg-emerald-500/10 text-emerald-500 font-mono font-black text-sm flex items-center justify-center shadow-md shadow-emerald-500/20">
+          <!-- Bottom Grid Items (Enlarged & High-Impact Numbers) -->
+          <div class="grid grid-cols-2 gap-4 pt-3 text-xs font-bold relative z-10">
+            <div class="text-center flex flex-col items-center space-y-2">
+              <div class="w-16 h-16 rounded-full border-2 border-emerald-500 bg-emerald-500/15 text-emerald-500 font-stat-number font-black text-2xl flex items-center justify-center shadow-xl shadow-emerald-500/25 ring-4 ring-emerald-500/15 transition-transform hover:scale-105">
                 🟢
               </div>
-              <span class="text-[11px] font-black text-slate-700 dark:text-white/80 block">نشط ومعتمد</span>
+              <span class="text-sm font-black text-slate-800 dark:text-white block">نشط ومعتمد</span>
             </div>
 
-            <div class="p-3.5 rounded-2xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 text-center flex flex-col items-center space-y-2 shadow-sm">
-              <div class="w-11 h-11 rounded-full border-2 border-primary/40 bg-primary/10 text-primary font-mono font-black text-xs flex items-center justify-center shadow-md shadow-primary/10">
+            <div class="text-center flex flex-col items-center space-y-2">
+              <div class="w-16 h-16 rounded-full border-2 border-primary/50 bg-primary/15 text-primary font-stat-number font-black text-sm flex items-center justify-center shadow-xl shadow-primary/20 ring-4 ring-primary/15 transition-transform hover:scale-105">
                 ID
               </div>
-              <span class="text-[11px] font-black text-slate-700 dark:text-white/80 block font-mono">{{ consultant.employee_number }}</span>
+              <span class="text-sm font-black text-slate-800 dark:text-white block font-stat-number">{{ consultant.employee_number }}</span>
             </div>
           </div>
         </SpatialCard>
 
-        <!-- Widget 2: Daily Progress Ring (User Requested Circular Ring) -->
-        <SpatialCard padding="p-7" class="min-h-[290px] flex flex-col justify-between border-t-4 border-t-emerald-500 rounded-3xl relative overflow-hidden group shadow-md text-center space-y-4">
+        <!-- Widget 2: Daily Progress Ring (Glass Progress Ring) -->
+        <SpatialCard
+          padding="p-7"
+          class="min-h-[310px] flex flex-col justify-between border-t-4 border-t-emerald-500 rounded-3xl relative overflow-hidden text-center space-y-4 bg-white/70 dark:bg-slate-950/60 backdrop-blur-xl border border-white/50 dark:border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.06)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.36)] transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl"
+        >
+          <!-- Ambient Glass Radial Glow -->
+          <div class="absolute -top-14 -right-14 w-44 h-44 rounded-full bg-emerald-500/25 blur-3xl pointer-events-none"></div>
+
           <!-- Top Centered SVG Circular Progress Ring -->
-          <div class="flex flex-col items-center justify-center space-y-2">
-            <SpatialCircularProgress
-              :value="dailyRecord.completion_percentage || 0"
-              :size="130"
-              :stroke-width="10"
-              color="emerald"
-            >
-              <div class="flex flex-col items-center justify-center">
-                <span class="text-2xl font-black font-mono tracking-tight text-slate-900 dark:text-white leading-none">
-                  {{ Number(dailyRecord.completion_percentage || 0).toFixed(0) }}%
-                </span>
-                <span v-if="(dailyRecord.completion_percentage || 0) >= 100" class="text-sm mt-0.5 animate-bounce">🏆</span>
-              </div>
-            </SpatialCircularProgress>
+          <div class="flex flex-col items-center justify-center space-y-2 relative z-10">
+            <div class="relative drop-shadow-[0_0_18px_rgba(16,185,129,0.35)]">
+              <SpatialCircularProgress
+                :value="dailyRecord.completion_percentage || 0"
+                :size="135"
+                :stroke-width="11"
+                color="emerald"
+              >
+                <div class="flex flex-col items-center justify-center">
+                  <span class="text-3xl font-black font-stat-number tracking-tight text-slate-900 dark:text-white leading-none">
+                    {{ Number(dailyRecord.completion_percentage || 0).toFixed(0) }}%
+                  </span>
+                  <span v-if="(dailyRecord.completion_percentage || 0) >= 100" class="text-base mt-1 animate-bounce">🏆</span>
+                </div>
+              </SpatialCircularProgress>
+            </div>
 
             <span class="text-xs font-black text-slate-500 dark:text-white/60 uppercase tracking-widest block pt-1">
               نسبة إنجاز اليوم
             </span>
           </div>
 
-          <!-- Bottom Grid Boxes (Number inside Circular Ring + Text Underneath) -->
-          <div class="grid grid-cols-2 gap-3 pt-2 text-xs font-bold">
-            <div class="p-3.5 rounded-2xl border border-emerald-500/30 bg-emerald-500/5 dark:bg-emerald-500/10 text-center flex flex-col items-center space-y-2 shadow-sm">
-              <div class="w-12 h-12 rounded-full border-2 border-emerald-500 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-mono font-black text-lg flex items-center justify-center shadow-md shadow-emerald-500/20">
+          <!-- Bottom Grid Items (Enlarged & High-Impact Numbers) -->
+          <div class="grid grid-cols-2 gap-4 pt-3 text-xs font-bold relative z-10">
+            <div class="text-center flex flex-col items-center space-y-2">
+              <div class="w-16 h-16 rounded-full border-2 border-emerald-500 bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 font-stat-number font-black text-2xl flex items-center justify-center shadow-xl shadow-emerald-500/30 ring-4 ring-emerald-500/20 drop-shadow-[0_2px_10px_rgba(16,185,129,0.4)] transition-transform hover:scale-105">
                 {{ dailyRecord.completed_daily_tasks || 0 }}
               </div>
-              <span class="text-[11px] font-black text-emerald-700 dark:text-emerald-300 block">المهام المكتملة</span>
+              <span class="text-sm font-black text-slate-800 dark:text-white block">المهام المكتملة</span>
             </div>
 
-            <div class="p-3.5 rounded-2xl border border-blue-500/30 bg-blue-500/5 dark:bg-blue-500/10 text-center flex flex-col items-center space-y-2 shadow-sm">
-              <div class="w-12 h-12 rounded-full border-2 border-blue-500 bg-blue-500/10 text-blue-600 dark:text-blue-400 font-mono font-black text-lg flex items-center justify-center shadow-md shadow-blue-500/20">
+            <div class="text-center flex flex-col items-center space-y-2">
+              <div class="w-16 h-16 rounded-full border-2 border-blue-500 bg-blue-500/20 text-blue-600 dark:text-blue-400 font-stat-number font-black text-2xl flex items-center justify-center shadow-xl shadow-blue-500/30 ring-4 ring-blue-500/20 drop-shadow-[0_2px_10px_rgba(59,130,246,0.4)] transition-transform hover:scale-105">
                 {{ dailyRecord.required_daily_tasks || 0 }}
               </div>
-              <span class="text-[11px] font-black text-blue-700 dark:text-blue-300 block">المهام المطلوبة</span>
+              <span class="text-sm font-black text-slate-800 dark:text-white block">المهام المطلوبة</span>
             </div>
           </div>
         </SpatialCard>
 
         <!-- Widget 3: Attendance & Visits Stats -->
-        <SpatialCard padding="p-7" class="min-h-[290px] flex flex-col justify-between border-t-4 border-t-indigo-500 rounded-3xl relative overflow-hidden group shadow-md text-center space-y-4">
+        <SpatialCard
+          padding="p-7"
+          class="min-h-[310px] flex flex-col justify-between border-t-4 border-t-indigo-500 rounded-3xl relative overflow-hidden text-center space-y-4 bg-white/70 dark:bg-slate-950/60 backdrop-blur-xl border border-white/50 dark:border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.06)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.36)] transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl"
+        >
+          <!-- Ambient Glass Radial Glow -->
+          <div class="absolute -top-14 -right-14 w-44 h-44 rounded-full bg-indigo-500/25 blur-3xl pointer-events-none"></div>
+
           <!-- Top Centered SVG Circular Gauge Ring -->
-          <div class="flex flex-col items-center justify-center space-y-2">
-            <SpatialCircularProgress
-              :value="siteVisits.length > 0 ? 100 : 0"
-              :size="130"
-              :stroke-width="10"
-              color="indigo"
-            >
-              <div class="flex flex-col items-center justify-center">
-                <span class="text-3xl font-black font-mono tracking-tight text-indigo-600 dark:text-indigo-400 leading-none">
-                  {{ siteVisits.length }}
-                </span>
-                <span class="text-xs font-bold text-slate-400 dark:text-white/40 mt-1">موقع 📍</span>
-              </div>
-            </SpatialCircularProgress>
+          <div class="flex flex-col items-center justify-center space-y-2 relative z-10">
+            <div class="relative drop-shadow-[0_0_18px_rgba(99,102,241,0.35)]">
+              <SpatialCircularProgress
+                :value="siteVisits.length > 0 ? 100 : 0"
+                :size="135"
+                :stroke-width="11"
+                color="indigo"
+              >
+                <div class="flex flex-col items-center justify-center">
+                  <span class="text-3xl font-black font-stat-number tracking-tight text-indigo-600 dark:text-indigo-400 leading-none">
+                    {{ siteVisits.length }}
+                  </span>
+                  <span class="text-xs font-bold text-slate-400 dark:text-white/40 mt-1">موقع 📍</span>
+                </div>
+              </SpatialCircularProgress>
+            </div>
 
             <span class="text-xs font-black text-slate-500 dark:text-white/60 uppercase tracking-widest block pt-1">
               حالة اليوم والزيارات
             </span>
           </div>
 
-          <!-- Bottom Grid Boxes (Number inside Circular Ring + Text Underneath) -->
-          <div class="grid grid-cols-2 gap-3 pt-2 text-xs font-bold">
-            <div class="p-3.5 rounded-2xl border border-indigo-500/30 bg-indigo-500/5 dark:bg-indigo-500/10 text-center flex flex-col items-center space-y-2 shadow-sm">
-              <div class="w-12 h-12 rounded-full border-2 border-indigo-500 bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 font-mono font-black text-sm flex items-center justify-center shadow-md shadow-indigo-500/20">
+          <!-- Bottom Grid Items (Enlarged & High-Impact Numbers) -->
+          <div class="grid grid-cols-2 gap-4 pt-3 text-xs font-bold relative z-10">
+            <div class="text-center flex flex-col items-center space-y-2">
+              <div class="w-16 h-16 rounded-full border-2 border-indigo-500 bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 font-stat-number font-black text-2xl flex items-center justify-center shadow-xl shadow-indigo-500/30 ring-4 ring-indigo-500/20 drop-shadow-[0_2px_10px_rgba(99,102,241,0.4)] transition-transform hover:scale-105">
                 1
               </div>
-              <span class="text-[11px] font-black text-indigo-700 dark:text-indigo-300 block">
+              <span class="text-sm font-black text-slate-800 dark:text-white block">
                 {{ dailyRecord && dailyRecord.check_in_time ? 'اليوم قائم 🟢' : 'لم يبدأ' }}
               </span>
             </div>
 
-            <div class="p-3.5 rounded-2xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 text-center flex flex-col items-center space-y-2 shadow-sm">
-              <div class="w-12 h-12 rounded-full border-2 border-slate-400 dark:border-white/30 bg-slate-100 dark:bg-white/10 text-slate-700 dark:text-white font-black text-sm flex items-center justify-center shadow-sm">
+            <div class="text-center flex flex-col items-center space-y-2">
+              <div class="w-16 h-16 rounded-full border-2 border-slate-400 dark:border-white/30 bg-slate-100 dark:bg-white/10 text-slate-700 dark:text-white font-black text-xl flex items-center justify-center shadow-md ring-4 ring-slate-400/10 transition-transform hover:scale-105">
                 📅
               </div>
-              <span class="text-[11px] font-black text-slate-700 dark:text-white/80 block truncate max-w-full">
+              <span class="text-sm font-black text-slate-800 dark:text-white block truncate max-w-full">
                 {{ todayDateFormatted }}
               </span>
             </div>
