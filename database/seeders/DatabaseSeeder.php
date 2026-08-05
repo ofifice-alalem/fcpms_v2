@@ -2,8 +2,10 @@
 
 namespace Database\Seeders;
 
+use App\Enums\ConsultantStatus;
 use App\Enums\SiteStatus;
 use App\Enums\UserStatus;
+use App\Models\Consultant;
 use App\Models\Site;
 use App\Models\User;
 use Illuminate\Database\Seeder;
@@ -13,7 +15,7 @@ use Spatie\Permission\Models\Role;
 class DatabaseSeeder extends Seeder
 {
     /**
-     * Seed the application's database with roles, users, and field sites.
+     * Seed the application's database with roles, users, field sites, and consultants.
      */
     public function run(): void
     {
@@ -34,7 +36,7 @@ class DatabaseSeeder extends Seeder
         $admin->syncRoles([$hrRole]);
 
         // 2. Active Field Consultant
-        $consultant = User::firstOrCreate(
+        $consultantUser = User::firstOrCreate(
             ['username' => 'consultant'],
             [
                 'name' => 'أحمد السالم (استشاري ميداني)',
@@ -43,7 +45,7 @@ class DatabaseSeeder extends Seeder
                 'status' => UserStatus::ACTIVE,
             ]
         );
-        $consultant->syncRoles([$consultantRole]);
+        $consultantUser->syncRoles([$consultantRole]);
 
         // 3. Inactive User (for BR-002 testing)
         $inactive = User::firstOrCreate(
@@ -88,6 +90,44 @@ class DatabaseSeeder extends Seeder
                 'address' => 'المنطقة الصناعية الكبرى',
                 'status' => SiteStatus::INACTIVE,
                 'notes' => 'تحت الصيانة الدورية وتوقف مؤقت للمهام',
+            ]
+        );
+
+        // 5. Seed Initial Consultants (Phase 02)
+        Consultant::firstOrCreate(
+            ['employee_number' => 'EMP-1001'],
+            [
+                'user_id' => $consultantUser->id,
+                'full_name' => 'أحمد السالم',
+                'phone' => '091-234-5678',
+                'specialization' => 'هندسة مدنية وشبكات',
+                'hire_date' => '2026-01-01',
+                'employment_status' => ConsultantStatus::ACTIVE,
+                'notes' => 'استشاري رئيسي مشرف على مواقع طرابلس',
+            ]
+        );
+
+        $consultant2User = User::firstOrCreate(
+            ['username' => 'salem_bouaishi'],
+            [
+                'name' => 'سالم البوعيشي',
+                'email' => 'salem.b@fcpms.test',
+                'password' => Hash::make('password'),
+                'status' => UserStatus::ACTIVE,
+            ]
+        );
+        $consultant2User->syncRoles([$consultantRole]);
+
+        Consultant::firstOrCreate(
+            ['employee_number' => 'EMP-1002'],
+            [
+                'user_id' => $consultant2User->id,
+                'full_name' => 'سالم البوعيشي',
+                'phone' => '092-876-5432',
+                'specialization' => 'صيانة ومتابعة تشغيلية',
+                'hire_date' => '2026-02-15',
+                'employment_status' => ConsultantStatus::ACTIVE,
+                'notes' => 'استشاري ميداني لمواقع بنغازي ومصراتة',
             ]
         );
     }

@@ -1,7 +1,7 @@
 <template>
   <Teleport to="body">
     <div
-      v-if="isOpen"
+      v-if="isModalOpen"
       class="fixed inset-0 z-[1000] flex items-center justify-center p-4"
     >
       <div
@@ -37,6 +37,7 @@ import { computed } from 'vue';
 
 const props = defineProps({
   show: Boolean,
+  isOpen: Boolean,
   modelValue: Boolean,
   title: String,
   maxWidth: {
@@ -49,15 +50,25 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(['close', 'update:show', 'update:modelValue']);
+const emit = defineEmits(['close', 'update:show', 'update:isOpen', 'update:modelValue']);
 
-const isOpen = computed(() => props.show || props.modelValue);
+const isModalOpen = computed(() => props.show || props.isOpen || props.modelValue);
 
-const maxWidthClass = computed(() => props.maxWidth);
+const maxWidthClass = computed(() => {
+  const map = {
+    sm: 'max-w-sm',
+    md: 'max-w-md',
+    lg: 'max-w-lg',
+    xl: 'max-w-xl',
+    '2xl': 'max-w-2xl',
+  };
+  return map[props.maxWidth] || props.maxWidth;
+});
 
 function closeModal() {
   emit('close');
   emit('update:show', false);
+  emit('update:isOpen', false);
   emit('update:modelValue', false);
 }
 </script>

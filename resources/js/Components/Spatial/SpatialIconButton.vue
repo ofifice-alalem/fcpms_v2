@@ -10,7 +10,7 @@
     ]"
     @click="$emit('click', $event)"
   >
-    <slot />
+    <slot>{{ icon }}</slot>
   </button>
 </template>
 
@@ -18,6 +18,7 @@
 import { computed } from 'vue';
 
 const props = defineProps({
+  icon: String,
   variant: {
     type: String,
     default: 'default', // default, primary, info, warning, danger

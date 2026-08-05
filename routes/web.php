@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\ConsultantController;
 use App\Http\Controllers\Admin\SiteController;
 use App\Http\Controllers\Auth\LoginController;
 use Illuminate\Support\Facades\Auth;
@@ -32,13 +33,22 @@ Route::middleware('auth')->group(function () {
         ]);
     })->name('dashboard');
 
-    // Phase 01: Site & Location Management Routes
+    // Admin Routes
     Route::prefix('admin')->name('admin.')->group(function () {
+        // Phase 01: Site & Location Management Routes
         Route::get('/sites', [SiteController::class, 'index'])->name('sites.index');
         Route::post('/sites', [SiteController::class, 'store'])->name('sites.store');
         Route::put('/sites/{site}', [SiteController::class, 'update'])->name('sites.update');
         Route::patch('/sites/{site}/toggle-status', [SiteController::class, 'toggleStatus'])->name('sites.toggle-status');
         Route::delete('/sites/{site}', [SiteController::class, 'destroy'])->name('sites.destroy');
+
+        // Phase 02: Consultants Management Routes
+        Route::get('/consultants', [ConsultantController::class, 'index'])->name('consultants.index');
+        Route::post('/consultants', [ConsultantController::class, 'store'])->name('consultants.store');
+        Route::get('/consultants/{consultant}', [ConsultantController::class, 'show'])->name('consultants.show');
+        Route::put('/consultants/{consultant}', [ConsultantController::class, 'update'])->name('consultants.update');
+        Route::patch('/consultants/{consultant}/status', [ConsultantController::class, 'updateStatus'])->name('consultants.update-status');
+        Route::delete('/consultants/{consultant}', [ConsultantController::class, 'destroy'])->name('consultants.destroy');
     });
 });
 

@@ -3,7 +3,7 @@
     <!-- Backdrop Overlay Transition -->
     <Transition name="drawer-backdrop">
       <div
-        v-if="show"
+        v-if="isDrawerVisible"
         @click="closeDrawer"
         class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[9998]"
       ></div>
@@ -12,8 +12,8 @@
     <!-- Drawer Panel Slide Transition -->
     <Transition name="drawer-panel">
       <div
-        v-if="show"
-        class="fixed top-0 right-0 h-full w-[480px] max-w-[90vw] bg-white dark:bg-gradient-to-br dark:from-[#181824] dark:to-[#0f111a] border-l border-black/10 dark:border-white/12 z-[9999] p-6 shadow-2xl flex flex-col overflow-hidden font-sans"
+        v-if="isDrawerVisible"
+        :class="['fixed top-0 right-0 h-full max-w-[90vw] bg-white dark:bg-gradient-to-br dark:from-[#181824] dark:to-[#0f111a] border-l border-black/10 dark:border-white/12 z-[9999] p-6 shadow-2xl flex flex-col overflow-hidden font-sans', width || 'w-[480px]']"
       >
         <div class="flex items-center justify-between border-b border-black/10 dark:border-white/10 pb-4 mb-6">
           <h3 class="text-xl font-black flex items-center gap-2 text-slate-900 dark:text-white">
@@ -39,17 +39,24 @@
 </template>
 
 <script setup>
+import { computed } from 'vue';
+
 const props = defineProps({
   show: Boolean,
+  isOpen: Boolean,
   modelValue: Boolean,
   title: String,
+  width: String,
 });
 
-const emit = defineEmits(['close', 'update:show', 'update:modelValue']);
+const emit = defineEmits(['close', 'update:show', 'update:modelValue', 'update:isOpen']);
+
+const isDrawerVisible = computed(() => props.show || props.isOpen || props.modelValue);
 
 function closeDrawer() {
   emit('close');
   emit('update:show', false);
+  emit('update:isOpen', false);
   emit('update:modelValue', false);
 }
 </script>
@@ -66,7 +73,7 @@ function closeDrawer() {
 
 .drawer-panel-enter-active,
 .drawer-panel-leave-active {
-  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .drawer-panel-enter-from,
 .drawer-panel-leave-to {
