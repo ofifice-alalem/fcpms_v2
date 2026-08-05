@@ -30,6 +30,46 @@
         </SpatialButton>
       </div>
 
+      <!-- Active Official Holiday Banner (Shown when an official holiday is active today) -->
+      <div
+        v-if="activeOfficialHoliday"
+        class="p-4 rounded-2xl bg-gradient-to-r from-emerald-500/15 via-teal-500/10 to-emerald-500/15 border border-emerald-500/30 dark:border-emerald-500/40 shadow-lg relative overflow-hidden flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
+      >
+        <div class="flex items-center gap-3.5 z-10">
+          <div class="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+            </svg>
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="px-2.5 py-0.5 rounded-full bg-emerald-600 text-white font-black text-xs">
+                عطلة رسمية عامة جارية الآن
+              </span>
+              <span v-if="activeOfficialHoliday.notes" class="text-xs text-slate-500 dark:text-white/60 font-bold">
+                ({{ activeOfficialHoliday.notes }})
+              </span>
+            </div>
+            <h3 class="text-base font-black text-slate-900 dark:text-white mt-0.5">
+              {{ activeOfficialHoliday.name }}
+            </h3>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-3 shrink-0 z-10">
+          <div class="text-left sm:text-right">
+            <span class="text-[11px] font-bold text-slate-500 dark:text-white/60 block">نهاية العطلة الرسمية:</span>
+            <span class="font-bold text-xs text-slate-900 dark:text-white">{{ formatDate(activeOfficialHoliday.end_date) }}</span>
+          </div>
+          <div class="px-3.5 py-2 rounded-xl bg-emerald-600 text-white font-black text-xs shadow-md shadow-emerald-600/25 flex items-center gap-1.5">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            <span>{{ holidayRemainingDays > 0 ? `متبقي ${holidayRemainingDays} يوم` : 'اليوم هو اليوم الأخير' }}</span>
+          </div>
+        </div>
+      </div>
+
       <!-- KPI Overview Cards -->
       <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
         <SpatialCard padding="p-4" class="space-y-1 border-l-4 border-l-blue-500">
@@ -370,10 +410,25 @@ const props = defineProps({
     type: Array,
     default: () => [],
   },
+  activeOfficialHoliday: {
+    type: Object,
+    default: null,
+  },
 });
 
 // Toast Ref
 const toastRef = ref(null);
+
+const holidayRemainingDays = computed(() => {
+  if (!props.activeOfficialHoliday?.end_date) return 0;
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const end = new Date(props.activeOfficialHoliday.end_date);
+  end.setHours(0, 0, 0, 0);
+  const diffTime = end - today;
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  return diffDays >= 0 ? diffDays : 0;
+});
 
 // Filters State
 const searchQuery = ref(props.filters.search || '');

@@ -39,6 +39,11 @@ class ConsultantController extends Controller
             'vacation' => Consultant::where('employment_status', 'vacation')->count(),
         ];
 
+        $today = now()->toDateString();
+        $activeOfficialHoliday = \App\Models\OfficialHoliday::where('start_date', '<=', $today)
+            ->where('end_date', '>=', $today)
+            ->first();
+
         $workScheduleTemplates = WorkScheduleTemplate::select('id', 'name')->get();
 
         if ($request->wantsJson() && !$request->header('X-Inertia')) {
@@ -46,6 +51,7 @@ class ConsultantController extends Controller
                 'success' => true,
                 'data' => $consultants,
                 'stats' => $stats,
+                'activeOfficialHoliday' => $activeOfficialHoliday,
             ]);
         }
 
@@ -54,6 +60,7 @@ class ConsultantController extends Controller
             'filters' => $filters,
             'stats' => $stats,
             'workScheduleTemplates' => $workScheduleTemplates,
+            'activeOfficialHoliday' => $activeOfficialHoliday,
         ]);
     }
 

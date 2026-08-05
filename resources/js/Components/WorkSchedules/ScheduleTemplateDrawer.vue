@@ -26,19 +26,38 @@
         ></textarea>
       </div>
 
-      <!-- Is Default Switch Container -->
-      <div class="p-4 rounded-2xl bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 flex items-center justify-between">
-        <div>
-          <label class="text-xs font-black text-slate-900 dark:text-white block">تعيين كقالب افتراضي للنظام (BR-007)</label>
-          <span class="text-[11px] font-bold text-slate-500 dark:text-white/50 block mt-0.5">
-            عند التفعيل يتم إلغاء الافتراضية تلقائياً عن القوالب الأخرى.
-          </span>
+      <!-- Is Default Switch Container with Spatial UI styling -->
+      <div
+        @click="form.is_default = !form.is_default"
+        :class="[
+          'p-4 rounded-2xl border flex items-center justify-between transition-all cursor-pointer select-none',
+          form.is_default
+            ? 'bg-primary/10 border-primary/30 text-slate-900 dark:text-white shadow-sm'
+            : 'bg-black/5 dark:bg-white/5 border-black/10 dark:border-white/10 text-slate-700 dark:text-white/80'
+        ]"
+      >
+        <div class="flex items-center gap-3">
+          <SpatialCheckbox v-model="form.is_default" />
+          <div>
+            <label class="text-xs font-black text-slate-900 dark:text-white block cursor-pointer">
+              تعيين كقالب افتراضي للنظام (BR-007)
+            </label>
+            <span class="text-[11px] font-bold text-slate-500 dark:text-white/50 block mt-0.5">
+              عند التفعيل يتم إلغاء الافتراضية تلقائياً عن القوالب الأخرى.
+            </span>
+          </div>
         </div>
-        <input
-          type="checkbox"
-          v-model="form.is_default"
-          class="w-5 h-5 rounded-lg text-primary focus:ring-primary cursor-pointer"
-        />
+
+        <span
+          :class="[
+            'px-2.5 py-1 rounded-xl text-[10px] font-black border font-mono',
+            form.is_default
+              ? 'bg-primary text-white border-primary shadow-sm'
+              : 'bg-slate-200 dark:bg-white/10 text-slate-500 dark:text-white/50 border-slate-300 dark:border-white/10'
+          ]"
+        >
+          {{ form.is_default ? 'افتراضي' : 'مخصص' }}
+        </span>
       </div>
 
       <!-- Days Matrix Selection -->
@@ -114,6 +133,7 @@ import { reactive, watch } from 'vue';
 import SpatialDrawer from '@/Components/Spatial/SpatialDrawer.vue';
 import SpatialInput from '@/Components/Spatial/SpatialInput.vue';
 import SpatialButton from '@/Components/Spatial/SpatialButton.vue';
+import SpatialCheckbox from '@/Components/Spatial/SpatialCheckbox.vue';
 
 const props = defineProps({
   isOpen: {
