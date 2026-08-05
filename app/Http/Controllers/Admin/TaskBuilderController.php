@@ -23,7 +23,7 @@ class TaskBuilderController extends Controller
 
     public function index(Request $request): Response|JsonResponse
     {
-        $filters = $request->only(['search', 'task_type', 'is_active', 'sort']);
+        $filters = $request->only(['search', 'task_type', 'is_active', 'site_id', 'consultant_id', 'sort']);
 
         $tasks = $this->taskService->getFilteredTasks($filters, 15);
 

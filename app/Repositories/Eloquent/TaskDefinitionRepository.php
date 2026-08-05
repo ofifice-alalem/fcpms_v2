@@ -36,8 +36,26 @@ class TaskDefinitionRepository extends BaseRepository implements TaskDefinitionR
             $query->where('task_type', $filters['task_type']);
         }
 
-        if (isset($filters['is_active']) && $filters['is_active'] !== '') {
+        if (isset($filters['is_active']) && $filters['is_active'] !== '' && $filters['is_active'] !== null) {
             $query->where('is_active', filter_var($filters['is_active'], FILTER_VALIDATE_BOOLEAN));
+        }
+
+        if (!empty($filters['site_id'])) {
+            $siteId = $filters['site_id'];
+            $query->where(function ($q) use ($siteId) {
+                $q->whereHas('siteAssignments', function ($sq) use ($siteId) {
+                    $sq->where('site_id', $siteId);
+                })->orDoesntHave('siteAssignments');
+            });
+        }
+
+        if (!empty($filters['consultant_id'])) {
+            $consultantId = $filters['consultant_id'];
+            $query->where(function ($q) use ($consultantId) {
+                $q->whereHas('consultantAssignments', function ($cq) use ($consultantId) {
+                    $cq->where('consultant_id', $consultantId);
+                })->orDoesntHave('consultantAssignments');
+            });
         }
 
         $sort = $filters['sort'] ?? 'latest';
