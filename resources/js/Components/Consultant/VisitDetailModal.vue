@@ -50,18 +50,18 @@
           <div class="flex items-start justify-between gap-2">
             <div class="space-y-1">
               <span class="text-sm font-black text-slate-900 dark:text-white block">
-                {{ resp.taskDefinition ? resp.taskDefinition.title : 'مهمة ميدانية' }}
+                {{ getTaskDef(resp)?.title || 'مهمة ميدانية' }}
               </span>
-              <span v-if="resp.taskDefinition && resp.taskDefinition.description" class="text-xs text-slate-500 dark:text-white/60 block">
-                {{ resp.taskDefinition.description }}
+              <span v-if="getTaskDef(resp)?.description" class="text-xs text-slate-500 dark:text-white/60 block">
+                {{ getTaskDef(resp)?.description }}
               </span>
             </div>
 
             <div class="flex flex-col items-end gap-1 shrink-0">
               <SpatialStatusPill
-                :type="resp.taskDefinition && resp.taskDefinition.task_type === 'daily' ? 'completed' : 'pending'"
+                :type="getTaskDef(resp)?.task_type === 'daily' ? 'completed' : 'pending'"
               >
-                {{ resp.taskDefinition && resp.taskDefinition.task_type === 'daily' ? 'مهمة يومية' : 'عند الحاجة' }}
+                {{ getTaskDef(resp)?.task_type === 'daily' ? 'مهمة يومية' : 'عند الحاجة' }}
               </SpatialStatusPill>
               <span
                 class="text-[10px] font-black px-2 py-0.5 rounded-full font-mono"
@@ -80,7 +80,7 @@
               class="flex items-center justify-between text-xs py-1 px-3 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-100 dark:border-white/5"
             >
               <span class="font-bold text-slate-600 dark:text-white/70">
-                {{ val.component ? val.component.label : 'العنصر' }}:
+                {{ getComponentLabel(val) }}:
               </span>
               <span class="font-black text-slate-900 dark:text-white">
                 {{ val.value || '-' }}
@@ -148,8 +148,16 @@ const props = defineProps({
 defineEmits(['close']);
 
 const taskResponses = computed(() => {
-  return props.visit && props.visit.task_responses ? props.visit.task_responses : [];
+  return props.visit && props.visit.task_responses ? props.visit.task_responses : (props.visit && props.visit.taskResponses ? props.visit.taskResponses : []);
 });
+
+const getTaskDef = (resp) => {
+  return resp?.task_definition || resp?.taskDefinition || null;
+};
+
+const getComponentLabel = (val) => {
+  return val?.component?.label || val?.task_component?.label || 'العنصر';
+};
 
 const formatTime = (isoString) => {
   if (!isoString) return '';

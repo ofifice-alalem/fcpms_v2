@@ -91,15 +91,36 @@
         </SpatialCard>
 
         <!-- Widget 2: Daily Progress -->
-        <SpatialCard padding="p-5" class="space-y-2">
+        <SpatialCard padding="p-5" class="space-y-3 relative overflow-hidden">
           <div class="flex items-center justify-between">
             <span class="text-xs font-black text-slate-500 dark:text-white/50">نسبة إنجاز اليوم</span>
-            <span class="text-xs font-mono text-emerald-500 font-bold">{{ dailyRecord.completion_percentage || 0 }}%</span>
+            <div class="flex items-center gap-1.5">
+              <span
+                class="text-xs font-black px-2.5 py-0.5 rounded-full border font-mono tracking-tight"
+                :class="
+                  (dailyRecord.completion_percentage || 0) >= 100
+                    ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30'
+                    : (dailyRecord.completion_percentage || 0) >= 50
+                      ? 'bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/30'
+                      : 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/30'
+                "
+              >
+                {{ Number(dailyRecord.completion_percentage || 0).toFixed(0) }}%
+              </span>
+              <span v-if="(dailyRecord.completion_percentage || 0) >= 100" class="text-sm">🏆</span>
+            </div>
           </div>
-          <SpatialProgressBar :value="dailyRecord.completion_percentage || 0" />
-          <div class="flex justify-between text-[11px] text-slate-500 dark:text-white/60 font-bold pt-1">
-            <span>المهام المكتملة: {{ dailyRecord.completed_daily_tasks || 0 }}</span>
-            <span>المطلوبة: {{ dailyRecord.required_daily_tasks || 0 }}</span>
+
+          <SpatialProgressBar :value="dailyRecord.completion_percentage || 0" height="h-3" />
+
+          <div class="flex items-center justify-between text-xs font-bold pt-0.5">
+            <div class="flex items-center gap-1.5 text-slate-700 dark:text-white/80">
+              <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
+              <span>المهام المكتملة: <strong class="text-slate-900 dark:text-white font-black font-mono text-sm">{{ dailyRecord.completed_daily_tasks || 0 }}</strong></span>
+            </div>
+            <div class="flex items-center gap-1 text-slate-500 dark:text-white/50">
+              <span>المطلوبة: <strong class="text-slate-700 dark:text-white/80 font-black font-mono text-sm">{{ dailyRecord.required_daily_tasks || 0 }}</strong></span>
+            </div>
           </div>
         </SpatialCard>
 

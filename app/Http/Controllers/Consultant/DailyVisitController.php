@@ -57,7 +57,12 @@ class DailyVisitController extends Controller
             $availableOnDemandTasks = $this->visitService->getAvailableOnDemandTasks($activeVisit->site_id, $consultant);
         }
 
-        $dailyRecord->load(['siteVisits.site', 'siteVisits.taskResponses']);
+        $dailyRecord->load([
+            'siteVisits.site',
+            'siteVisits.taskResponses.taskDefinition.components.options',
+            'siteVisits.taskResponses.values.component',
+            'siteVisits.taskResponses.attachments',
+        ]);
 
         if ($request->wantsJson() && !$request->header('X-Inertia')) {
             return response()->json([
