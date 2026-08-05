@@ -84,6 +84,30 @@
   box-shadow: 0 30px 65px -12px rgba(59, 130, 246, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
 
+@media (max-width: 700px) {
+  .spatial-card,
+  .spatial-modal-card {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    box-shadow: 0 4px 16px -4px rgba(15, 23, 42, 0.06) !important;
+    transition: transform 0.15s ease, opacity 0.15s ease !important;
+  }
+  
+  .dark .spatial-card,
+  .dark .spatial-modal-card {
+    background: #0e1726 !important;
+    box-shadow: 0 6px 20px -4px rgba(0, 0, 0, 0.4) !important;
+  }
+
+  .spatial-card:hover {
+    transform: none !important;
+  }
+  
+  * {
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
 .spatial-modal-card {
   backdrop-filter: blur(50px);
   -webkit-backdrop-filter: blur(50px);

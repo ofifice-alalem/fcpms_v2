@@ -2,18 +2,22 @@
   <Teleport to="body">
     <div
       v-if="isModalOpen"
-      class="fixed inset-0 z-[1000] flex items-center justify-center p-4"
+      class="fixed inset-0 z-[1000] flex items-center justify-center p-3 sm:p-4 overflow-hidden"
     >
+      <!-- Backdrop -->
       <div
         @click="closeOnBackdrop && closeModal()"
         class="absolute inset-0 bg-black/60 backdrop-blur-sm"
       ></div>
+
+      <!-- Modal Card -->
       <div
-        class="relative w-full spatial-modal-card p-6 flex flex-col gap-5 animate-spatial-in"
+        class="relative w-full max-h-[90vh] spatial-modal-card p-4 sm:p-6 flex flex-col gap-4 animate-spatial-in shadow-2xl"
         :class="maxWidthClass"
       >
-        <div class="flex items-center justify-between border-b border-black/10 dark:border-white/10 pb-3">
-          <h3 class="font-black text-lg text-slate-900 dark:text-white">{{ title }}</h3>
+        <!-- Header (Fixed at Top) -->
+        <div class="flex items-center justify-between border-b border-black/10 dark:border-white/10 pb-3 shrink-0">
+          <h3 class="font-black text-base sm:text-lg text-slate-900 dark:text-white">{{ title }}</h3>
           <button
             @click="closeModal()"
             class="w-8 h-8 rounded-full bg-black/5 dark:bg-white/10 hover:bg-black/10 dark:hover:bg-white/20 text-slate-700 dark:text-white flex items-center justify-center transition-all text-xs cursor-pointer"
@@ -21,10 +25,14 @@
             ✕
           </button>
         </div>
-        <div class="space-y-4">
+
+        <!-- Content Body (Scrollable) -->
+        <div class="space-y-4 overflow-y-auto max-h-[70vh] custom-scroll pr-1 flex-1">
           <slot />
         </div>
-        <div v-if="$slots.footer" class="flex gap-3 pt-2 border-t border-black/5 dark:border-white/10">
+
+        <!-- Footer (Fixed at Bottom) -->
+        <div v-if="$slots.footer" class="flex gap-3 pt-3 border-t border-black/5 dark:border-white/10 shrink-0">
           <slot name="footer" />
         </div>
       </div>

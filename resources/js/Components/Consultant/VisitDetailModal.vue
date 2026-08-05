@@ -33,41 +33,64 @@
 
       <!-- Task Responses List -->
       <div class="space-y-4">
-        <h4 class="text-xs font-black text-slate-500 dark:text-white/50 uppercase tracking-wider">
-          إجابات الاستبيانات والمهام المسجلة ({{ taskResponses.length }})
-        </h4>
+        <div class="flex items-center justify-between border-b border-slate-200 dark:border-white/10 pb-2">
+          <h4 class="text-xs font-black text-slate-500 dark:text-white/50 uppercase tracking-wider">
+            مهام وإجابات هذه الزيارة ({{ taskResponses.length }})
+          </h4>
+          <span class="text-[11px] font-bold text-slate-400 dark:text-white/40">
+            سجل الاستبيانات والمدخلات
+          </span>
+        </div>
 
         <div
           v-for="resp in taskResponses"
           :key="resp.id"
-          class="p-4 rounded-2xl bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 space-y-3"
+          class="p-4 rounded-2xl bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 space-y-3 shadow-sm"
         >
-          <div class="flex items-center justify-between">
-            <span class="text-sm font-black text-slate-900 dark:text-white">
-              {{ resp.taskDefinition ? resp.taskDefinition.title : 'مهمة ميدانية' }}
-            </span>
+          <div class="flex items-start justify-between gap-2">
+            <div class="space-y-1">
+              <span class="text-sm font-black text-slate-900 dark:text-white block">
+                {{ resp.taskDefinition ? resp.taskDefinition.title : 'مهمة ميدانية' }}
+              </span>
+              <span v-if="resp.taskDefinition && resp.taskDefinition.description" class="text-xs text-slate-500 dark:text-white/60 block">
+                {{ resp.taskDefinition.description }}
+              </span>
+            </div>
 
-            <SpatialStatusPill
-              :type="resp.taskDefinition && resp.taskDefinition.task_type === 'daily' ? 'completed' : 'pending'"
-            >
-              {{ resp.taskDefinition && resp.taskDefinition.task_type === 'daily' ? 'مهمة يومية' : 'عند الحاجة' }}
-            </SpatialStatusPill>
+            <div class="flex flex-col items-end gap-1 shrink-0">
+              <SpatialStatusPill
+                :type="resp.taskDefinition && resp.taskDefinition.task_type === 'daily' ? 'completed' : 'pending'"
+              >
+                {{ resp.taskDefinition && resp.taskDefinition.task_type === 'daily' ? 'مهمة يومية' : 'عند الحاجة' }}
+              </SpatialStatusPill>
+              <span
+                class="text-[10px] font-black px-2 py-0.5 rounded-full font-mono"
+                :class="resp.values && resp.values.length > 0 ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20' : 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20'"
+              >
+                {{ resp.values && resp.values.length > 0 ? 'تمت التعبئة ✓' : 'لم تُعبأ بعد ⏳' }}
+              </span>
+            </div>
           </div>
 
           <!-- Component Values -->
-          <div v-if="resp.values && resp.values.length > 0" class="space-y-2 pt-1 border-t border-slate-100 dark:border-white/5">
+          <div v-if="resp.values && resp.values.length > 0" class="space-y-2 pt-2 border-t border-slate-100 dark:border-white/5">
             <div
               v-for="val in resp.values"
               :key="val.id"
-              class="flex items-center justify-between text-xs py-1"
+              class="flex items-center justify-between text-xs py-1 px-3 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-100 dark:border-white/5"
             >
-              <span class="font-bold text-slate-500 dark:text-white/70">
+              <span class="font-bold text-slate-600 dark:text-white/70">
                 {{ val.component ? val.component.label : 'العنصر' }}:
               </span>
               <span class="font-black text-slate-900 dark:text-white">
                 {{ val.value || '-' }}
               </span>
             </div>
+          </div>
+
+          <!-- Unfilled State -->
+          <div v-else class="text-right text-[11px] font-bold text-slate-400 dark:text-white/40 pt-1 border-t border-dashed border-slate-200 dark:border-white/5">
+            لم يتم إدخال إجابات لهذا الاستبيان بعد.
           </div>
 
           <!-- Photo Attachments Gallery -->

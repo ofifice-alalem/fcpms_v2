@@ -89,11 +89,11 @@
     <Teleport to="body">
       <div
         v-if="isOpen && isMobile"
-        class="fixed inset-0 z-[99999] bg-slate-950/80 backdrop-blur-xl flex flex-col justify-start dir-rtl p-3 sm:p-6 transition-all duration-300 overflow-hidden"
+        class="fixed inset-0 z-[99999] bg-slate-950/90 flex flex-col justify-start dir-rtl p-3 sm:p-6 overflow-hidden transform-gpu"
         @click="isOpen = false"
       >
         <div
-          class="w-full h-full bg-white dark:bg-slate-900 rounded-3xl p-5 shadow-2xl flex flex-col space-y-4 border border-black/10 dark:border-white/10 overflow-hidden animate-spatial-in"
+          class="w-full h-full bg-white dark:bg-slate-900 rounded-3xl p-5 shadow-2xl flex flex-col space-y-4 border border-black/10 dark:border-white/10 overflow-hidden animate-spatial-in transform-gpu"
           @click.stop
         >
           <!-- Header -->
@@ -262,13 +262,15 @@ function toggleDropdown() {
     checkPosition();
     if (props.searchable) {
       searchQuery.value = '';
-      nextTick(() => {
-        if (isMobile.value) {
+      if (isMobile.value) {
+        setTimeout(() => {
           searchInputRefMobile.value?.focus();
-        } else {
+        }, 120);
+      } else {
+        nextTick(() => {
           searchInputRef.value?.focus();
-        }
-      });
+        });
+      }
     }
   }
 }
