@@ -81,7 +81,7 @@
                 <th class="p-4">المدينة</th>
                 <th class="p-4">الحالة التشغيلية</th>
                 <th class="p-4 text-center">عدد الزيارات</th>
-                <th class="p-4 text-left">الإجراءات</th>
+                <th class="p-4 text-center">الإجراءات</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-black/5 dark:divide-white/5 text-sm font-bold">
@@ -129,8 +129,8 @@
                 </td>
 
                 <!-- Actions Buttons -->
-                <td class="p-4 text-left">
-                  <div class="flex items-center justify-end gap-1.5">
+                <td class="p-4 text-center">
+                  <div class="flex items-center justify-center gap-1.5">
                     <SpatialIconButton
                       variant="primary"
                       title="عرض التفاصيل"

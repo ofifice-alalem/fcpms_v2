@@ -1,6 +1,6 @@
 <template>
   <div class="space-y-1.5 w-full relative" :class="{ 'z-50': isOpen }" ref="dropdownRef">
-    <label v-if="label" class="text-xs font-bold text-slate-700 dark:text-white/75 flex items-center gap-1">
+    <label v-if="label" class="text-xs font-black tracking-wide text-slate-700 dark:text-white/85 flex items-center gap-1">
       {{ label }}
       <span v-if="required" class="required-star">*</span>
     </label>
@@ -8,13 +8,13 @@
       <div
         @click="isOpen = !isOpen"
         class="spatial-input spatial-dropdown-trigger"
-        :class="{ 'border-primary/50': isOpen }"
+        :class="{ 'open': isOpen }"
       >
         <span class="font-bold text-sm text-slate-900 dark:text-white">
           {{ selectedLabel || placeholder }}
         </span>
         <svg
-          class="spatial-dropdown-arrow text-primary transition-transform duration-250"
+          class="spatial-dropdown-arrow text-primary transition-transform duration-250 shrink-0"
           :class="{ 'rotate-180': isOpen }"
           fill="none"
           stroke="currentColor"
@@ -59,7 +59,7 @@ const props = defineProps({
   },
   options: {
     type: Array,
-    default: () => [], // Array of { label: string, value: any }
+    default: () => [],
   },
   required: Boolean,
 });
