@@ -162,7 +162,12 @@
                 <!-- Contact & Email -->
                 <td class="p-4">
                   <div class="font-black text-slate-900 dark:text-white text-xs font-mono">{{ consultant.user?.email || '-' }}</div>
-                  <div class="text-xs text-slate-500 dark:text-white/50 mt-0.5">📞 {{ consultant.phone || 'غير مسجل' }}</div>
+                  <div class="text-xs text-slate-500 dark:text-white/50 mt-0.5 flex items-center gap-1">
+                    <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
+                    </svg>
+                    <span>{{ consultant.phone || 'غير مسجل' }}</span>
+                  </div>
                 </td>
 
                 <!-- Specialization -->
@@ -250,38 +255,40 @@
           </table>
         </div>
 
-        <!-- Pagination Bar -->
-        <div v-if="consultants.links && consultants.links.length > 3" class="p-4 border-t border-black/10 dark:border-white/10 flex items-center justify-between flex-wrap gap-4 text-xs font-bold">
-          <div class="text-slate-500 dark:text-white/60">
-            عرض النتائج من {{ consultants.from || 0 }} إلى {{ consultants.to || 0 }} من أصل {{ consultants.total || 0 }} استشاري
+        <!-- Pagination Bar matching Sites/Index.vue -->
+        <div v-if="consultants.links && consultants.links.length > 3" class="p-4 border-t border-black/10 dark:border-white/10 flex items-center justify-between flex-wrap gap-4">
+          <div class="text-xs font-bold text-slate-500 dark:text-white/60">
+            إجمالي النتائج: {{ consultants.total || 0 }} استشاري
           </div>
-          <div class="flex items-center gap-1">
-            <button
+          <div class="flex items-center gap-1.5">
+            <Link
               v-for="(link, i) in consultants.links"
               :key="i"
-              @click="navigatePage(link.url)"
-              :disabled="!link.url"
-              :class="[
-                'px-3 py-1.5 rounded-lg transition-all cursor-pointer',
-                link.active ? 'bg-primary text-white font-black shadow-md' : 'text-slate-600 dark:text-white/70 hover:bg-black/5 dark:hover:bg-white/10',
-                !link.url ? 'opacity-40 cursor-not-allowed' : ''
-              ]"
+              :href="link.url || '#'"
               v-html="link.label"
-            ></button>
+              :class="[
+                'px-3 py-1.5 rounded-xl text-xs font-bold transition-all',
+                link.active ? 'bg-primary text-white shadow-md' : 'bg-black/5 dark:bg-white/10 text-slate-700 dark:text-white hover:bg-black/10',
+                !link.url ? 'opacity-40 pointer-events-none' : 'cursor-pointer'
+              ]"
+            />
           </div>
         </div>
       </SpatialCard>
 
       <!-- Floating Bulk Bar -->
-      <SpatialFloatingBulkBar
-        :selected-count="selectedIds.length"
-        @clear="selectedIds = []"
-      >
+      <SpatialFloatingBulkBar :selectedCount="selectedIds.length">
         <button
           @click="handleBulkDeactivate"
           class="px-3.5 py-1.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-600 dark:text-amber-300 font-bold text-xs transition-all cursor-pointer"
         >
           ⏸️ تعليق المحددين
+        </button>
+        <button
+          @click="selectedIds = []"
+          class="text-xs font-bold text-slate-400 hover:text-white underline cursor-pointer"
+        >
+          إلغاء التحديد
         </button>
       </SpatialFloatingBulkBar>
     </div>
@@ -318,7 +325,7 @@
 
 <script setup>
 import { ref, computed } from 'vue';
-import { router, usePage } from '@inertiajs/vue3';
+import { router, usePage, Link } from '@inertiajs/vue3';
 import HRLayout from '@/Layouts/HRLayout.vue';
 import SpatialToast from '@/Components/Spatial/SpatialToast.vue';
 import SpatialCard from '@/Components/Spatial/SpatialCard.vue';
@@ -453,12 +460,6 @@ function resetFilters() {
   selectedSpecialization.value = '';
   selectedSort.value = 'latest';
   handleFilterChange();
-}
-
-function navigatePage(url) {
-  if (url) {
-    router.get(url, {}, { preserveState: true, preserveScroll: true });
-  }
 }
 
 function formatDate(dateStr) {
