@@ -5,11 +5,13 @@ namespace App\Providers;
 use App\Repositories\Contracts\ConsultantLeaveRepositoryInterface;
 use App\Repositories\Contracts\ConsultantRepositoryInterface;
 use App\Repositories\Contracts\SiteRepositoryInterface;
+use App\Repositories\Contracts\TaskDefinitionRepositoryInterface;
 use App\Repositories\Contracts\UserRepositoryInterface;
 use App\Repositories\Contracts\WorkScheduleRepositoryInterface;
 use App\Repositories\Eloquent\ConsultantLeaveRepository;
 use App\Repositories\Eloquent\ConsultantRepository;
 use App\Repositories\Eloquent\SiteRepository;
+use App\Repositories\Eloquent\TaskDefinitionRepository;
 use App\Repositories\Eloquent\UserRepository;
 use App\Repositories\Eloquent\WorkScheduleRepository;
 use Illuminate\Support\ServiceProvider;
@@ -26,6 +28,7 @@ class RepositoryServiceProvider extends ServiceProvider
         $this->app->bind(ConsultantRepositoryInterface::class, ConsultantRepository::class);
         $this->app->bind(WorkScheduleRepositoryInterface::class, WorkScheduleRepository::class);
         $this->app->bind(ConsultantLeaveRepositoryInterface::class, ConsultantLeaveRepository::class);
+        $this->app->bind(TaskDefinitionRepositoryInterface::class, TaskDefinitionRepository::class);
     }
 
     /**

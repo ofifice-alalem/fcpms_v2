@@ -16,6 +16,7 @@ return new class extends Migration
             $table->boolean('is_active')->default(true);
             $table->integer('display_order')->default(0);
             $table->foreignId('created_by')->nullable()->constrained('users')->nullOnDelete();
+            $table->softDeletes();
             $table->timestamps();
         });
     }

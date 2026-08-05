@@ -19,6 +19,8 @@ class TaskComponent extends Model
         'placeholder',
         'display_order',
         'is_required',
+        'conditional_parent_id',
+        'conditional_value',
         'visibility_component_id',
         'visibility_option_id',
     ];
@@ -40,5 +42,15 @@ class TaskComponent extends Model
     public function options(): HasMany
     {
         return $this->hasMany(TaskComponentOption::class)->orderBy('display_order');
+    }
+
+    public function parentComponent(): BelongsTo
+    {
+        return $this->belongsTo(TaskComponent::class, 'conditional_parent_id');
+    }
+
+    public function childComponents(): HasMany
+    {
+        return $this->hasMany(TaskComponent::class, 'conditional_parent_id');
     }
 }

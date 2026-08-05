@@ -61,6 +61,16 @@ Route::middleware('auth')->group(function () {
         Route::post('/work-schedules/leaves', [\App\Http\Controllers\Admin\WorkScheduleController::class, 'storeLeave'])->name('schedules.leaves.store');
         Route::put('/work-schedules/leaves/{leave}', [\App\Http\Controllers\Admin\WorkScheduleController::class, 'updateLeave'])->name('schedules.leaves.update');
         Route::delete('/work-schedules/leaves/{leave}', [\App\Http\Controllers\Admin\WorkScheduleController::class, 'destroyLeave'])->name('schedules.leaves.destroy');
+
+        // Phase 04: Dynamic Task Builder & Assignments Routes
+        Route::get('/task-builder', [\App\Http\Controllers\Admin\TaskBuilderController::class, 'index'])->name('tasks.index');
+        Route::get('/task-builder/create', [\App\Http\Controllers\Admin\TaskBuilderController::class, 'create'])->name('tasks.create');
+        Route::post('/task-builder', [\App\Http\Controllers\Admin\TaskBuilderController::class, 'store'])->name('tasks.store');
+        Route::get('/task-builder/{task}', [\App\Http\Controllers\Admin\TaskBuilderController::class, 'show'])->name('tasks.show');
+        Route::get('/task-builder/{task}/edit', [\App\Http\Controllers\Admin\TaskBuilderController::class, 'edit'])->name('tasks.edit');
+        Route::put('/task-builder/{task}', [\App\Http\Controllers\Admin\TaskBuilderController::class, 'update'])->name('tasks.update');
+        Route::patch('/task-builder/{task}/toggle-active', [\App\Http\Controllers\Admin\TaskBuilderController::class, 'toggleActive'])->name('tasks.toggle-active');
+        Route::delete('/task-builder/{task}', [\App\Http\Controllers\Admin\TaskBuilderController::class, 'destroy'])->name('tasks.destroy');
     });
 });
 
