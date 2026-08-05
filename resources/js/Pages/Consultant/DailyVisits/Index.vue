@@ -78,84 +78,131 @@
         </div>
       </div>
 
-      <!-- Top Summary Widgets (Mobile-Optimized Tall Cards) -->
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
+      <!-- Top Summary Widgets (Vibrant Executive Cards with Circular Rings) -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
         <!-- Widget 1: Consultant Profile -->
-        <SpatialCard padding="p-6" class="min-h-[160px] flex flex-col justify-between border-r-4 border-r-primary relative overflow-hidden group shadow-sm">
-          <div class="flex items-center justify-between">
-            <span class="text-xs font-black text-slate-500 dark:text-white/50 uppercase tracking-wider">الاستشاري الميداني</span>
-            <span class="text-xs font-mono text-primary font-black px-3 py-1 rounded-full bg-primary/10 border border-primary/20">
+        <SpatialCard padding="p-7" class="min-h-[290px] flex flex-col justify-between border-t-4 border-t-primary rounded-3xl relative overflow-hidden group shadow-md text-center space-y-4">
+          <!-- Top Centered Avatar Ring -->
+          <div class="flex flex-col items-center space-y-2">
+            <div class="w-20 h-20 rounded-full border-2 border-primary/40 bg-gradient-to-br from-primary/20 to-blue-500/10 text-primary flex items-center justify-center text-3xl font-black shadow-lg shadow-primary/20 p-1">
+              👨‍💼
+            </div>
+            <span class="text-xs font-mono font-black text-primary px-3 py-1 rounded-full bg-primary/10 border border-primary/20">
               {{ consultant.employee_number }}
             </span>
           </div>
-          <div class="my-2 space-y-1">
-            <h3 class="text-lg font-black text-slate-900 dark:text-white flex items-center gap-2">
-              <span class="w-8 h-8 rounded-xl bg-primary/10 text-primary flex items-center justify-center text-sm font-black shrink-0">👨‍💼</span>
-              <span>{{ consultant.full_name }}</span>
+
+          <!-- Middle Name & Subtitle -->
+          <div class="space-y-1">
+            <h3 class="text-xl font-black text-slate-900 dark:text-white leading-tight">
+              {{ consultant.full_name }}
             </h3>
-            <p class="text-xs text-slate-500 dark:text-white/60 font-bold pr-10">
-              {{ consultant.specialization || 'مفتش ميداني عام' }}
+            <p class="text-xs font-black text-slate-500 dark:text-white/60 uppercase tracking-widest">
+              الاستشاري الميداني
             </p>
           </div>
-          <div class="text-[11px] font-bold text-slate-400 dark:text-white/40 pt-2 border-t border-slate-100 dark:border-white/5 flex items-center justify-between">
-            <span>الهوية المعتمدة</span>
-            <span class="text-emerald-500 font-mono">نشط 🟢</span>
+
+          <!-- Bottom Grid Boxes (Number inside Circular Ring + Text Underneath) -->
+          <div class="grid grid-cols-2 gap-3 pt-2 text-xs font-bold">
+            <div class="p-3.5 rounded-2xl border border-primary/20 bg-slate-50 dark:bg-white/5 text-center flex flex-col items-center space-y-2 shadow-sm">
+              <div class="w-11 h-11 rounded-full border-2 border-emerald-500 bg-emerald-500/10 text-emerald-500 font-mono font-black text-sm flex items-center justify-center shadow-md shadow-emerald-500/20">
+                🟢
+              </div>
+              <span class="text-[11px] font-black text-slate-700 dark:text-white/80 block">نشط ومعتمد</span>
+            </div>
+
+            <div class="p-3.5 rounded-2xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 text-center flex flex-col items-center space-y-2 shadow-sm">
+              <div class="w-11 h-11 rounded-full border-2 border-primary/40 bg-primary/10 text-primary font-mono font-black text-xs flex items-center justify-center shadow-md shadow-primary/10">
+                ID
+              </div>
+              <span class="text-[11px] font-black text-slate-700 dark:text-white/80 block font-mono">{{ consultant.employee_number }}</span>
+            </div>
           </div>
         </SpatialCard>
 
-        <!-- Widget 2: Daily Progress -->
-        <SpatialCard padding="p-6" class="min-h-[160px] flex flex-col justify-between border-r-4 border-r-emerald-500 relative overflow-hidden group shadow-sm">
-          <div class="flex items-center justify-between">
-            <span class="text-xs font-black text-slate-500 dark:text-white/50 uppercase tracking-wider">نسبة إنجاز اليوم</span>
-            <div class="flex items-center gap-1.5">
-              <span
-                class="text-xs font-black px-3 py-1 rounded-full border font-mono tracking-tight"
-                :class="
-                  (dailyRecord.completion_percentage || 0) >= 100
-                    ? 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border-emerald-500/30'
-                    : (dailyRecord.completion_percentage || 0) >= 50
-                      ? 'bg-blue-500/15 text-blue-600 dark:text-blue-400 border-blue-500/30'
-                      : 'bg-amber-500/15 text-amber-600 dark:text-amber-400 border-amber-500/30'
-                "
-              >
-                {{ Number(dailyRecord.completion_percentage || 0).toFixed(0) }}%
-              </span>
-              <span v-if="(dailyRecord.completion_percentage || 0) >= 100" class="text-base">🏆</span>
-            </div>
+        <!-- Widget 2: Daily Progress Ring (User Requested Circular Ring) -->
+        <SpatialCard padding="p-7" class="min-h-[290px] flex flex-col justify-between border-t-4 border-t-emerald-500 rounded-3xl relative overflow-hidden group shadow-md text-center space-y-4">
+          <!-- Top Centered SVG Circular Progress Ring -->
+          <div class="flex flex-col items-center justify-center space-y-2">
+            <SpatialCircularProgress
+              :value="dailyRecord.completion_percentage || 0"
+              :size="130"
+              :stroke-width="10"
+              color="emerald"
+            >
+              <div class="flex flex-col items-center justify-center">
+                <span class="text-2xl font-black font-mono tracking-tight text-slate-900 dark:text-white leading-none">
+                  {{ Number(dailyRecord.completion_percentage || 0).toFixed(0) }}%
+                </span>
+                <span v-if="(dailyRecord.completion_percentage || 0) >= 100" class="text-sm mt-0.5 animate-bounce">🏆</span>
+              </div>
+            </SpatialCircularProgress>
+
+            <span class="text-xs font-black text-slate-500 dark:text-white/60 uppercase tracking-widest block pt-1">
+              نسبة إنجاز اليوم
+            </span>
           </div>
 
-          <div class="my-2 space-y-2">
-            <SpatialProgressBar :value="dailyRecord.completion_percentage || 0" height="h-3.5" />
-          </div>
-
-          <div class="flex items-center justify-between text-xs font-bold pt-2 border-t border-slate-100 dark:border-white/5">
-            <div class="flex items-center gap-2 text-slate-700 dark:text-white/80">
-              <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
-              <span>المكتملة: <strong class="text-slate-900 dark:text-white font-black font-mono text-sm">{{ dailyRecord.completed_daily_tasks || 0 }}</strong></span>
+          <!-- Bottom Grid Boxes (Number inside Circular Ring + Text Underneath) -->
+          <div class="grid grid-cols-2 gap-3 pt-2 text-xs font-bold">
+            <div class="p-3.5 rounded-2xl border border-emerald-500/30 bg-emerald-500/5 dark:bg-emerald-500/10 text-center flex flex-col items-center space-y-2 shadow-sm">
+              <div class="w-12 h-12 rounded-full border-2 border-emerald-500 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-mono font-black text-lg flex items-center justify-center shadow-md shadow-emerald-500/20">
+                {{ dailyRecord.completed_daily_tasks || 0 }}
+              </div>
+              <span class="text-[11px] font-black text-emerald-700 dark:text-emerald-300 block">المهام المكتملة</span>
             </div>
-            <div class="flex items-center gap-1.5 text-slate-500 dark:text-white/50">
-              <span>المطلوبة: <strong class="text-slate-700 dark:text-white/80 font-black font-mono text-sm">{{ dailyRecord.required_daily_tasks || 0 }}</strong></span>
+
+            <div class="p-3.5 rounded-2xl border border-blue-500/30 bg-blue-500/5 dark:bg-blue-500/10 text-center flex flex-col items-center space-y-2 shadow-sm">
+              <div class="w-12 h-12 rounded-full border-2 border-blue-500 bg-blue-500/10 text-blue-600 dark:text-blue-400 font-mono font-black text-lg flex items-center justify-center shadow-md shadow-blue-500/20">
+                {{ dailyRecord.required_daily_tasks || 0 }}
+              </div>
+              <span class="text-[11px] font-black text-blue-700 dark:text-blue-300 block">المهام المطلوبة</span>
             </div>
           </div>
         </SpatialCard>
 
         <!-- Widget 3: Attendance & Visits Stats -->
-        <SpatialCard padding="p-6" class="min-h-[160px] flex flex-col justify-between border-r-4 border-r-indigo-500 relative overflow-hidden group shadow-sm">
-          <div class="flex items-center justify-between">
-            <span class="text-xs font-black text-slate-500 dark:text-white/50 uppercase tracking-wider">حالة اليوم والزيارات</span>
-            <SpatialStatusPill :type="dailyRecord && dailyRecord.check_in_time ? 'completed' : 'pending'">
-              {{ dailyRecord && dailyRecord.check_in_time ? 'اليوم قائم' : 'لم يبدأ' }}
-            </SpatialStatusPill>
+        <SpatialCard padding="p-7" class="min-h-[290px] flex flex-col justify-between border-t-4 border-t-indigo-500 rounded-3xl relative overflow-hidden group shadow-md text-center space-y-4">
+          <!-- Top Centered SVG Circular Gauge Ring -->
+          <div class="flex flex-col items-center justify-center space-y-2">
+            <SpatialCircularProgress
+              :value="siteVisits.length > 0 ? 100 : 0"
+              :size="130"
+              :stroke-width="10"
+              color="indigo"
+            >
+              <div class="flex flex-col items-center justify-center">
+                <span class="text-3xl font-black font-mono tracking-tight text-indigo-600 dark:text-indigo-400 leading-none">
+                  {{ siteVisits.length }}
+                </span>
+                <span class="text-xs font-bold text-slate-400 dark:text-white/40 mt-1">موقع 📍</span>
+              </div>
+            </SpatialCircularProgress>
+
+            <span class="text-xs font-black text-slate-500 dark:text-white/60 uppercase tracking-widest block pt-1">
+              حالة اليوم والزيارات
+            </span>
           </div>
-          <div class="my-2">
-            <div class="flex items-baseline gap-2">
-              <span class="text-3xl font-black text-slate-900 dark:text-white font-mono">{{ siteVisits.length }}</span>
-              <span class="text-sm font-bold text-slate-600 dark:text-white/70">مواقع مزارة اليوم 📍</span>
+
+          <!-- Bottom Grid Boxes (Number inside Circular Ring + Text Underneath) -->
+          <div class="grid grid-cols-2 gap-3 pt-2 text-xs font-bold">
+            <div class="p-3.5 rounded-2xl border border-indigo-500/30 bg-indigo-500/5 dark:bg-indigo-500/10 text-center flex flex-col items-center space-y-2 shadow-sm">
+              <div class="w-12 h-12 rounded-full border-2 border-indigo-500 bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 font-mono font-black text-sm flex items-center justify-center shadow-md shadow-indigo-500/20">
+                1
+              </div>
+              <span class="text-[11px] font-black text-indigo-700 dark:text-indigo-300 block">
+                {{ dailyRecord && dailyRecord.check_in_time ? 'اليوم قائم 🟢' : 'لم يبدأ' }}
+              </span>
             </div>
-          </div>
-          <div class="text-[11px] font-bold text-slate-400 dark:text-white/40 pt-2 border-t border-slate-100 dark:border-white/5 flex items-center justify-between">
-            <span>التاريخ الميداني</span>
-            <span class="font-mono text-slate-600 dark:text-white/70">{{ todayDateFormatted }}</span>
+
+            <div class="p-3.5 rounded-2xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 text-center flex flex-col items-center space-y-2 shadow-sm">
+              <div class="w-12 h-12 rounded-full border-2 border-slate-400 dark:border-white/30 bg-slate-100 dark:bg-white/10 text-slate-700 dark:text-white font-black text-sm flex items-center justify-center shadow-sm">
+                📅
+              </div>
+              <span class="text-[11px] font-black text-slate-700 dark:text-white/80 block truncate max-w-full">
+                {{ todayDateFormatted }}
+              </span>
+            </div>
           </div>
         </SpatialCard>
       </div>
@@ -367,6 +414,7 @@ import SpatialProgressBar from '@/Components/Spatial/SpatialProgressBar.vue';
 import SpatialInput from '@/Components/Spatial/SpatialInput.vue';
 import SpatialDropdown from '@/Components/Spatial/SpatialDropdown.vue';
 import SpatialToast from '@/Components/Spatial/SpatialToast.vue';
+import SpatialCircularProgress from '@/Components/Spatial/SpatialCircularProgress.vue';
 import VisitDetailModal from '@/Components/Consultant/VisitDetailModal.vue';
 import CancelVisitModal from '@/Components/Consultant/CancelVisitModal.vue';
 
