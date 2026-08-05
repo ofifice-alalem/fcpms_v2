@@ -21,7 +21,7 @@ class ConsultantRepository extends BaseRepository implements ConsultantRepositor
     public function getFilteredConsultants(array $filters = [], int $perPage = 15): LengthAwarePaginator
     {
         $query = $this->model->newQuery()
-            ->with(['user', 'workScheduleTemplate']);
+            ->with(['user', 'workScheduleTemplate.days', 'leaves']);
 
         if (!empty($filters['search'])) {
             $search = $filters['search'];
@@ -100,5 +100,16 @@ class ConsultantRepository extends BaseRepository implements ConsultantRepositor
             ->where('daily_records.consultant_id', $consultantId)
             ->whereNull('site_visits.visit_finished_at')
             ->exists();
+    }
+
+    /**
+     * Get all active consultants.
+     */
+    public function getActiveConsultants(): \Illuminate\Database\Eloquent\Collection
+    {
+        return $this->model->newQuery()
+            ->where('employment_status', \App\Enums\ConsultantStatus::ACTIVE)
+            ->orderBy('full_name', 'asc')
+            ->get();
     }
 }

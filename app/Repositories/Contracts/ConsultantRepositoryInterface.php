@@ -26,4 +26,9 @@ interface ConsultantRepositoryInterface extends BaseRepositoryInterface
      * Check if consultant has pending unapproved visits.
      */
     public function hasPendingVisits(int $consultantId): bool;
+
+    /**
+     * Get all active consultants.
+     */
+    public function getActiveConsultants(): \Illuminate\Database\Eloquent\Collection;
 }

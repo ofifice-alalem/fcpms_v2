@@ -11,14 +11,16 @@ class OfficialHoliday extends Model
 
     protected $fillable = [
         'name',
-        'holiday_date',
+        'start_date',
+        'end_date',
         'notes',
     ];
 
     protected function casts(): array
     {
         return [
-            'holiday_date' => 'date',
+            'start_date' => 'date',
+            'end_date' => 'date',
         ];
     }
 }

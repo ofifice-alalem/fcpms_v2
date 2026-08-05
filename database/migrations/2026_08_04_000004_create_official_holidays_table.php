@@ -11,7 +11,8 @@ return new class extends Migration
         Schema::create('official_holidays', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->date('holiday_date')->unique();
+            $table->date('start_date');
+            $table->date('end_date');
             $table->text('notes')->nullable();
             $table->timestamps();
         });

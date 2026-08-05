@@ -8,6 +8,7 @@ use App\Enums\UserStatus;
 use App\Models\Consultant;
 use App\Models\Site;
 use App\Models\User;
+use App\Models\WorkScheduleTemplate;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 use Spatie\Permission\Models\Role;
@@ -15,7 +16,7 @@ use Spatie\Permission\Models\Role;
 class DatabaseSeeder extends Seeder
 {
     /**
-     * Seed the application's database with roles, users, field sites, and consultants.
+     * Seed the application's database with roles, users, field sites, consultants, and work schedules.
      */
     public function run(): void
     {
@@ -93,6 +94,28 @@ class DatabaseSeeder extends Seeder
             ]
         );
 
+        // 4.5 Seed Default Work Schedule Template (Phase 03)
+        $defaultTemplate = WorkScheduleTemplate::firstOrCreate(
+            ['is_default' => true],
+            [
+                'name' => 'دوام كامل - 5 أيام عمل (افتراضي)',
+                'description' => 'نظام الدوام الرسمي القياسي من الأحد إلى الخميس مع عطلة أسبوعية الجمعة والسبت',
+                'is_default' => true,
+            ]
+        );
+
+        if ($defaultTemplate->wasRecentlyCreated || $defaultTemplate->days()->count() === 0) {
+            $defaultTemplate->days()->createMany([
+                ['day_of_week' => 0, 'is_working_day' => true],
+                ['day_of_week' => 1, 'is_working_day' => true],
+                ['day_of_week' => 2, 'is_working_day' => true],
+                ['day_of_week' => 3, 'is_working_day' => true],
+                ['day_of_week' => 4, 'is_working_day' => true],
+                ['day_of_week' => 5, 'is_working_day' => false],
+                ['day_of_week' => 6, 'is_working_day' => false],
+            ]);
+        }
+
         // 5. Seed Initial Consultants (Phase 02)
         Consultant::firstOrCreate(
             ['employee_number' => 'EMP-1001'],
@@ -102,6 +125,7 @@ class DatabaseSeeder extends Seeder
                 'phone' => '091-234-5678',
                 'specialization' => 'هندسة مدنية وشبكات',
                 'hire_date' => '2026-01-01',
+                'work_schedule_template_id' => $defaultTemplate->id,
                 'employment_status' => ConsultantStatus::ACTIVE,
                 'notes' => 'استشاري رئيسي مشرف على مواقع طرابلس',
             ]
@@ -126,6 +150,7 @@ class DatabaseSeeder extends Seeder
                 'phone' => '092-876-5432',
                 'specialization' => 'صيانة ومتابعة تشغيلية',
                 'hire_date' => '2026-02-15',
+                'work_schedule_template_id' => $defaultTemplate->id,
                 'employment_status' => ConsultantStatus::ACTIVE,
                 'notes' => 'استشاري ميداني لمواقع بنغازي ومصراتة',
             ]

@@ -49,6 +49,18 @@ Route::middleware('auth')->group(function () {
         Route::put('/consultants/{consultant}', [ConsultantController::class, 'update'])->name('consultants.update');
         Route::patch('/consultants/{consultant}/status', [ConsultantController::class, 'updateStatus'])->name('consultants.update-status');
         Route::delete('/consultants/{consultant}', [ConsultantController::class, 'destroy'])->name('consultants.destroy');
+
+        // Phase 03: Work Schedules & Leaves Routes
+        Route::get('/work-schedules', [\App\Http\Controllers\Admin\WorkScheduleController::class, 'index'])->name('schedules.index');
+        Route::post('/work-schedules/templates', [\App\Http\Controllers\Admin\WorkScheduleController::class, 'storeTemplate'])->name('schedules.templates.store');
+        Route::put('/work-schedules/templates/{template}', [\App\Http\Controllers\Admin\WorkScheduleController::class, 'updateTemplate'])->name('schedules.templates.update');
+        Route::delete('/work-schedules/templates/{template}', [\App\Http\Controllers\Admin\WorkScheduleController::class, 'destroyTemplate'])->name('schedules.templates.destroy');
+        Route::post('/work-schedules/holidays', [\App\Http\Controllers\Admin\WorkScheduleController::class, 'storeHoliday'])->name('schedules.holidays.store');
+        Route::put('/work-schedules/holidays/{holiday}', [\App\Http\Controllers\Admin\WorkScheduleController::class, 'updateHoliday'])->name('schedules.holidays.update');
+        Route::delete('/work-schedules/holidays/{holiday}', [\App\Http\Controllers\Admin\WorkScheduleController::class, 'destroyHoliday'])->name('schedules.holidays.destroy');
+        Route::post('/work-schedules/leaves', [\App\Http\Controllers\Admin\WorkScheduleController::class, 'storeLeave'])->name('schedules.leaves.store');
+        Route::put('/work-schedules/leaves/{leave}', [\App\Http\Controllers\Admin\WorkScheduleController::class, 'updateLeave'])->name('schedules.leaves.update');
+        Route::delete('/work-schedules/leaves/{leave}', [\App\Http\Controllers\Admin\WorkScheduleController::class, 'destroyLeave'])->name('schedules.leaves.destroy');
     });
 });
 
