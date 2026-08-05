@@ -2,7 +2,9 @@
 
 namespace Database\Seeders;
 
+use App\Enums\SiteStatus;
 use App\Enums\UserStatus;
+use App\Models\Site;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
@@ -11,7 +13,7 @@ use Spatie\Permission\Models\Role;
 class DatabaseSeeder extends Seeder
 {
     /**
-     * Seed the application's database with Spatie roles and active/inactive test users.
+     * Seed the application's database with roles, users, and field sites.
      */
     public function run(): void
     {
@@ -54,5 +56,39 @@ class DatabaseSeeder extends Seeder
             ]
         );
         $inactive->syncRoles([$consultantRole]);
+
+        // 4. Seed Initial Field Sites (Phase 01)
+        Site::firstOrCreate(
+            ['code' => 'SITE-TRIPOLI-01'],
+            [
+                'name' => 'مجمع خدمات النقل البحري',
+                'city' => 'طرابلس',
+                'address' => 'طريق الشط، ميناء طرابلس البحرية',
+                'status' => SiteStatus::ACTIVE,
+                'notes' => 'المبنى الرئيسي ومرافق الشحن والزيارات الميدانية',
+            ]
+        );
+
+        Site::firstOrCreate(
+            ['code' => 'SITE-BENGHAZI-02'],
+            [
+                'name' => 'مركز تقنية المعلومات والاتصالات',
+                'city' => 'بنغازي',
+                'address' => 'شارع دبي، بالقرب من الفندق البلدي',
+                'status' => SiteStatus::ACTIVE,
+                'notes' => 'المقر الفرعي والمختبرات التقنية الميدانية',
+            ]
+        );
+
+        Site::firstOrCreate(
+            ['code' => 'SITE-MISRATA-03'],
+            [
+                'name' => 'محطة الطاقة الشمسية المتجددة',
+                'city' => 'مصراتة',
+                'address' => 'المنطقة الصناعية الكبرى',
+                'status' => SiteStatus::INACTIVE,
+                'notes' => 'تحت الصيانة الدورية وتوقف مؤقت للمهام',
+            ]
+        );
     }
 }

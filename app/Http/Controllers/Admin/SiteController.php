@@ -1,0 +1,93 @@
+<?php
+
+namespace App\Http\Controllers\Admin;
+
+use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\StoreSiteRequest;
+use App\Http\Requests\Admin\UpdateSiteRequest;
+use App\Repositories\Contracts\SiteRepositoryInterface;
+use App\Services\SiteService;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Inertia\Inertia;
+use Inertia\Response;
+
+class SiteController extends Controller
+{
+    public function __construct(
+        protected SiteRepositoryInterface $siteRepository,
+        protected SiteService $siteService
+    ) {}
+
+    /**
+     * Display paginated sites listing with search and filters.
+     */
+    public function index(Request $request): Response
+    {
+        $search = $request->query('search');
+        $city = $request->query('city');
+        $status = $request->query('status');
+
+        $sites = $this->siteRepository->getFilteredSites(
+            search: $search,
+            city: $city,
+            status: $status,
+            perPage: 15
+        );
+
+        return Inertia::render('Admin/Sites/Index', [
+            'sites' => $sites,
+            'filters' => [
+                'search' => $search,
+                'city' => $city,
+                'status' => $status,
+            ],
+        ]);
+    }
+
+    /**
+     * Store a newly created site in storage.
+     */
+    public function store(StoreSiteRequest $request): RedirectResponse
+    {
+        $this->siteService->createSite($request->validated());
+
+        return redirect()->route('admin.sites.index')
+            ->with('success', 'تم إنشاء الموقع الميداني بنجاح.');
+    }
+
+    /**
+     * Update the specified site in storage.
+     */
+    public function update(UpdateSiteRequest $request, int $id): RedirectResponse
+    {
+        $this->siteService->updateSite($id, $request->validated());
+
+        return redirect()->route('admin.sites.index')
+            ->with('success', 'تم تحديث بيانات الموقع الميداني بنجاح.');
+    }
+
+    /**
+     * Toggle operational status (active/inactive) of a site.
+     */
+    public function toggleStatus(int $id): RedirectResponse
+    {
+        $site = $this->siteService->toggleStatus($id);
+
+        $statusText = $site->status->value === 'active' ? 'تفعيل' : 'تعطيل';
+
+        return redirect()->route('admin.sites.index')
+            ->with('success', "تم {$statusText} الموقع بنجاح.");
+    }
+
+    /**
+     * Soft-delete a site if no pending visits exist.
+     */
+    public function destroy(int $id): RedirectResponse
+    {
+        $this->siteService->deleteSite($id);
+
+        return redirect()->route('admin.sites.index')
+            ->with('success', 'تم حذف الموقع وأرشفته بنجاح.');
+    }
+}

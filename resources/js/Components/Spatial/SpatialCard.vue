@@ -1,11 +1,15 @@
 <template>
-  <div class="spatial-card" :class="paddingClass">
+  <div class="spatial-card" :class="[paddingClass, $attrs.class]">
     <slot />
   </div>
 </template>
 
 <script setup>
 import { computed } from 'vue';
+
+defineOptions({
+  inheritAttrs: false,
+});
 
 const props = defineProps({
   padding: {

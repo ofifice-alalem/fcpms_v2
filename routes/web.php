@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\SiteController;
 use App\Http\Controllers\Auth\LoginController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -30,6 +31,15 @@ Route::middleware('auth')->group(function () {
             ]
         ]);
     })->name('dashboard');
+
+    // Phase 01: Site & Location Management Routes
+    Route::prefix('admin')->name('admin.')->group(function () {
+        Route::get('/sites', [SiteController::class, 'index'])->name('sites.index');
+        Route::post('/sites', [SiteController::class, 'store'])->name('sites.store');
+        Route::put('/sites/{site}', [SiteController::class, 'update'])->name('sites.update');
+        Route::patch('/sites/{site}/toggle-status', [SiteController::class, 'toggleStatus'])->name('sites.toggle-status');
+        Route::delete('/sites/{site}', [SiteController::class, 'destroy'])->name('sites.destroy');
+    });
 });
 
 // Public Design System Catalog

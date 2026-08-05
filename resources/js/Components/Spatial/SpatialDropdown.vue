@@ -1,5 +1,5 @@
 <template>
-  <div class="space-y-1.5 w-full relative" ref="dropdownRef">
+  <div class="space-y-1.5 w-full relative" :class="{ 'z-50': isOpen }" ref="dropdownRef">
     <label v-if="label" class="text-xs font-bold text-slate-700 dark:text-white/75 flex items-center gap-1">
       {{ label }}
       <span v-if="required" class="required-star">*</span>
@@ -26,7 +26,7 @@
 
       <div
         v-if="isOpen"
-        class="spatial-dropdown-menu animate-spatial-in"
+        class="spatial-dropdown-menu animate-spatial-in z-[100] shadow-2xl"
       >
         <ul class="p-2 space-y-1 max-h-60 overflow-y-auto custom-scroll">
           <li

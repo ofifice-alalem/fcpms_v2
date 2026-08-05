@@ -1,11 +1,11 @@
 <template>
   <Teleport to="body">
     <div
-      v-if="show"
+      v-if="isOpen"
       class="fixed inset-0 z-[1000] flex items-center justify-center p-4"
     >
       <div
-        @click="closeOnBackdrop && $emit('close')"
+        @click="closeOnBackdrop && closeModal()"
         class="absolute inset-0 bg-black/60 backdrop-blur-sm"
       ></div>
       <div
@@ -15,7 +15,7 @@
         <div class="flex items-center justify-between border-b border-black/10 dark:border-white/10 pb-3">
           <h3 class="font-black text-lg text-slate-900 dark:text-white">{{ title }}</h3>
           <button
-            @click="$emit('close')"
+            @click="closeModal()"
             class="w-8 h-8 rounded-full bg-black/5 dark:bg-white/10 hover:bg-black/10 dark:hover:bg-white/20 text-slate-700 dark:text-white flex items-center justify-center transition-all text-xs cursor-pointer"
           >
             ✕
@@ -37,6 +37,7 @@ import { computed } from 'vue';
 
 const props = defineProps({
   show: Boolean,
+  modelValue: Boolean,
   title: String,
   maxWidth: {
     type: String,
@@ -48,7 +49,15 @@ const props = defineProps({
   },
 });
 
-defineEmits(['close']);
+const emit = defineEmits(['close', 'update:show', 'update:modelValue']);
+
+const isOpen = computed(() => props.show || props.modelValue);
 
 const maxWidthClass = computed(() => props.maxWidth);
+
+function closeModal() {
+  emit('close');
+  emit('update:show', false);
+  emit('update:modelValue', false);
+}
 </script>

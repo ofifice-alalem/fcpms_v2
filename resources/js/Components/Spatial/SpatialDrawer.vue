@@ -4,7 +4,7 @@
     <Transition name="drawer-backdrop">
       <div
         v-if="show"
-        @click="$emit('close')"
+        @click="closeDrawer"
         class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[9998]"
       ></div>
     </Transition>
@@ -21,7 +21,7 @@
             {{ title }}
           </h3>
           <button
-            @click="$emit('close')"
+            @click="closeDrawer"
             class="w-9 h-9 rounded-full bg-black/5 dark:bg-white/10 hover:bg-black/10 dark:hover:bg-white/20 transition-all flex items-center justify-center text-slate-700 dark:text-white cursor-pointer"
           >
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -39,12 +39,19 @@
 </template>
 
 <script setup>
-defineProps({
+const props = defineProps({
   show: Boolean,
+  modelValue: Boolean,
   title: String,
 });
 
-defineEmits(['close']);
+const emit = defineEmits(['close', 'update:show', 'update:modelValue']);
+
+function closeDrawer() {
+  emit('close');
+  emit('update:show', false);
+  emit('update:modelValue', false);
+}
 </script>
 
 <style scoped>
