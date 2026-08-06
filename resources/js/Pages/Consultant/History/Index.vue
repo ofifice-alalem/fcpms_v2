@@ -192,32 +192,39 @@
           </table>
         </div>
 
-        <!-- Mobile Cards List -->
-        <div class="block md:hidden space-y-3">
+        <!-- Mobile Cards List (Ultra-Clean Dual Theme Design) -->
+        <div class="block md:hidden space-y-4">
           <div
             v-for="day in days"
             :key="day.date"
             :class="[
-              'p-4 rounded-2xl border space-y-3 transition-all',
+              'relative p-5 rounded-3xl transition-all duration-200 space-y-4 border shadow-lg',
               day.is_today
-                ? 'bg-primary/10 border-primary/40 dark:bg-primary/20'
-                : 'bg-white dark:bg-white/5 border-slate-200 dark:border-white/10'
+                ? 'bg-blue-50/90 dark:bg-slate-800/90 border-blue-500/50 shadow-blue-500/10'
+                : 'bg-white dark:bg-slate-800/80 border-slate-200/80 dark:border-white/10 shadow-slate-200/50 dark:shadow-black/30'
             ]"
           >
-            <div class="flex items-start justify-between">
-              <div>
-                <h4 class="text-sm font-black text-slate-900 dark:text-white flex items-center gap-1.5">
-                  <span v-if="day.is_today" class="w-2 h-2 rounded-full bg-primary animate-ping"></span>
-                  <span>{{ day.day_name }}</span>
-                </h4>
-                <span class="text-xs font-mono text-slate-500 dark:text-white/60 dir-ltr block text-right">
-                  {{ day.formatted_date }}
+            <!-- Top Header: Day Name, Prominent Date Badge & Status -->
+            <div class="flex items-center justify-between gap-2 pb-3 border-b border-slate-100 dark:border-white/10">
+              <div class="flex items-center gap-2.5">
+                <span v-if="day.is_today" class="relative flex h-3 w-3 shrink-0">
+                  <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+                  <span class="relative inline-flex rounded-full h-3 w-3 bg-blue-600"></span>
                 </span>
+                <div>
+                  <h4 class="text-lg font-black text-slate-900 dark:text-white leading-tight">
+                    {{ day.day_name }}
+                  </h4>
+                  <span class="text-xs font-mono font-black text-slate-700 dark:text-slate-200 dir-ltr inline-block bg-slate-100 dark:bg-white/10 px-2.5 py-0.5 rounded-md border border-slate-200 dark:border-white/10 mt-1">
+                    {{ day.formatted_date }}
+                  </span>
+                </div>
               </div>
 
+              <!-- Status Badge -->
               <span
                 :class="[
-                  'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-black border',
+                  'inline-flex items-center px-3 py-1.5 rounded-full text-xs font-black border shadow-xs shrink-0',
                   getStatusClass(day.status_type)
                 ]"
               >
@@ -225,58 +232,85 @@
               </span>
             </div>
 
-            <!-- Record Details for Mobile -->
-            <div v-if="day.record" class="grid grid-cols-3 gap-2 text-xs p-3 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-100 dark:border-white/5 font-mono">
-              <div>
-                <span class="text-slate-500 dark:text-white/50 block">وقت البدء:</span>
-                <span class="font-bold text-slate-800 dark:text-white">{{ day.record.check_in_time || '-' }}</span>
+            <!-- Center Body: Circular Progress Ring & Metrics -->
+            <div v-if="day.record" class="flex items-center justify-between gap-4 py-1">
+              <!-- Center Circular Ring -->
+              <div class="flex flex-col items-center justify-center shrink-0 pr-1">
+                <SpatialCircularProgress
+                  :percentage="day.record.completion_percentage"
+                  :size="76"
+                  :strokeWidth="7"
+                >
+                  <span class="text-base font-black font-mono text-slate-900 dark:text-white">
+                    {{ Math.round(day.record.completion_percentage) }}%
+                  </span>
+                </SpatialCircularProgress>
+                <span class="text-[10px] font-black text-slate-500 dark:text-white/60 mt-1">نسبة الإنجاز</span>
               </div>
-              <div>
-                <span class="text-slate-500 dark:text-white/50 block">إضافية:</span>
-                <span :class="['font-mono font-black text-sm block', (day.record && day.record.on_demand_tasks_count > 0) ? 'text-amber-600 dark:text-amber-400' : 'text-slate-400 dark:text-white/30']">
-                  {{ (day.record && day.record.on_demand_tasks_count > 0) ? day.record.on_demand_tasks_count : '--' }}
-                </span>
-              </div>
-              <div>
-                <span class="text-slate-500 dark:text-white/50 block">الإنجاز:</span>
-                <span class="font-bold text-primary">{{ day.record.completion_percentage }}%</span>
+
+              <!-- Right Metrics Stack -->
+              <div class="flex-1 space-y-2">
+                <!-- Check-in Time -->
+                <div class="flex items-center justify-between p-2 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-100 dark:border-white/5 text-xs">
+                  <span class="font-bold text-slate-500 dark:text-white/60">⏰ وقت البدء:</span>
+                  <span class="font-mono font-black text-slate-900 dark:text-white">{{ day.record.check_in_time || '--' }}</span>
+                </div>
+
+                <!-- Visited Sites -->
+                <div class="flex items-center justify-between p-2 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-100 dark:border-white/5 text-xs">
+                  <span class="font-bold text-slate-500 dark:text-white/60">📍 المواقع:</span>
+                  <span class="font-mono font-black text-slate-900 dark:text-white">{{ day.record.site_visits_count }} مواقع</span>
+                </div>
+
+                <!-- On-Demand Tasks -->
+                <div class="flex items-center justify-between p-2 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-100 dark:border-white/5 text-xs">
+                  <span class="font-bold text-slate-500 dark:text-white/60">⚡ إضافية:</span>
+                  <span :class="['font-mono font-black', day.record.on_demand_tasks_count > 0 ? 'text-amber-600 dark:text-amber-400 text-sm' : 'text-slate-400 dark:text-white/40']">
+                    {{ day.record.on_demand_tasks_count > 0 ? day.record.on_demand_tasks_count : '--' }}
+                  </span>
+                </div>
               </div>
             </div>
 
-            <!-- Mobile Action Button -->
+            <!-- Absent / No Record State Body -->
+            <div v-else class="py-2 text-center text-xs font-bold text-slate-400 dark:text-white/40">
+              لا توجد بيانات مسجلة لهذا اليوم
+            </div>
+
+            <!-- Action Button -->
             <div class="pt-1">
               <SpatialButton
                 v-if="day.is_today"
                 variant="primary"
-                size="sm"
-                class="w-full justify-center"
+                size="md"
+                class="w-full justify-center shadow-md"
                 @click="openDateRecord(day.date)"
               >
-                <span>الانتقال لسجل اليوم 📍</span>
+                <span>سجل اليوم الحالي 📍</span>
               </SpatialButton>
 
               <SpatialButton
                 v-else-if="day.status === 'absent'"
                 variant="danger"
-                size="sm"
-                class="w-full justify-center"
+                size="md"
+                class="w-full justify-center shadow-md"
                 @click="openDateRecord(day.date)"
               >
-                <span>فتح اليوم واستدراكه 🔓</span>
+                <span>فتح واستدراك السجل 🔓</span>
               </SpatialButton>
 
               <SpatialButton
                 v-else-if="!day.is_future && !day.is_weekend"
                 variant="secondary"
-                size="sm"
-                class="w-full justify-center"
+                size="md"
+                class="w-full justify-center shadow-xs"
                 @click="openDateRecord(day.date)"
               >
-                <span>استعراض وتعديل السجل ✏️</span>
+                <span>تعديل واستعراض السجل ✏️</span>
               </SpatialButton>
 
-              <div v-else class="text-center text-xs font-bold text-slate-400 dark:text-white/30 py-1">
-                عطلة أو يوم قادم
+              <div v-else class="text-center text-xs font-bold text-slate-400 dark:text-white/30 py-2">
+                عطلة أسبوعية / غير متاح 🌴
               </div>
             </div>
           </div>
@@ -294,6 +328,7 @@ import { router } from '@inertiajs/vue3';
 import ConsultantLayout from '@/Layouts/ConsultantLayout.vue';
 import SpatialCard from '@/Components/Spatial/SpatialCard.vue';
 import SpatialButton from '@/Components/Spatial/SpatialButton.vue';
+import SpatialCircularProgress from '@/Components/Spatial/SpatialCircularProgress.vue';
 
 const props = defineProps({
   consultant: { type: Object, required: true },
