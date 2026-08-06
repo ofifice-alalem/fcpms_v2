@@ -112,6 +112,11 @@
       <!-- Detail Grid -->
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
         <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-100 dark:border-white/5 space-y-1">
+          <span class="font-bold text-slate-400 dark:text-white/40 block">اسم المستخدم للدخول (Username):</span>
+          <span class="font-black text-slate-800 dark:text-white font-mono">{{ consultant.user?.username || consultant.username || '-' }}</span>
+        </div>
+
+        <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-100 dark:border-white/5 space-y-1">
           <span class="font-bold text-slate-400 dark:text-white/40 block">البريد الإلكتروني:</span>
           <span class="font-black text-slate-800 dark:text-white font-mono">{{ consultant.user?.email || consultant.email || 'غير محدد' }}</span>
         </div>

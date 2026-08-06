@@ -20,7 +20,9 @@ class UpdateConsultantRequest extends FormRequest
 
         return [
             'full_name' => ['sometimes', 'required', 'string', 'max:255'],
+            'username' => ['nullable', 'string', 'max:255', Rule::unique('users', 'username')->ignore($userId)],
             'email' => ['sometimes', 'required', 'string', 'email', 'max:255', Rule::unique('users', 'email')->ignore($userId)],
+            'password' => ['nullable', 'string', 'min:6'],
             'phone' => ['nullable', 'string', 'max:50'],
             'specialization' => ['nullable', 'string', 'max:255'],
             'hire_date' => ['nullable', 'date'],
@@ -34,8 +36,10 @@ class UpdateConsultantRequest extends FormRequest
     {
         return [
             'full_name.required' => 'يرجى إدخال الاسم الكامل للاستشاري.',
+            'username.unique' => 'اسم المستخدم مستخدم بالفعل من قبل حساب آخر.',
             'email.required' => 'يرجى إدخال البريد الإلكتروني.',
             'email.unique' => 'البريد الإلكتروني مستخدم بالفعل من قبل حساب آخر.',
+            'password.min' => 'يجب ألا تقل كلمة المرور عن 6 أحرف.',
         ];
     }
 }

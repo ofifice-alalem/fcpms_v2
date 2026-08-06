@@ -86,7 +86,7 @@ class ConsultantService
             // 1. Lock employee_number modification (BR-003 / BR-005)
             unset($data['employee_number']);
 
-            // 2. Update parallel User details if email or name changed
+            // 2. Update parallel User details if email, username, password, or name changed
             if (isset($data['email']) && $data['email'] !== $consultant->user->email) {
                 if (User::where('email', $data['email'])->where('id', '!=', $consultant->user_id)->exists()) {
                     throw ValidationException::withMessages([
@@ -94,6 +94,19 @@ class ConsultantService
                     ]);
                 }
                 $consultant->user->update(['email' => $data['email']]);
+            }
+
+            if (isset($data['username']) && $data['username'] !== $consultant->user->username) {
+                if (User::where('username', $data['username'])->where('id', '!=', $consultant->user_id)->exists()) {
+                    throw ValidationException::withMessages([
+                        'username' => ['اسم المستخدم مستخدم بالفعل من قبل حساب آخر.'],
+                    ]);
+                }
+                $consultant->user->update(['username' => $data['username']]);
+            }
+
+            if (!empty($data['password'])) {
+                $consultant->user->update(['password' => Hash::make($data['password'])]);
             }
 
             if (isset($data['full_name']) && $data['full_name'] !== $consultant->full_name) {

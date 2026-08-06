@@ -32,6 +32,23 @@
         required
       />
 
+      <!-- Username -->
+      <SpatialInput
+        v-model="form.username"
+        label="اسم المستخدم للدخول (Username)"
+        placeholder="أدخل اسم المستخدم (اتركه فارغاً للتوليد التلقائي)"
+        :error="errors.username"
+      />
+
+      <!-- Password -->
+      <SpatialInput
+        v-model="form.password"
+        type="password"
+        :label="isEdit ? 'كلمة المرور الجديدة' : 'كلمة المرور لتسجيل الدخول'"
+        :placeholder="isEdit ? 'اتركه فارغاً لعدم تغيير كلمة المرور الحالية' : 'اتركه فارغاً للاعتماد على كلمة المرور الافتراضية Password123!'"
+        :error="errors.password"
+      />
+
       <!-- Phone Number -->
       <SpatialInput
         v-model="form.phone"
@@ -149,6 +166,8 @@ const form = reactive({
   employee_number: '',
   full_name: '',
   email: '',
+  username: '',
+  password: '',
   phone: '',
   specialization: '',
   hire_date: '',
@@ -176,6 +195,8 @@ watch(() => props.consultantData, (newVal) => {
     form.employee_number = newVal.employee_number || '';
     form.full_name = newVal.full_name || '';
     form.email = newVal.user?.email || newVal.email || '';
+    form.username = newVal.user?.username || newVal.username || '';
+    form.password = '';
     form.phone = newVal.phone || '';
     form.specialization = newVal.specialization || '';
     form.hire_date = newVal.hire_date ? newVal.hire_date.substring(0, 10) : '';
@@ -192,6 +213,8 @@ function resetForm() {
   form.employee_number = '';
   form.full_name = '';
   form.email = '';
+  form.username = '';
+  form.password = '';
   form.phone = '';
   form.specialization = '';
   form.hire_date = new Date().toISOString().substring(0, 10);
