@@ -181,9 +181,61 @@
     </SpatialDrawer>
 
     <!-- Main Content Area -->
-    <main class="flex-1 p-4 md:p-8 overflow-y-auto max-w-7xl mx-auto w-full z-10 space-y-6">
+    <main class="flex-1 p-4 md:p-8 overflow-y-auto max-w-7xl mx-auto w-full z-10 space-y-6 pb-24 md:pb-8">
       <slot />
     </main>
+
+    <!-- Mobile Bottom Navigation Dock (Fixed on Mobile) -->
+    <nav class="fixed bottom-0 inset-x-0 z-40 md:hidden bg-white/90 dark:bg-[#090d16]/90 backdrop-blur-2xl border-t border-black/10 dark:border-white/12 px-6 py-2 flex items-center justify-around shadow-2xl">
+      <!-- Item 1: Daily Visits History -->
+      <Link
+        :href="route('consultant.visits.index')"
+        :class="[
+          'flex flex-col items-center gap-1 transition-all font-bold text-[10px] cursor-pointer',
+          $page.component === 'Consultant/DailyVisits/Index'
+            ? 'text-emerald-500 font-black scale-105'
+            : 'text-slate-500 dark:text-white/60 hover:text-slate-900 dark:hover:text-white'
+        ]"
+      >
+        <div :class="['w-9 h-9 rounded-2xl flex items-center justify-center transition-all', $page.component === 'Consultant/DailyVisits/Index' ? 'bg-emerald-500/15 border border-emerald-500/30' : 'bg-transparent']">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
+          </svg>
+        </div>
+        <span>سجل اليوم</span>
+      </Link>
+
+      <!-- Item 2: Start New Visit (Elevated Center Button) -->
+      <Link
+        :href="route('consultant.site-visits.create')"
+        :class="[
+          'flex flex-col items-center gap-1 -mt-5 transition-all cursor-pointer',
+          $page.component === 'Consultant/DailyVisits/Execute' && !$page.props.visit
+            ? 'scale-110'
+            : 'hover:scale-105'
+        ]"
+      >
+        <div class="w-13 h-13 rounded-2xl bg-gradient-to-tr from-emerald-600 via-teal-500 to-emerald-400 text-white flex items-center justify-center shadow-lg shadow-emerald-500/30 border-2 border-white dark:border-[#090d16]">
+          <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/>
+          </svg>
+        </div>
+        <span class="text-[10px] font-black text-emerald-600 dark:text-emerald-400">زيارة جديدة</span>
+      </Link>
+
+      <!-- Item 3: Toggle Drawer -->
+      <button
+        @click="isMobileDrawerOpen = true"
+        class="flex flex-col items-center gap-1 transition-all font-bold text-[10px] text-slate-500 dark:text-white/60 hover:text-slate-900 dark:hover:text-white cursor-pointer"
+      >
+        <div class="w-9 h-9 rounded-2xl flex items-center justify-center bg-transparent">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+          </svg>
+        </div>
+        <span>القائمة</span>
+      </button>
+    </nav>
 
   </div>
 </template>
