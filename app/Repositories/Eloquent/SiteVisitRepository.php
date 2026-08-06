@@ -241,4 +241,22 @@ class SiteVisitRepository extends BaseRepository implements SiteVisitRepositoryI
             return $this->findWithDetails($siteVisit->id);
         });
     }
+
+    public function removeOnDemandTask(SiteVisit $siteVisit, int $responseId): bool
+    {
+        return (bool) DB::transaction(function () use ($siteVisit, $responseId) {
+            $taskResponse = TaskResponse::where('site_visit_id', $siteVisit->id)
+                ->where('id', $responseId)
+                ->whereHas('taskDefinition', fn ($q) => $q->where('task_type', 'on_demand'))
+                ->first();
+
+            if ($taskResponse) {
+                $taskResponse->values()->delete();
+                $taskResponse->attachments()->delete();
+                return $taskResponse->delete();
+            }
+
+            return false;
+        });
+    }
 }

@@ -176,11 +176,26 @@
               :key="resp.id"
               class="p-5 rounded-2xl bg-amber-950/30 border border-amber-500/30 space-y-4"
             >
-              <div class="space-y-1">
-                <SpatialStatusPill type="pending">
-                  مهمة إضافية عند الحاجة
-                </SpatialStatusPill>
-                <h5 class="text-sm font-black text-white mt-1">
+              <div class="space-y-2 border-b border-amber-500/20 pb-3">
+                <div class="flex items-center justify-between">
+                  <SpatialStatusPill type="pending">
+                    مهمة إضافية عند الحاجة
+                  </SpatialStatusPill>
+
+                  <SpatialButton
+                    variant="danger-ghost"
+                    size="sm"
+                    :disabled="loading"
+                    @click="$emit('remove-ondemand', { visit_id: props.visit.id, response_id: resp.id })"
+                  >
+                    <svg class="w-3.5 h-3.5 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                    <span>مسح المهمة</span>
+                  </SpatialButton>
+                </div>
+
+                <h5 class="text-sm font-black text-white block pt-1">
                   {{ getTaskDef(resp)?.title || 'مهمة عند الحاجة' }}
                 </h5>
               </div>
@@ -315,8 +330,18 @@ const formattedOnDemandOptions = computed(() => {
   }));
 });
 
+const getTaskKey = (taskId, compId) => `t_${taskId}_c_${compId}`;
+
 const getTaskDef = (resp) => {
   return resp?.task_definition || resp?.taskDefinition || null;
+};
+
+const getComponentOptions = (comp) => {
+  if (!comp.options) return [];
+  return comp.options.map((opt) => ({
+    label: typeof opt === 'string' ? opt : opt.label || opt.option_label || opt.value,
+    value: typeof opt === 'string' ? opt : opt.value || opt.option_value,
+  }));
 };
 
 const activeDailyTasks = computed(() => {
@@ -357,16 +382,6 @@ watch(
   },
   { immediate: true }
 );
-
-const getTaskKey = (taskId, compId) => `t_${taskId}_c_${compId}`;
-
-const getComponentOptions = (comp) => {
-  if (!comp.options) return [];
-  return comp.options.map((opt) => ({
-    label: typeof opt === 'string' ? opt : opt.label || opt.option_label || opt.value,
-    value: typeof opt === 'string' ? opt : opt.value || opt.option_value,
-  }));
-};
 
 const getVisibleComponentsForTask = (resp) => {
   const taskDef = getTaskDef(resp);

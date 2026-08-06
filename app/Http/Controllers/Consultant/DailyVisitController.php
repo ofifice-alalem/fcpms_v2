@@ -8,6 +8,7 @@ use App\Http\Requests\Consultant\SaveTaskResponsesRequest;
 use App\Http\Requests\Consultant\StartDailyRecordRequest;
 use App\Models\Consultant;
 use App\Models\SiteVisit;
+use App\Models\TaskResponse;
 use App\Services\ConsultantVisitService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -201,6 +202,20 @@ class DailyVisitController extends Controller
         }
 
         return redirect()->back()->with('success', 'تم تفعيل المهمة عند الحاجة بنجاح');
+    }
+
+    public function removeOnDemandTask(Request $request, SiteVisit $visit, TaskResponse $response): JsonResponse|RedirectResponse
+    {
+        $this->visitService->removeOnDemandTask($visit, $response->id);
+
+        if ($request->wantsJson() && !$request->header('X-Inertia')) {
+            return response()->json([
+                'success' => true,
+                'message' => 'تم حذف المهمة عند الحاجة بنجاح',
+            ]);
+        }
+
+        return redirect()->back()->with('success', 'تم حذف المهمة عند الحاجة بنجاح');
     }
 
     public function saveResponses(SaveTaskResponsesRequest $request, SiteVisit $visit): JsonResponse|RedirectResponse

@@ -192,7 +192,7 @@
         </div>
 
         <!-- SECTION 2: TRIGGERED ON-DEMAND TASKS (RENDERED DIRECTLY ABOVE ON-DEMAND DROPDOWN) -->
-        <div class="space-y-4 pt-4 border-t border-slate-200/60 dark:border-white/10">
+        <div class="space-y-4 pt-4 border-t border-slate-200/60 dark:border-white/10" id="on-demand-tasks-section">
           <div v-if="activeOnDemandTasks.length > 0" class="space-y-4">
             <div class="px-1 border-b border-amber-500/20 pb-2">
               <h3 class="text-sm font-black text-amber-600 dark:text-amber-400 uppercase tracking-wider flex items-center gap-1.5">
@@ -206,11 +206,26 @@
               padding="p-6"
               class="border-amber-500/30 space-y-4 shadow-xl"
             >
-              <div class="space-y-1 border-b border-amber-500/20 pb-3">
-                <SpatialStatusPill type="pending">
-                  مهمة عند الحاجة
-                </SpatialStatusPill>
-                <h4 class="text-base font-black text-slate-900 dark:text-white mt-1">
+              <div class="space-y-2 border-b border-amber-500/20 pb-3">
+                <div class="flex items-center justify-between">
+                  <SpatialStatusPill type="pending">
+                    مهمة عند الحاجة
+                  </SpatialStatusPill>
+
+                  <SpatialButton
+                    variant="danger-ghost"
+                    size="sm"
+                    :disabled="isSubmitting"
+                    @click="promptRemoveOnDemand(resp.id)"
+                  >
+                    <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                    <span>مسح المهمة</span>
+                  </SpatialButton>
+                </div>
+
+                <h4 class="text-base font-black text-slate-900 dark:text-white block pt-1">
                   {{ getTaskDef(resp)?.title || 'مهمة عند الحاجة' }}
                 </h4>
               </div>
@@ -326,11 +341,18 @@
       </div>
 
     </div>
+
+    <DeleteOnDemandTaskModal
+      :is-open="isDeleteModalOpen"
+      :loading="isSubmitting"
+      @close="isDeleteModalOpen = false"
+      @confirm="confirmRemoveOnDemand"
+    />
   </ConsultantLayout>
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue';
+import { ref, computed, watch, nextTick } from 'vue';
 import { router } from '@inertiajs/vue3';
 import ConsultantLayout from '@/Layouts/ConsultantLayout.vue';
 import SpatialCard from '@/Components/Spatial/SpatialCard.vue';
@@ -341,6 +363,7 @@ import SpatialCheckbox from '@/Components/Spatial/SpatialCheckbox.vue';
 import SpatialImageUpload from '@/Components/Spatial/SpatialImageUpload.vue';
 import SpatialStatusPill from '@/Components/Spatial/SpatialStatusPill.vue';
 import SpatialToast from '@/Components/Spatial/SpatialToast.vue';
+import DeleteOnDemandTaskModal from '@/Components/Consultant/DeleteOnDemandTaskModal.vue';
 
 const props = defineProps({
   consultant: { type: Object, required: true },
@@ -355,6 +378,8 @@ const notes = ref('');
 const selectedOnDemandTaskId = ref(null);
 const isSubmitting = ref(false);
 const formValues = ref({});
+const isDeleteModalOpen = ref(false);
+const taskToDeleteId = ref(null);
 
 const pageTitle = computed(() => {
   if (!props.visit) return 'افتتاح وتوجيه زيارة موقع جديد';
@@ -375,8 +400,18 @@ const formattedOnDemandOptions = computed(() => {
   }));
 });
 
+const getTaskKey = (taskId, compId) => `t_${taskId}_c_${compId}`;
+
 const getTaskDef = (resp) => {
   return resp?.task_definition || resp?.taskDefinition || null;
+};
+
+const getComponentOptions = (comp) => {
+  if (!comp.options) return [];
+  return comp.options.map((opt) => ({
+    label: typeof opt === 'string' ? opt : opt.label || opt.option_label || opt.value,
+    value: typeof opt === 'string' ? opt : opt.value || opt.option_value,
+  }));
 };
 
 const activeDailyTasks = computed(() => {
@@ -417,16 +452,6 @@ watch(
   },
   { immediate: true }
 );
-
-const getTaskKey = (taskId, compId) => `t_${taskId}_c_${compId}`;
-
-const getComponentOptions = (comp) => {
-  if (!comp.options) return [];
-  return comp.options.map((opt) => ({
-    label: typeof opt === 'string' ? opt : opt.label || opt.option_label || opt.value,
-    value: typeof opt === 'string' ? opt : opt.value || opt.option_value,
-  }));
-};
 
 const getVisibleComponentsForTask = (resp) => {
   const taskDef = getTaskDef(resp);
@@ -482,7 +507,34 @@ const handleTriggerOnDemand = () => {
   router.post(`/consultant/site-visits/${props.visit.id}/trigger-on-demand`, {
     task_definition_id: selectedOnDemandTaskId.value,
   }, {
-    onSuccess: () => (selectedOnDemandTaskId.value = null),
+    preserveScroll: true,
+    onSuccess: () => {
+      selectedOnDemandTaskId.value = null;
+      nextTick(() => {
+        const el = document.getElementById('on-demand-tasks-section');
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+      });
+    },
+    onFinish: () => (isSubmitting.value = false),
+  });
+};
+
+const promptRemoveOnDemand = (responseId) => {
+  taskToDeleteId.value = responseId;
+  isDeleteModalOpen.value = true;
+};
+
+const confirmRemoveOnDemand = () => {
+  if (!props.visit || !taskToDeleteId.value) return;
+  isSubmitting.value = true;
+  router.delete(`/consultant/site-visits/${props.visit.id}/on-demand/${taskToDeleteId.value}`, {
+    preserveScroll: true,
+    onSuccess: () => {
+      isDeleteModalOpen.value = false;
+      taskToDeleteId.value = null;
+    },
     onFinish: () => (isSubmitting.value = false),
   });
 };

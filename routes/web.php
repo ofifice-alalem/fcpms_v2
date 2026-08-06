@@ -82,6 +82,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/site-visits/{visit}/execute', [\App\Http\Controllers\Consultant\DailyVisitController::class, 'executeVisit'])->name('site-visits.execute');
         Route::post('/site-visits', [\App\Http\Controllers\Consultant\DailyVisitController::class, 'storeVisit'])->name('site-visits.store');
         Route::post('/site-visits/{visit}/trigger-on-demand', [\App\Http\Controllers\Consultant\DailyVisitController::class, 'triggerOnDemand'])->name('site-visits.trigger-ondemand');
+        Route::delete('/site-visits/{visit}/on-demand/{response}', [\App\Http\Controllers\Consultant\DailyVisitController::class, 'removeOnDemandTask'])->name('site-visits.remove-ondemand');
         Route::post('/site-visits/{visit}/save-responses', [\App\Http\Controllers\Consultant\DailyVisitController::class, 'saveResponses'])->name('site-visits.save-responses');
         Route::get('/site-visits/{visit}', [\App\Http\Controllers\Consultant\DailyVisitController::class, 'show'])->name('site-visits.show');
         Route::delete('/site-visits/{visit}', [\App\Http\Controllers\Consultant\DailyVisitController::class, 'destroy'])->name('site-visits.destroy');

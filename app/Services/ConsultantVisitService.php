@@ -99,4 +99,9 @@ class ConsultantVisitService
     {
         return $this->siteVisitRepo->cancelVisit($siteVisit);
     }
+
+    public function removeOnDemandTask(SiteVisit $siteVisit, int $responseId): bool
+    {
+        return $this->siteVisitRepo->removeOnDemandTask($siteVisit, $responseId);
+    }
 }

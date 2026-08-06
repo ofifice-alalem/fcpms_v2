@@ -68,6 +68,11 @@ const variantClass = computed(() => {
       return 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white shadow-xl shadow-indigo-500/25 hover:shadow-indigo-500/40 hover:scale-[1.02] active:scale-[0.98] border-white/20';
     case 'purple':
       return 'bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white shadow-xl shadow-purple-500/25 hover:shadow-purple-500/40 hover:scale-[1.02] active:scale-[0.98] border-white/20';
+    case 'ghost':
+      return 'bg-transparent hover:bg-slate-100 dark:hover:bg-white/10 text-slate-700 dark:text-white border-transparent shadow-none hover:scale-[1.01] active:scale-[0.99]';
+    case 'danger-ghost':
+    case 'danger-subtle':
+      return 'bg-rose-500/10 hover:bg-rose-500/20 text-rose-600 dark:text-rose-400 border-rose-500/20 shadow-none hover:scale-[1.01] active:scale-[0.99]';
     case 'secondary':
       return 'bg-black/5 dark:bg-white/10 hover:bg-black/10 dark:hover:bg-white/20 text-slate-800 dark:text-white border-black/10 dark:border-white/15 shadow-none hover:scale-[1.01] active:scale-[0.99]';
     case 'primary':
