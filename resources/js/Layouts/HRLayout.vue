@@ -1,12 +1,12 @@
 <template>
-  <div class="min-h-screen transition-colors duration-500 flex flex-col md:flex-row custom-scroll font-sans relative overflow-x-clip bg-slate-50 dark:bg-[#090d16] text-slate-900 dark:text-white dir-rtl">
+  <div class="h-screen w-full transition-colors duration-500 flex flex-col md:flex-row font-sans relative overflow-hidden bg-slate-50 dark:bg-[#090d16] text-slate-900 dark:text-white dir-rtl">
     
     <!-- Background Glow Orbs -->
     <div class="hidden md:block absolute -top-32 -left-32 w-96 h-96 bg-primary/15 rounded-full blur-3xl pointer-events-none"></div>
     <div class="hidden md:block absolute -bottom-32 -right-32 w-96 h-96 bg-purple-600/15 rounded-full blur-3xl pointer-events-none"></div>
 
     <!-- Mobile Sticky Top Header (Fixed/Sticky on Mobile) -->
-    <header class="sticky top-0 z-40 md:hidden w-full bg-white/90 dark:bg-[#090d16]/90 backdrop-blur-xl border-b border-black/10 dark:border-white/10 px-4 py-3 flex items-center justify-between shadow-xs">
+    <header class="sticky top-0 z-40 md:hidden w-full bg-white/90 dark:bg-[#090d16]/90 backdrop-blur-xl border-b border-black/10 dark:border-white/10 px-4 py-3 flex items-center justify-between shadow-xs shrink-0">
       <!-- Right Side: Drawer Toggle Button & Brand -->
       <div class="flex items-center gap-3">
         <button
@@ -45,8 +45,8 @@
       </div>
     </header>
 
-    <!-- Desktop Sidebar Navigation (Fixed/Sticky on Desktop) -->
-    <aside class="hidden md:flex w-64 h-screen sticky top-0 backdrop-blur-2xl bg-white/80 dark:bg-[#090d16]/80 border-l border-black/10 dark:border-white/12 p-6 flex-col justify-between shrink-0 z-30 transition-all">
+    <!-- Desktop Sidebar Navigation (Full Viewport Height) -->
+    <aside class="hidden md:flex w-64 h-full bg-white/80 dark:bg-[#090d16]/80 backdrop-blur-2xl border-l border-black/10 dark:border-white/12 p-6 flex-col justify-between shrink-0 z-30 transition-all">
       <div class="space-y-8">
         <!-- Logo & Title -->
         <div class="flex items-center justify-between">
@@ -109,7 +109,7 @@
               $page.component.startsWith('Admin/TaskBuilder') ? 'bg-primary text-white shadow-md scale-102' : 'text-slate-600 dark:text-white/70 hover:bg-black/5 dark:hover:bg-white/5 hover:text-slate-900 dark:hover:text-white'
             ]"
           >
-            <svg class="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
+            <svg class="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
             <span>منشئ المهام وتكليفات الميدان</span>
           </Link>
 
@@ -233,7 +233,7 @@
                 $page.component.startsWith('Admin/TaskBuilder') ? 'bg-primary text-white shadow-md' : 'text-slate-700 dark:text-white/80 hover:bg-black/5 dark:hover:bg-white/10'
               ]"
             >
-              <svg class="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
+              <svg class="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
               <span>منشئ المهام وتكليفات الميدان</span>
             </Link>
 
@@ -272,8 +272,8 @@
       </div>
     </SpatialDrawer>
 
-    <!-- Main Content Area -->
-    <main class="flex-1 min-w-0 p-4 sm:p-6 lg:p-10 space-y-8 z-10 pb-24 md:pb-8">
+    <!-- Main Content Area with Custom Scroll -->
+    <main class="flex-1 h-full overflow-y-auto custom-scroll p-4 sm:p-6 lg:p-10 space-y-8 z-10 pb-24 md:pb-8">
       <slot />
     </main>
 
