@@ -79,7 +79,7 @@ class ConsultantHistoryController extends Controller
                 $statusType = 'weekend';
                 $weekendCount++;
             } elseif ($record && ($record->check_in_time || $record->site_visits_count > 0 || $record->completed_daily_tasks > 0)) {
-                if ((float)$record->completion_percentage >= 100 || $record->completed_daily_tasks > 0) {
+                if ((float)$record->completion_percentage >= 100) {
                     $status = 'attended';
                     $statusLabel = 'حاضر ومكتمل 🟢';
                     $statusType = 'success';
@@ -100,7 +100,7 @@ class ConsultantHistoryController extends Controller
             $days[] = [
                 'date' => $dateStr,
                 'day_name' => $current->locale('ar')->translatedFormat('l'),
-                'formatted_date' => $current->locale('ar')->translatedFormat('d F Y'),
+                'formatted_date' => $current->format('d - m - Y'),
                 'is_today' => $current->isToday(),
                 'is_weekend' => $isWeekend,
                 'is_future' => false,
@@ -109,7 +109,7 @@ class ConsultantHistoryController extends Controller
                 'status_type' => $statusType,
                 'record' => $record ? [
                     'id' => $record->id,
-                    'check_in_time' => $record->check_in_time ? Carbon::parse($record->check_in_time)->format('H:i') : null,
+                    'check_in_time' => $record->check_in_time ? Carbon::parse($record->check_in_time)->timezone('Africa/Tripoli')->locale('ar')->translatedFormat('h:i a') : null,
                     'completed_daily_tasks' => $record->completed_daily_tasks,
                     'required_daily_tasks' => $record->required_daily_tasks,
                     'completion_percentage' => (float)$record->completion_percentage,

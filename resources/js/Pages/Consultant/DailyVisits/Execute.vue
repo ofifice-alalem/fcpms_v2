@@ -497,12 +497,13 @@ const goBack = () => {
 const handleOpenSiteVisit = () => {
   if (!selectedSiteId.value) return;
   isSubmitting.value = true;
+  const targetDate = props.selectedDate || (props.dailyRecord ? props.dailyRecord.work_date : null);
   const payload = {
     site_id: selectedSiteId.value,
     notes: notes.value,
   };
-  if (props.isHistorical && props.selectedDate) {
-    payload.date = props.selectedDate;
+  if (targetDate) {
+    payload.date = String(targetDate).split('T')[0];
   }
   router.post('/consultant/site-visits', payload, {
     onFinish: () => (isSubmitting.value = false),
@@ -581,8 +582,10 @@ const handleSaveResponses = (completeVisit = false) => {
   }, {
     onSuccess: () => {
       if (completeVisit) {
-        if (props.isHistorical && props.selectedDate) {
-          router.get('/consultant/daily-visits', { date: props.selectedDate });
+        const targetDate = props.selectedDate || (props.dailyRecord ? props.dailyRecord.work_date : null);
+        if (targetDate) {
+          const dateStr = String(targetDate).split('T')[0];
+          router.get('/consultant/daily-visits', { date: dateStr });
         } else {
           router.get('/consultant/daily-visits');
         }

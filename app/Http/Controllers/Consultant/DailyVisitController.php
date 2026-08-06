@@ -296,6 +296,13 @@ class DailyVisitController extends Controller
             ]);
         }
 
+        $recordDate = \Carbon\Carbon::parse($visit->dailyRecord->work_date)->toDateString();
+        $todayDate = \Carbon\Carbon::today()->toDateString();
+
+        if ($request->input('complete_visit') && $recordDate !== $todayDate) {
+            return redirect()->route('consultant.visits.index', ['date' => $recordDate])->with('success', 'تم حفظ إجابات وتفاصيل الزيارة بنجاح');
+        }
+
         return redirect()->back()->with('success', 'تم حفظ إجابات وتفاصيل الزيارة بنجاح');
     }
 
