@@ -545,18 +545,25 @@ const handleSaveResponses = (completeVisit = false) => {
   const responses = (props.visit.task_responses || []).map((resp) => {
     const valuesObj = {};
     const taskDef = getTaskDef(resp);
+    let hasTaskValues = false;
     if (taskDef && taskDef.components) {
       taskDef.components.forEach((comp) => {
         const key = getTaskKey(resp.task_definition_id, comp.id);
-        if (formValues.value[key] !== undefined) {
-          valuesObj[comp.id] = formValues.value[key];
+        const val = formValues.value[key];
+        if (val !== undefined && val !== null && val !== '') {
+          if (Array.isArray(val) && val.length === 0) {
+            // empty array
+          } else {
+            valuesObj[comp.id] = val;
+            hasTaskValues = true;
+          }
         }
       });
     }
     return {
       task_definition_id: resp.task_definition_id,
       values: valuesObj,
-      is_completed: completeVisit,
+      is_completed: completeVisit && hasTaskValues,
     };
   });
 

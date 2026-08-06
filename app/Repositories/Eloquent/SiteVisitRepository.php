@@ -163,8 +163,17 @@ class SiteVisitRepository extends BaseRepository implements SiteVisitRepositoryI
                 ]);
 
                 // Save or update component values
+                $hasNonEmptyValue = false;
                 foreach ($values as $componentId => $val) {
-                    $valueStr = is_array($val) ? json_encode($val, JSON_UNESCAPED_UNICODE) : (string) $val;
+                    $valStr = is_array($val) ? json_encode($val, JSON_UNESCAPED_UNICODE) : (string) $val;
+
+                    if (is_array($val)) {
+                        if (!empty($val)) {
+                            $hasNonEmptyValue = true;
+                        }
+                    } else if ($val !== null && trim((string)$val) !== '' && trim((string)$val) !== '[]' && trim((string)$val) !== 'null') {
+                        $hasNonEmptyValue = true;
+                    }
 
                     TaskResponseValue::updateOrCreate(
                         [
@@ -172,17 +181,29 @@ class SiteVisitRepository extends BaseRepository implements SiteVisitRepositoryI
                             'task_component_id' => $componentId,
                         ],
                         [
-                            'value' => $valueStr,
+                            'value' => $valStr,
                         ]
                     );
                 }
 
-                // Update response status if provided
-                if (!empty($resItem['is_completed'])) {
+                // Check DB if task has valid non-empty values
+                $dbHasValues = TaskResponseValue::where('task_response_id', $taskResponse->id)
+                    ->whereNotNull('value')
+                    ->whereRaw("TRIM(value) != '' AND value != '[]' AND value != 'null'")
+                    ->exists();
+
+                // Update response status based on whether it has actual values
+                if ($hasNonEmptyValue || $dbHasValues) {
                     $taskResponse->update([
                         'status' => 'submitted',
-                        'submitted_at' => Carbon::now(),
-                        'completed_at' => Carbon::now(),
+                        'submitted_at' => $taskResponse->submitted_at ?? Carbon::now(),
+                        'completed_at' => $taskResponse->completed_at ?? Carbon::now(),
+                    ]);
+                } else {
+                    $taskResponse->update([
+                        'status' => 'draft',
+                        'submitted_at' => null,
+                        'completed_at' => null,
                     ]);
                 }
             }
@@ -219,23 +240,26 @@ class SiteVisitRepository extends BaseRepository implements SiteVisitRepositoryI
                     'status' => 'completed',
                     'visit_finished_at' => Carbon::now(),
                 ]);
+            }
 
-                // Update completion stats on daily record (counting ONLY standard daily tasks, excluding on-demand)
-                $dailyRecord = $siteVisit->dailyRecord;
-                if ($dailyRecord) {
-                    $completedCount = TaskResponse::whereHas('siteVisit', fn ($q) => $q->where('daily_record_id', $dailyRecord->id))
-                        ->whereHas('taskDefinition', fn ($q) => $q->where('task_type', 'daily'))
-                        ->where('status', 'submitted')
-                        ->count();
+            // Update completion stats on daily record (counting ONLY filled standard daily tasks, excluding on-demand)
+            $dailyRecord = $siteVisit->dailyRecord;
+            if ($dailyRecord) {
+                $completedCount = TaskResponse::whereHas('siteVisit', fn ($q) => $q->where('daily_record_id', $dailyRecord->id))
+                    ->whereHas('taskDefinition', fn ($q) => $q->where('task_type', 'daily'))
+                    ->where('status', 'submitted')
+                    ->whereHas('values', function ($vq) {
+                        $vq->whereNotNull('value')->whereRaw("TRIM(value) != '' AND value != '[]' AND value != 'null'");
+                    })
+                    ->count();
 
-                    $totalRequired = max(1, $dailyRecord->required_daily_tasks);
-                    $percentage = min(100, round(($completedCount / $totalRequired) * 100, 2));
+                $totalRequired = max(1, $dailyRecord->required_daily_tasks);
+                $percentage = min(100, round(($completedCount / $totalRequired) * 100, 2));
 
-                    $dailyRecord->update([
-                        'completed_daily_tasks' => $completedCount,
-                        'completion_percentage' => $percentage,
-                    ]);
-                }
+                $dailyRecord->update([
+                    'completed_daily_tasks' => $completedCount,
+                    'completion_percentage' => $percentage,
+                ]);
             }
 
             return $this->findWithDetails($siteVisit->id);

@@ -493,7 +493,10 @@ const filteredVisits = computed(() => {
 
 const getVisitProgress = (visit) => {
   if (!visit.task_responses || visit.task_responses.length === 0) return 0;
-  const completed = visit.task_responses.filter((r) => r.status === 'submitted' || r.completed_at).length;
+  const completed = visit.task_responses.filter((r) => {
+    const hasValues = r.values && r.values.some(v => v.value && String(v.value).trim() !== '' && String(v.value) !== '[]' && String(v.value) !== 'null');
+    return r.status === 'submitted' || (r.completed_at && hasValues);
+  }).length;
   return Math.round((completed / visit.task_responses.length) * 100);
 };
 

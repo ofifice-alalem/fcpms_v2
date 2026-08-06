@@ -51,10 +51,25 @@ class DailyVisitController extends Controller
         $consultant = $this->getConsultant();
         $dailyRecord = $this->visitService->getTodayRecord($consultant);
 
-        // Recalculate daily task stats strictly for task_type = 'daily' (excluding on-demand tasks)
+        // Sanitize any existing task responses marked as submitted without having any valid filled values
+        \App\Models\TaskResponse::whereHas('siteVisit', fn ($q) => $q->where('daily_record_id', $dailyRecord->id))
+            ->where('status', 'submitted')
+            ->whereDoesntHave('values', function ($vq) {
+                $vq->whereNotNull('value')->whereRaw("TRIM(value) != '' AND value != '[]' AND value != 'null'");
+            })
+            ->update([
+                'status' => 'draft',
+                'submitted_at' => null,
+                'completed_at' => null,
+            ]);
+
+        // Recalculate daily task stats strictly for filled task_type = 'daily' (excluding on-demand tasks)
         $completedDailyCount = \App\Models\TaskResponse::whereHas('siteVisit', fn ($q) => $q->where('daily_record_id', $dailyRecord->id))
             ->whereHas('taskDefinition', fn ($q) => $q->where('task_type', 'daily'))
             ->where('status', 'submitted')
+            ->whereHas('values', function ($vq) {
+                $vq->whereNotNull('value')->whereRaw("TRIM(value) != '' AND value != '[]' AND value != 'null'");
+            })
             ->count();
 
         $requiredCount = max(1, $dailyRecord->required_daily_tasks);
