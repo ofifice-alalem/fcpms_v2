@@ -31,14 +31,21 @@
             v-for="day in daysOfWeek"
             :key="day.value"
             :class="[
-              'p-3 rounded-2xl border flex items-center justify-between font-bold text-xs',
+              'p-3 rounded-2xl border flex items-center justify-between font-black text-xs transition-all',
               isWorkingDay(day.value)
-                ? 'bg-emerald-500/10 border-emerald-500/25 text-emerald-600 dark:text-emerald-400'
-                : 'bg-black/5 dark:bg-white/5 border-black/10 dark:border-white/10 text-slate-400 dark:text-white/40'
+                ? 'bg-emerald-500/10 dark:bg-emerald-500/15 border-emerald-500/30 text-emerald-800 dark:text-emerald-300'
+                : 'bg-slate-200/90 dark:bg-slate-800/90 border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300'
             ]"
           >
-            <span>{{ day.name }}</span>
-            <span class="font-black text-[11px]">
+            <span class="font-black text-sm">{{ day.name }}</span>
+            <span
+              :class="[
+                'px-2.5 py-1 rounded-xl text-[11px] font-black border',
+                isWorkingDay(day.value)
+                  ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border-emerald-500/30'
+                  : 'bg-slate-400/20 text-slate-700 dark:text-slate-300 border-slate-300 dark:border-slate-600'
+              ]"
+            >
               {{ isWorkingDay(day.value) ? 'يوم عمل رسمـي' : 'عطلة أسبوعية (راحة)' }}
             </span>
           </div>

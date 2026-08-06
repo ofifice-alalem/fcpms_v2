@@ -20,20 +20,27 @@
 
     <!-- Working Days Grid Bar (Sun to Sat) -->
     <div class="space-y-1.5">
-      <span class="text-[11px] font-bold text-slate-400 dark:text-white/50 block">أيام العمل الأسبوعية:</span>
-      <div class="grid grid-cols-7 gap-1">
+      <span class="text-[11px] font-black text-slate-700 dark:text-white/80 block">أيام العمل الأسبوعية:</span>
+      <div class="grid grid-cols-7 gap-1.5">
         <div
           v-for="day in daysOfWeek"
           :key="day.value"
           :class="[
             'p-2 rounded-xl text-center flex flex-col items-center justify-center border text-[11px] font-black transition-all',
             isWorkingDay(day.value)
-              ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-600 dark:text-emerald-400 shadow-sm'
-              : 'bg-black/5 dark:bg-white/5 border-black/10 dark:border-white/10 text-slate-400 dark:text-white/30'
+              ? 'bg-emerald-500/10 dark:bg-emerald-500/15 border-emerald-500/30 text-emerald-800 dark:text-emerald-300 shadow-xs'
+              : 'bg-slate-200/90 dark:bg-slate-800/90 border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300'
           ]"
         >
-          <span>{{ day.shortName }}</span>
-          <span class="text-[9px] font-bold mt-0.5">
+          <span class="font-black text-xs">{{ day.shortName }}</span>
+          <span
+            :class="[
+              'text-[9px] font-black mt-1 px-1.5 py-0.5 rounded-md border',
+              isWorkingDay(day.value)
+                ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border-emerald-500/30'
+                : 'bg-slate-400/20 text-slate-700 dark:text-slate-300 border-slate-300 dark:border-slate-600'
+            ]"
+          >
             {{ isWorkingDay(day.value) ? 'عمل' : 'راحة' }}
           </span>
         </div>

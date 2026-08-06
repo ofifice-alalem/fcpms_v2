@@ -70,23 +70,23 @@
             v-for="(day, index) in daysOfWeek"
             :key="day.value"
             :class="[
-              'p-3 rounded-2xl border flex items-center justify-between transition-all cursor-pointer select-none',
+              'p-3 rounded-2xl border flex items-center justify-between transition-all cursor-pointer select-none font-black text-xs',
               form.days[index].is_working_day
-                ? 'bg-emerald-500/10 border-emerald-500/30 text-slate-900 dark:text-white'
-                : 'bg-black/5 dark:bg-white/5 border-black/10 dark:border-white/10 text-slate-400 dark:text-white/40'
+                ? 'bg-emerald-500/10 dark:bg-emerald-500/15 border-emerald-500/30 text-emerald-800 dark:text-emerald-300'
+                : 'bg-slate-200/90 dark:bg-slate-800/90 border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300'
             ]"
             @click="toggleDay(index)"
           >
             <div class="flex items-center gap-3">
               <div
                 :class="[
-                  'w-7 h-7 rounded-xl flex items-center justify-center font-black text-xs',
-                  form.days[index].is_working_day ? 'bg-emerald-500 text-white shadow-md' : 'bg-black/10 dark:bg-white/10 text-slate-400'
+                  'w-7 h-7 rounded-xl flex items-center justify-center font-black text-xs shadow-xs',
+                  form.days[index].is_working_day ? 'bg-emerald-500/25 text-emerald-700 dark:text-emerald-300 border border-emerald-500/40' : 'bg-slate-400 dark:bg-slate-600 text-white'
                 ]"
               >
                 {{ index + 1 }}
               </div>
-              <span class="font-bold text-xs">{{ day.name }}</span>
+              <span class="font-black text-sm">{{ day.name }}</span>
             </div>
 
             <div class="flex items-center gap-2">
@@ -94,8 +94,8 @@
                 :class="[
                   'px-3 py-1 rounded-xl text-[11px] font-black border',
                   form.days[index].is_working_day
-                    ? 'bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border-emerald-500/30'
-                    : 'bg-slate-500/10 text-slate-400 border-slate-500/20'
+                    ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border-emerald-500/30'
+                    : 'bg-slate-400/20 text-slate-700 dark:text-slate-300 border-slate-300 dark:border-slate-600'
                 ]"
               >
                 {{ form.days[index].is_working_day ? 'يوم عمل رسمـي' : 'عطلة أسبوعية (راحة)' }}
