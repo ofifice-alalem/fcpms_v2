@@ -65,7 +65,157 @@
         </div>
       </div>
 
-      <!-- Advanced Filter Bar -->
+      <!-- Top Executive Summary Widgets (Frosted Glass Cards matching Daily Visits Style) -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 relative z-10">
+        <!-- Widget 1: Total & Active Tasks Stats -->
+        <SpatialCard
+          padding="p-7"
+          class="min-h-[295px] flex flex-col justify-between border-t-4 border-t-primary rounded-3xl relative overflow-hidden text-center space-y-4 bg-white/70 dark:bg-slate-950/60 backdrop-blur-xl border border-white/50 dark:border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.06)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.36)] transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl"
+        >
+          <!-- Ambient Glass Radial Glow -->
+          <div class="absolute -top-14 -right-14 w-44 h-44 rounded-full bg-primary/20 blur-3xl pointer-events-none"></div>
+
+          <!-- Top SVG Circular Gauge -->
+          <div class="flex flex-col items-center justify-center space-y-2 relative z-10">
+            <div class="relative drop-shadow-[0_0_18px_rgba(59,130,246,0.35)]">
+              <SpatialCircularProgress
+                :value="activePercentage"
+                :size="135"
+                :stroke-width="11"
+                color="blue"
+              >
+                <div class="flex flex-col items-center justify-center">
+                  <span class="text-3xl font-black font-stat-number tracking-tight text-slate-900 dark:text-white leading-none">
+                    {{ activePercentage }}%
+                  </span>
+                  <span class="text-xs font-bold text-slate-500 dark:text-white/60 mt-1">مفعّلة 🟢</span>
+                </div>
+              </SpatialCircularProgress>
+            </div>
+
+            <span class="text-xs font-black text-slate-500 dark:text-white/60 uppercase tracking-widest block pt-1">
+              حالة تفعيل نماذج المهام
+            </span>
+          </div>
+
+          <!-- Bottom Grid Items -->
+          <div class="grid grid-cols-2 gap-4 pt-3 text-xs font-bold relative z-10">
+            <div class="text-center flex flex-col items-center space-y-2">
+              <div class="w-16 h-16 rounded-full border-2 border-emerald-500 bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 font-stat-number font-black text-2xl flex items-center justify-center shadow-xl shadow-emerald-500/30 ring-4 ring-emerald-500/20 drop-shadow-[0_2px_10px_rgba(16,185,129,0.4)] transition-transform hover:scale-105">
+                {{ activeTasksCount }}
+              </div>
+              <span class="text-sm font-black text-slate-800 dark:text-white block">مهمة مفعّلة</span>
+            </div>
+
+            <div class="text-center flex flex-col items-center space-y-2">
+              <div class="w-16 h-16 rounded-full border-2 border-slate-400 dark:border-white/30 bg-slate-100 dark:bg-white/10 text-slate-600 dark:text-white/70 font-stat-number font-black text-2xl flex items-center justify-center shadow-md ring-4 ring-slate-400/10 transition-transform hover:scale-105">
+                {{ disabledTasksCount }}
+              </div>
+              <span class="text-sm font-black text-slate-800 dark:text-white block">مهمة معطّلة</span>
+            </div>
+          </div>
+        </SpatialCard>
+
+        <!-- Widget 2: Daily vs On-Demand Breakdown -->
+        <SpatialCard
+          padding="p-7"
+          class="min-h-[295px] flex flex-col justify-between border-t-4 border-t-emerald-500 rounded-3xl relative overflow-hidden text-center space-y-4 bg-white/70 dark:bg-slate-950/60 backdrop-blur-xl border border-white/50 dark:border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.06)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.36)] transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl"
+        >
+          <!-- Ambient Glass Radial Glow -->
+          <div class="absolute -top-14 -right-14 w-44 h-44 rounded-full bg-emerald-500/25 blur-3xl pointer-events-none"></div>
+
+          <!-- Top SVG Circular Progress -->
+          <div class="flex flex-col items-center justify-center space-y-2 relative z-10">
+            <div class="relative drop-shadow-[0_0_18px_rgba(16,185,129,0.35)]">
+              <SpatialCircularProgress
+                :value="dailyPercentage"
+                :size="135"
+                :stroke-width="11"
+                color="emerald"
+              >
+                <div class="flex flex-col items-center justify-center">
+                  <span class="text-3xl font-black font-stat-number tracking-tight text-emerald-600 dark:text-emerald-400 leading-none">
+                    {{ dailyTasksCount }}
+                  </span>
+                  <span class="text-xs font-bold text-slate-500 dark:text-white/60 mt-1">يومية 📅</span>
+                </div>
+              </SpatialCircularProgress>
+            </div>
+
+            <span class="text-xs font-black text-slate-500 dark:text-white/60 uppercase tracking-widest block pt-1">
+              توزيع تكرار المهام
+            </span>
+          </div>
+
+          <!-- Bottom Grid Items -->
+          <div class="grid grid-cols-2 gap-4 pt-3 text-xs font-bold relative z-10">
+            <div class="text-center flex flex-col items-center space-y-2">
+              <div class="w-16 h-16 rounded-full border-2 border-emerald-500 bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 font-stat-number font-black text-2xl flex items-center justify-center shadow-xl shadow-emerald-500/30 ring-4 ring-emerald-500/20 drop-shadow-[0_2px_10px_rgba(16,185,129,0.4)] transition-transform hover:scale-105">
+                {{ dailyTasksCount }}
+              </div>
+              <span class="text-sm font-black text-slate-800 dark:text-white block">مهام يومية</span>
+            </div>
+
+            <div class="text-center flex flex-col items-center space-y-2">
+              <div class="w-16 h-16 rounded-full border-2 border-amber-500 bg-amber-500/20 text-amber-600 dark:text-amber-400 font-stat-number font-black text-2xl flex items-center justify-center shadow-xl shadow-amber-500/30 ring-4 ring-amber-500/20 drop-shadow-[0_2px_10px_rgba(245,158,11,0.4)] transition-transform hover:scale-105">
+                {{ onDemandTasksCount }}
+              </div>
+              <span class="text-sm font-black text-slate-800 dark:text-white block">عند الطلب</span>
+            </div>
+          </div>
+        </SpatialCard>
+
+        <!-- Widget 3: Site Assignments & Coverage -->
+        <SpatialCard
+          padding="p-7"
+          class="min-h-[295px] flex flex-col justify-between border-t-4 border-t-indigo-500 rounded-3xl relative overflow-hidden text-center space-y-4 bg-white/70 dark:bg-slate-950/60 backdrop-blur-xl border border-white/50 dark:border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.06)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.36)] transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl"
+        >
+          <!-- Ambient Glass Radial Glow -->
+          <div class="absolute -top-14 -right-14 w-44 h-44 rounded-full bg-indigo-500/25 blur-3xl pointer-events-none"></div>
+
+          <!-- Top SVG Circular Gauge -->
+          <div class="flex flex-col items-center justify-center space-y-2 relative z-10">
+            <div class="relative drop-shadow-[0_0_18px_rgba(99,102,241,0.35)]">
+              <SpatialCircularProgress
+                :value="100"
+                :size="135"
+                :stroke-width="11"
+                color="indigo"
+              >
+                <div class="flex flex-col items-center justify-center">
+                  <span class="text-3xl font-black font-stat-number tracking-tight text-indigo-600 dark:text-indigo-400 leading-none">
+                    {{ totalTasksCount }}
+                  </span>
+                  <span class="text-xs font-bold text-slate-500 dark:text-white/60 mt-1">نموذج كلي 🏛️</span>
+                </div>
+              </SpatialCircularProgress>
+            </div>
+
+            <span class="text-xs font-black text-slate-500 dark:text-white/60 uppercase tracking-widest block pt-1">
+              إحصائيات إسناد المواقع
+            </span>
+          </div>
+
+          <!-- Bottom Grid Items -->
+          <div class="grid grid-cols-2 gap-4 pt-3 text-xs font-bold relative z-10">
+            <div class="text-center flex flex-col items-center space-y-2">
+              <div class="w-16 h-16 rounded-full border-2 border-indigo-500 bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 font-stat-number font-black text-2xl flex items-center justify-center shadow-xl shadow-indigo-500/30 ring-4 ring-indigo-500/20 drop-shadow-[0_2px_10px_rgba(99,102,241,0.4)] transition-transform hover:scale-105">
+                {{ totalTasksCount - generalTasksCount }}
+              </div>
+              <span class="text-sm font-black text-slate-800 dark:text-white block">مواقع مخصصة</span>
+            </div>
+
+            <div class="text-center flex flex-col items-center space-y-2">
+              <div class="w-16 h-16 rounded-full border-2 border-purple-500 bg-purple-500/20 text-purple-600 dark:text-purple-400 font-stat-number font-black text-2xl flex items-center justify-center shadow-xl shadow-purple-500/30 ring-4 ring-purple-500/20 drop-shadow-[0_2px_10px_rgba(168,85,247,0.4)] transition-transform hover:scale-105">
+                {{ generalTasksCount }}
+              </div>
+              <span class="text-sm font-black text-slate-800 dark:text-white block">عامة لجميع المواقع</span>
+            </div>
+          </div>
+        </SpatialCard>
+      </div>
+
+      <!-- Advanced Filter Bar (Executive Glass Style) -->
       <SpatialCard padding="p-5" class="relative z-30 space-y-4">
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 items-end">
           
@@ -139,29 +289,33 @@
         </div>
       </SpatialCard>
 
-      <!-- 1. GRID CARDS VIEW -->
-      <div v-if="viewMode === 'grid' && tasks.data && tasks.data.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+      <!-- 1. GRID CARDS VIEW (Executive Spatial Glass Cards matching Daily Visits Style) -->
+      <div v-if="viewMode === 'grid' && tasks.data && tasks.data.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <SpatialCard
           v-for="task in tasks.data"
           :key="task.id"
           padding="p-6"
-          class="relative group flex flex-col justify-between space-y-4 hover:border-primary/50 transition-all"
+          class="relative group flex flex-col justify-between space-y-4 rounded-3xl backdrop-blur-xl bg-white/75 dark:bg-slate-950/70 border border-white/50 dark:border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.06)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.36)] transition-all duration-300 hover:-translate-y-1.5 hover:shadow-2xl overflow-hidden"
         >
+          <!-- Ambient Glass Radial Glow Orbs -->
+          <div class="absolute -top-16 -right-16 w-44 h-44 rounded-full bg-primary/10 blur-3xl pointer-events-none group-hover:bg-primary/20 transition-all"></div>
+          <div class="absolute -bottom-16 -left-16 w-44 h-44 rounded-full bg-emerald-500/10 blur-3xl pointer-events-none"></div>
+
           <!-- Task Header -->
-          <div class="space-y-3">
-            <div class="flex items-center justify-between">
+          <div class="space-y-3 relative z-10">
+            <div class="flex items-center justify-between gap-2 pb-2 border-b border-slate-100 dark:border-white/10">
               <!-- Task Type Pill -->
               <SpatialStatusPill :type="task.task_type === 'daily' ? 'completed' : 'pending'">
                 {{ task.task_type === 'daily' ? '📅 مهمة يومية' : '⚡ عند الطلب' }}
               </SpatialStatusPill>
 
-              <!-- Active Status Toggle Button (BR-027) -->
+              <!-- Active Status Toggle Button -->
               <button
                 @click.stop="toggleActiveStatus(task)"
                 :class="[
                   'px-3 py-1 rounded-full text-xs font-black transition-all flex items-center gap-2 cursor-pointer border select-none',
                   task.is_active
-                    ? 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border-emerald-500/30 hover:bg-emerald-500/25'
+                    ? 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border-emerald-500/30 hover:bg-emerald-500/25 shadow-xs'
                     : 'bg-slate-100 dark:bg-white/5 text-slate-500 dark:text-white/40 border-slate-200 dark:border-white/10 hover:bg-slate-200'
                 ]"
                 title="انقر لتغيير حالة تفعيل المهمة"
@@ -175,41 +329,44 @@
               </button>
             </div>
 
-            <h3 class="text-base font-black text-slate-900 dark:text-white line-clamp-1">
-              {{ task.title }}
-            </h3>
+            <!-- Task Title & Description -->
+            <div class="space-y-1">
+              <h3 class="text-base sm:text-lg font-black text-slate-900 dark:text-white leading-tight line-clamp-1">
+                {{ task.title }}
+              </h3>
 
-            <p v-if="task.description" class="text-xs text-slate-500 dark:text-white/60 line-clamp-2 min-h-[32px]">
-              {{ task.description }}
-            </p>
-            <p v-else class="text-xs text-slate-400 dark:text-white/40 italic min-h-[32px]">
-              لا يوجد وصف مضاف لهذا النموذج.
-            </p>
+              <p v-if="task.description" class="text-xs font-bold text-slate-500 dark:text-white/60 line-clamp-2 min-h-[32px]">
+                {{ task.description }}
+              </p>
+              <p v-else class="text-xs text-slate-400 dark:text-white/40 italic min-h-[32px]">
+                لا يوجد وصف مضاف لهذا النموذج.
+              </p>
+            </div>
           </div>
 
-          <!-- Task Metrics & Assignments Badges -->
-          <div class="space-y-3 pt-3 border-t border-slate-200/60 dark:border-white/10">
-            <div class="flex items-center justify-between text-xs">
-              <span class="font-bold text-slate-500 dark:text-white/60">حقول الاستبيان:</span>
-              <span class="px-2.5 py-0.5 rounded-lg bg-purple-500/15 text-purple-600 dark:text-purple-300 font-mono font-black border border-purple-500/20">
+          <!-- Task Metrics & Assignments Section -->
+          <div class="space-y-3 pt-3 border-t border-slate-200/60 dark:border-white/10 relative z-10">
+            <div class="flex items-center justify-between p-2.5 rounded-xl bg-slate-100/90 dark:bg-white/5 border border-slate-200/80 dark:border-white/10 text-xs shadow-2xs">
+              <span class="font-black text-slate-700 dark:text-white/70">📋 حقول الاستبيان:</span>
+              <span class="px-3 py-1 rounded-lg bg-purple-500/15 text-purple-600 dark:text-purple-300 font-mono font-black text-xs border border-purple-500/20 shadow-xs">
                 {{ task.components_count || (task.components ? task.components.length : 0) }} حقول
               </span>
             </div>
 
             <div class="space-y-1.5">
-              <span class="font-bold text-slate-500 dark:text-white/60 text-xs block">المواقع المسندة:</span>
-              <div class="flex flex-col gap-1 max-h-28 overflow-y-auto custom-scroll pr-1">
+              <span class="font-black text-slate-700 dark:text-white/70 text-xs block">🏛️ المواقع المسندة:</span>
+              <div class="flex flex-col gap-1.5 max-h-28 overflow-y-auto custom-scroll pr-1">
                 <template v-if="task.site_assignments && task.site_assignments.length > 0">
                   <div
                     v-for="sa in task.site_assignments"
                     :key="sa.id"
-                    class="px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-white/10 text-xs font-bold text-slate-800 dark:text-white/90 border border-black/5 dark:border-white/5 flex items-center gap-1.5"
+                    class="px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-white/10 text-xs font-bold text-slate-800 dark:text-white/90 border border-black/5 dark:border-white/5 flex items-center gap-2"
                   >
                     <span>🏛️</span>
                     <span class="truncate">{{ sa.site ? sa.site.name : `موقع #${sa.site_id}` }}</span>
                   </div>
                 </template>
-                <div v-else class="px-2.5 py-1 rounded-lg bg-emerald-500/10 text-xs font-bold text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 flex items-center gap-1.5">
+                <div v-else class="px-3 py-1.5 rounded-xl bg-emerald-500/10 text-xs font-bold text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 flex items-center gap-2">
                   <span>🌐</span>
                   <span>عامة لجميع المواقع</span>
                 </div>
@@ -217,39 +374,50 @@
             </div>
           </div>
 
-          <!-- Action Buttons Bar -->
-          <div class="pt-3 border-t border-slate-200/60 dark:border-white/10 flex items-center justify-end gap-2">
-            <SpatialIconButton
-              variant="ghost"
-              title="معاينة حية تفاعلية"
-              @click="openPreviewModal(task)"
-            >
-              <svg class="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-              </svg>
-            </SpatialIconButton>
-
-            <Link :href="route('admin.tasks.edit', task.id)">
-              <SpatialIconButton
-                variant="ghost"
-                title="تعديل بنية المهمة والتكليفات"
+          <!-- Action Buttons Bar (Circular Rings with Glow & Transparency) -->
+          <div class="pt-3 border-t border-slate-200/60 dark:border-white/10 flex items-center justify-between relative z-10">
+            <div class="flex items-center gap-3">
+              <!-- View / Preview Button (Blue / Indigo Ring) -->
+              <button
+                type="button"
+                title="معاينة حية تفاعلية"
+                @click="openPreviewModal(task)"
+                class="w-11 h-11 border-2 border-indigo-500/70 text-indigo-600 dark:text-indigo-400 bg-transparent hover:bg-indigo-500/10 flex items-center justify-center transition-all duration-300 hover:scale-110 shadow-xs ring-2 ring-indigo-500/15 cursor-pointer"
+                style="border-radius: 50%; background: transparent !important;"
               >
-                <svg class="w-4 h-4 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                <svg class="w-5 h-5 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
                 </svg>
-              </SpatialIconButton>
-            </Link>
+              </button>
 
-            <SpatialIconButton
-              variant="danger"
+              <!-- Edit Button (Emerald Green Ring) -->
+              <Link :href="route('admin.tasks.edit', task.id)">
+                <button
+                  type="button"
+                  title="تعديل بنية المهمة والتكليفات"
+                  class="w-11 h-11 border-2 border-emerald-500/70 text-emerald-600 dark:text-emerald-400 bg-transparent hover:bg-emerald-500/10 flex items-center justify-center transition-all duration-300 hover:scale-110 shadow-xs ring-2 ring-emerald-500/15 cursor-pointer"
+                  style="border-radius: 50%; background: transparent !important;"
+                >
+                  <svg class="w-5 h-5 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                  </svg>
+                </button>
+              </Link>
+            </div>
+
+            <!-- Delete Button (Rose Red Ring) -->
+            <button
+              type="button"
               title="أرشفة وتأكيد الحذف"
               @click="openDeleteModal(task)"
+              class="w-11 h-11 border-2 border-rose-500/70 text-rose-600 dark:text-rose-400 bg-transparent hover:bg-rose-500/10 flex items-center justify-center transition-all duration-300 hover:scale-110 shadow-xs ring-2 ring-rose-500/15 cursor-pointer"
+              style="border-radius: 50%; background: transparent !important;"
             >
-              <svg class="w-4 h-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="w-5 h-5 text-rose-600 dark:text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
               </svg>
-            </SpatialIconButton>
+            </button>
           </div>
         </SpatialCard>
       </div>
@@ -338,40 +506,46 @@
                   </button>
                 </td>
 
-                <!-- Action Buttons -->
+                <!-- Action Buttons in Table View -->
                 <td class="p-4 text-center whitespace-nowrap">
-                  <div class="flex items-center justify-center gap-1.5">
-                    <SpatialIconButton
-                      variant="ghost"
+                  <div class="flex items-center justify-center gap-2">
+                    <!-- View Button -->
+                    <button
+                      type="button"
                       title="معاينة حية تفاعلية"
                       @click="openPreviewModal(task)"
+                      class="w-8 h-8 border border-indigo-500/60 text-indigo-600 dark:text-indigo-400 bg-transparent hover:bg-indigo-500/15 flex items-center justify-center transition-all duration-200 hover:scale-105 cursor-pointer rounded-full shrink-0"
                     >
-                      <svg class="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
                       </svg>
-                    </SpatialIconButton>
+                    </button>
 
+                    <!-- Edit Button -->
                     <Link :href="route('admin.tasks.edit', task.id)">
-                      <SpatialIconButton
-                        variant="ghost"
+                      <button
+                        type="button"
                         title="تعديل بنية المهمة والتكليفات"
+                        class="w-8 h-8 border border-emerald-500/60 text-emerald-600 dark:text-emerald-400 bg-transparent hover:bg-emerald-500/15 flex items-center justify-center transition-all duration-200 hover:scale-105 cursor-pointer rounded-full shrink-0"
                       >
-                        <svg class="w-4 h-4 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
                         </svg>
-                      </SpatialIconButton>
+                      </button>
                     </Link>
 
-                    <SpatialIconButton
-                      variant="danger"
+                    <!-- Delete Button -->
+                    <button
+                      type="button"
                       title="أرشفة وتأكيد الحذف"
                       @click="openDeleteModal(task)"
+                      class="w-8 h-8 border border-rose-500/60 text-rose-600 dark:text-rose-400 bg-transparent hover:bg-rose-500/15 flex items-center justify-center transition-all duration-200 hover:scale-105 cursor-pointer rounded-full shrink-0"
                     >
-                      <svg class="w-4 h-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
                       </svg>
-                    </SpatialIconButton>
+                    </button>
                   </div>
                 </td>
               </tr>
@@ -428,6 +602,7 @@ import SpatialInput from '@/Components/Spatial/SpatialInput.vue';
 import SpatialDropdown from '@/Components/Spatial/SpatialDropdown.vue';
 import SpatialSwitch from '@/Components/Spatial/SpatialSwitch.vue';
 import SpatialToast from '@/Components/Spatial/SpatialToast.vue';
+import SpatialCircularProgress from '@/Components/Spatial/SpatialCircularProgress.vue';
 import TaskPreviewModal from '@/Components/TaskBuilder/TaskPreviewModal.vue';
 import DeleteTaskModal from '@/Components/TaskBuilder/DeleteTaskModal.vue';
 
@@ -452,6 +627,44 @@ const props = defineProps({
 
 const toastRef = ref(null);
 const viewMode = ref('grid'); // 'grid' | 'table'
+
+// Computed Stats for Executive Widgets
+const totalTasksCount = computed(() => props.tasks.total || (props.tasks.data ? props.tasks.data.length : 0));
+
+const activeTasksCount = computed(() => {
+  if (!props.tasks.data) return 0;
+  return props.tasks.data.filter(t => t.is_active).length;
+});
+
+const disabledTasksCount = computed(() => {
+  if (!props.tasks.data) return 0;
+  return props.tasks.data.filter(t => !t.is_active).length;
+});
+
+const dailyTasksCount = computed(() => {
+  if (!props.tasks.data) return 0;
+  return props.tasks.data.filter(t => t.task_type === 'daily' || t.task_type?.value === 'daily').length;
+});
+
+const onDemandTasksCount = computed(() => {
+  if (!props.tasks.data) return 0;
+  return props.tasks.data.filter(t => t.task_type === 'on_demand' || t.task_type?.value === 'on_demand').length;
+});
+
+const generalTasksCount = computed(() => {
+  if (!props.tasks.data) return 0;
+  return props.tasks.data.filter(t => !t.site_assignments || t.site_assignments.length === 0).length;
+});
+
+const activePercentage = computed(() => {
+  if (totalTasksCount.value === 0) return 0;
+  return Math.round((activeTasksCount.value / totalTasksCount.value) * 100);
+});
+
+const dailyPercentage = computed(() => {
+  if (totalTasksCount.value === 0) return 0;
+  return Math.round((dailyTasksCount.value / totalTasksCount.value) * 100);
+});
 
 const parseMultiFilter = (val) => {
   if (!val) return [];
