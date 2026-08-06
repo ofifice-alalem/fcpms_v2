@@ -175,13 +175,20 @@ class DashboardController extends Controller
                 $c = $record ? $record->consultant : null;
 
                 $taskResponses = $visit->taskResponses;
-                $totalTasks = $taskResponses ? $taskResponses->count() : 0;
-                $completedTasks = $taskResponses ? $taskResponses->filter(function ($r) {
+
+                $dailyResponses = $taskResponses ? $taskResponses->filter(function ($r) {
+                    $type = $r->taskDefinition->task_type ?? null;
+                    return $type === 'daily' || (is_object($type) && $type->value === 'daily');
+                }) : collect();
+
+                $totalDailyTasks = $dailyResponses->count();
+
+                $completedDailyTasks = $dailyResponses->filter(function ($r) {
                     $hasValues = $r->values && $r->values->some(fn($v) => !empty($v->value));
                     return $r->status === 'submitted' || ($r->completed_at && $hasValues);
-                })->count() : 0;
+                })->count();
 
-                $pct = $totalTasks > 0 ? (int) round(($completedTasks / $totalTasks) * 100) : 0;
+                $pct = $totalDailyTasks > 0 ? (int) round(($completedDailyTasks / $totalDailyTasks) * 100) : 0;
 
                 $onDemandTasks = $taskResponses ? $taskResponses->filter(function ($r) {
                     $type = $r->taskDefinition->task_type ?? null;
@@ -195,8 +202,8 @@ class DashboardController extends Controller
                     'employee_number' => $c ? $c->employee_number : '',
                     'specialization' => $c ? $c->specialization : 'استشاري ميداني',
                     'started_at' => $visit->visit_started_at ? Carbon::parse($visit->visit_started_at)->format('H:i') : '--',
-                    'completed_tasks' => $completedTasks,
-                    'total_tasks' => $totalTasks,
+                    'completed_tasks' => $completedDailyTasks,
+                    'total_tasks' => $totalDailyTasks,
                     'on_demand_tasks' => $onDemandTasks,
                     'completion_percentage' => $pct,
                     'status' => $visit->status ?? ($visit->visit_finished_at ? 'completed' : 'in_progress'),
