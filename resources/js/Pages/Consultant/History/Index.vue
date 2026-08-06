@@ -81,6 +81,7 @@
                 <th class="py-3 px-4">الحالة</th>
                 <th class="py-3 px-4">وقت البدء</th>
                 <th class="py-3 px-4">المواقع المزارة</th>
+                <th class="py-3 px-4 text-center">المهام الإضافية</th>
                 <th class="py-3 px-4">نسبة الإنجاز</th>
                 <th class="py-3 px-4 text-center">الإجراء والفتح</th>
               </tr>
@@ -125,6 +126,16 @@
                 <!-- Visited sites -->
                 <td class="py-4 px-4 font-mono text-xs font-black text-slate-800 dark:text-white">
                   {{ day.record ? day.record.site_visits_count + ' مواقع' : '-' }}
+                </td>
+
+                <!-- On-demand tasks count -->
+                <td class="py-4 px-4 text-center font-mono text-base font-black">
+                  <span v-if="day.record && day.record.on_demand_tasks_count > 0" class="text-amber-600 dark:text-amber-400 text-base font-black">
+                    {{ day.record.on_demand_tasks_count }}
+                  </span>
+                  <span v-else class="text-slate-400 dark:text-white/30 text-sm font-bold">
+                    --
+                  </span>
                 </td>
 
                 <!-- Progress percentage -->
@@ -215,10 +226,16 @@
             </div>
 
             <!-- Record Details for Mobile -->
-            <div v-if="day.record" class="grid grid-cols-2 gap-2 text-xs p-3 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-100 dark:border-white/5 font-mono">
+            <div v-if="day.record" class="grid grid-cols-3 gap-2 text-xs p-3 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-100 dark:border-white/5 font-mono">
               <div>
                 <span class="text-slate-500 dark:text-white/50 block">وقت البدء:</span>
                 <span class="font-bold text-slate-800 dark:text-white">{{ day.record.check_in_time || '-' }}</span>
+              </div>
+              <div>
+                <span class="text-slate-500 dark:text-white/50 block">إضافية:</span>
+                <span :class="['font-mono font-black text-sm block', (day.record && day.record.on_demand_tasks_count > 0) ? 'text-amber-600 dark:text-amber-400' : 'text-slate-400 dark:text-white/30']">
+                  {{ (day.record && day.record.on_demand_tasks_count > 0) ? day.record.on_demand_tasks_count : '--' }}
+                </span>
               </div>
               <div>
                 <span class="text-slate-500 dark:text-white/50 block">الإنجاز:</span>

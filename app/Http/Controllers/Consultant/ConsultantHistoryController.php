@@ -44,6 +44,7 @@ class ConsultantHistoryController extends Controller
         $existingRecords = DailyRecord::where('consultant_id', $consultant->id)
             ->whereBetween('work_date', [$startOfMonth->toDateString(), $endOfMonth->toDateString()])
             ->withCount('siteVisits')
+            ->with(['siteVisits.taskResponses.taskDefinition'])
             ->get()
             ->keyBy(function ($item) {
                 return Carbon::parse($item->work_date)->toDateString();
@@ -97,6 +98,18 @@ class ConsultantHistoryController extends Controller
                 $absentCount++;
             }
 
+            $onDemandTasksCount = 0;
+            if ($record) {
+                foreach ($record->siteVisits as $visit) {
+                    foreach ($visit->taskResponses as $resp) {
+                        $taskDef = $resp->taskDefinition;
+                        if ($taskDef && ($taskDef->task_type === \App\Enums\TaskType::ON_DEMAND || $taskDef->task_type?->value === 'on_demand')) {
+                            $onDemandTasksCount++;
+                        }
+                    }
+                }
+            }
+
             $days[] = [
                 'date' => $dateStr,
                 'day_name' => $current->locale('ar')->translatedFormat('l'),
@@ -114,6 +127,7 @@ class ConsultantHistoryController extends Controller
                     'required_daily_tasks' => $record->required_daily_tasks,
                     'completion_percentage' => (float)$record->completion_percentage,
                     'site_visits_count' => $record->site_visits_count,
+                    'on_demand_tasks_count' => $onDemandTasksCount,
                 ] : null,
             ];
 
