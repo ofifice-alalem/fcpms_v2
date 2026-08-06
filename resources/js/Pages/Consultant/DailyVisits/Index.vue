@@ -260,7 +260,7 @@
           :key="visit.id"
           :class="[
             'relative p-5 rounded-3xl transition-all duration-200 flex flex-col justify-between space-y-4 border shadow-lg',
-            getVisitProgress(visit) >= 100
+            isVisitCompleted(visit)
               ? 'bg-white dark:bg-slate-800/80 border-slate-200/80 dark:border-white/10 shadow-slate-200/50 dark:shadow-black/30'
               : 'bg-amber-50/70 dark:bg-slate-800/90 border-amber-500/40 shadow-amber-500/10'
           ]"
@@ -277,11 +277,11 @@
             </div>
 
             <SpatialStatusPill
-              :type="getVisitProgress(visit) >= 100 ? 'completed' : 'pending'"
-              :pulse="getVisitProgress(visit) < 100"
+              :type="isVisitCompleted(visit) ? 'completed' : 'pending'"
+              :pulse="!isVisitCompleted(visit)"
               class="shrink-0"
             >
-              {{ getVisitProgress(visit) >= 100 ? 'مكتملة' : 'قيد التنفيذ' }}
+              {{ isVisitCompleted(visit) ? 'مكتملة' : 'قيد التنفيذ' }}
             </SpatialStatusPill>
           </div>
 
@@ -398,8 +398,8 @@
                   {{ visit.site ? visit.site.code : '' }}
                 </td>
                 <td class="p-4 text-center whitespace-nowrap">
-                  <SpatialStatusPill :type="getVisitProgress(visit) >= 100 ? 'completed' : 'pending'">
-                    {{ getVisitProgress(visit) >= 100 ? 'مكتملة' : 'قيد التنفيذ' }}
+                  <SpatialStatusPill :type="isVisitCompleted(visit) ? 'completed' : 'pending'">
+                    {{ isVisitCompleted(visit) ? 'مكتملة' : 'قيد التنفيذ' }}
                   </SpatialStatusPill>
                 </td>
                 <td class="p-4 w-44">
@@ -515,26 +515,53 @@ const siteVisits = computed(() => {
   return props.dailyRecord && props.dailyRecord.site_visits ? props.dailyRecord.site_visits : [];
 });
 
-const filteredVisits = computed(() => {
-  return siteVisits.value.filter((visit) => {
-    const matchesSearch = !searchQuery.value ||
-      (visit.site && (
-        visit.site.name.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-        visit.site.code.toLowerCase().includes(searchQuery.value.toLowerCase())
-      ));
-    const matchesStatus = !selectedStatusFilter.value || visit.status === selectedStatusFilter.value;
-    return matchesSearch && matchesStatus;
-  });
-});
-
 const getVisitProgress = (visit) => {
-  if (!visit.task_responses || visit.task_responses.length === 0) return 0;
-  const completed = visit.task_responses.filter((r) => {
+  if (!visit || !visit.task_responses || visit.task_responses.length === 0) return 0;
+  const dailyResponses = visit.task_responses.filter((r) => {
+    return r.task_definition && (r.task_definition.task_type === 'daily' || r.task_definition.task_type?.value === 'daily');
+  });
+
+  const total = dailyResponses.length > 0 ? dailyResponses.length : visit.task_responses.length;
+  if (total === 0) return 0;
+
+  const responsesToCalculate = dailyResponses.length > 0 ? dailyResponses : visit.task_responses;
+  const completed = responsesToCalculate.filter((r) => {
     const hasValues = r.values && r.values.some(v => v.value && String(v.value).trim() !== '' && String(v.value) !== '[]' && String(v.value) !== 'null');
     return r.status === 'submitted' || (r.completed_at && hasValues);
   }).length;
-  return Math.round((completed / visit.task_responses.length) * 100);
+
+  return Math.round((completed / total) * 100);
 };
+
+const isVisitCompleted = (visit) => {
+  if (!visit) return false;
+  return getVisitProgress(visit) >= 100;
+};
+
+const filteredVisits = computed(() => {
+  return siteVisits.value.filter((visit) => {
+    const query = (searchQuery.value || '').toLowerCase().trim();
+    const matchesSearch = !query ||
+      (visit.site && (
+        (visit.site.name && visit.site.name.toLowerCase().includes(query)) ||
+        (visit.site.code && visit.site.code.toLowerCase().includes(query))
+      ));
+
+    let matchesStatus = true;
+    if (selectedStatusFilter.value) {
+      const isDone = isVisitCompleted(visit);
+      if (selectedStatusFilter.value === 'completed') {
+        matchesStatus = isDone;
+      } else if (selectedStatusFilter.value === 'in_progress') {
+        matchesStatus = !isDone;
+      } else {
+        matchesStatus = visit.status === selectedStatusFilter.value;
+      }
+    }
+
+    return matchesSearch && matchesStatus;
+  });
+});
 
 const getOnDemandTasksCount = (visit) => {
   if (!visit.task_responses) return 0;

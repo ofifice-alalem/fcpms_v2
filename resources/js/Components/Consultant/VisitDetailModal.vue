@@ -107,48 +107,28 @@
         <div
           v-for="resp in currentTabTasks"
           :key="resp.id"
-          class="p-5 rounded-3xl bg-white dark:bg-slate-800/90 border border-slate-200/80 dark:border-white/10 space-y-4 shadow-md hover:shadow-lg transition-all"
+          class="p-5 sm:p-6 rounded-2xl bg-white dark:bg-slate-800/80 border border-slate-200 dark:border-white/10 space-y-4 shadow-none transition-colors"
         >
-          <!-- Task Header: Badges on Top Row for Mobile -->
-          <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-2.5 pb-3 border-b border-slate-100 dark:border-white/10">
-            <!-- Badges Row (Top on Mobile with space between) -->
-            <div class="flex items-center justify-between w-full sm:w-auto sm:justify-start gap-2 order-1 sm:order-2 shrink-0">
-              <span
-                class="text-[11px] font-black px-2.5 py-0.5 rounded-full border"
-                :class="getTaskDef(resp)?.task_type === 'daily' ? 'bg-blue-50 dark:bg-blue-500/10 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-500/30' : 'bg-amber-50 dark:bg-amber-500/10 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-500/30'"
-              >
-                {{ getTaskDef(resp)?.task_type === 'daily' ? 'مهمة يومية' : 'عند الحاجة ⚡' }}
-              </span>
-
-              <span
-                class="text-[11px] font-black px-2.5 py-0.5 rounded-full font-mono border"
-                :class="resp.values && resp.values.length > 0 ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-500/30' : 'bg-amber-50 dark:bg-amber-500/10 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-500/30'"
-              >
-                {{ resp.values && resp.values.length > 0 ? 'تمت التعبئة ✓' : 'لم تُعبأ بعد ⏳' }}
-              </span>
-            </div>
-
-            <!-- Task Title (Under Badges on Mobile) -->
-            <div class="space-y-1 order-2 sm:order-1">
-              <span class="text-base font-black text-slate-900 dark:text-white leading-snug block">
-                {{ getTaskDef(resp)?.title || 'مهمة ميدانية' }}
-              </span>
-            </div>
+          <!-- 1. Task Title at Top -->
+          <div class="pb-1">
+            <span class="text-base sm:text-lg font-black text-slate-900 dark:text-white leading-snug block">
+              {{ getTaskDef(resp)?.title || 'مهمة ميدانية' }}
+            </span>
           </div>
 
-          <!-- Component Question & Answer Rows -->
-          <div v-if="resp.values && resp.values.length > 0" class="space-y-3">
+          <!-- 2. Question & Answer Component Values -->
+          <div v-if="resp.values && resp.values.length > 0" class="space-y-3 pt-1">
             <div
               v-for="val in resp.values"
               :key="val.id"
-              class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 p-3.5 rounded-2xl bg-slate-100/80 dark:bg-white/5 border border-slate-200/70 dark:border-white/10"
+              class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 p-3.5 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-100 dark:border-white/5"
             >
               <span class="font-black text-slate-800 dark:text-white/90 text-xs sm:text-sm">
                 {{ getComponentLabel(val) }}:
               </span>
               <span
                 :class="[
-                  'inline-flex items-center px-3.5 py-1.5 rounded-xl font-black text-xs sm:text-sm border transition-all self-start sm:self-auto shadow-2xs',
+                  'inline-flex items-center px-3.5 py-1.5 rounded-lg font-black text-xs sm:text-sm border transition-all self-start sm:self-auto',
                   getValueBadgeClass(val.value)
                 ]"
               >
@@ -158,26 +138,43 @@
           </div>
 
           <!-- Unfilled State -->
-          <div v-else class="p-3 text-right text-xs font-bold text-slate-400 dark:text-white/40 bg-slate-50 dark:bg-white/5 rounded-2xl border border-dashed border-slate-200 dark:border-white/10">
+          <div v-else class="p-3 text-right text-xs font-bold text-slate-400 dark:text-white/40 bg-slate-50 dark:bg-white/5 rounded-xl border border-dashed border-slate-200 dark:border-white/10">
             لم يتم إدخال إجابات لهذا الاستبيان بعد.
           </div>
 
           <!-- Photo Attachments Gallery -->
-          <div v-if="resp.attachments && resp.attachments.length > 0" class="space-y-2 pt-2 border-t border-slate-100 dark:border-white/10">
+          <div v-if="resp.attachments && resp.attachments.length > 0" class="space-y-2.5 pt-3 border-t border-slate-100 dark:border-white/5">
             <span class="text-xs font-black text-slate-700 dark:text-white/70 block">
               📸 إثباتات الصور المرفوعة ({{ resp.attachments.length }}):
             </span>
-            <div class="grid grid-cols-3 gap-2.5">
+            <div class="grid grid-cols-3 gap-3">
               <a
                 v-for="att in resp.attachments"
                 :key="att.id"
                 :href="att.file_path"
                 target="_blank"
-                class="block rounded-2xl overflow-hidden border border-slate-200/80 dark:border-white/10 hover:opacity-95 transition-all shadow-xs hover:scale-102"
+                class="block rounded-xl overflow-hidden border border-slate-200 dark:border-white/10 hover:opacity-95 transition-all"
               >
-                <img :src="att.file_path" :alt="att.file_name" class="w-full h-24 object-cover" />
+                <img :src="att.file_path" :alt="att.file_name" class="w-full h-22 object-cover" />
               </a>
             </div>
+          </div>
+
+          <!-- 3. Status Badges at Bottom Row -->
+          <div class="pt-3 border-t border-slate-100 dark:border-white/5 flex items-center justify-between gap-2">
+            <span
+              class="text-[11px] font-black px-3 py-1 rounded-full border"
+              :class="getTaskDef(resp)?.task_type === 'daily' ? 'bg-blue-50 dark:bg-blue-500/10 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-500/30' : 'bg-amber-50 dark:bg-amber-500/10 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-500/30'"
+            >
+              {{ getTaskDef(resp)?.task_type === 'daily' ? 'مهمة يومية' : 'عند الحاجة ⚡' }}
+            </span>
+
+            <span
+              class="text-[11px] font-black px-3 py-1 rounded-full font-mono border"
+              :class="resp.values && resp.values.length > 0 ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-500/30' : 'bg-amber-50 dark:bg-amber-500/10 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-500/30'"
+            >
+              {{ resp.values && resp.values.length > 0 ? 'تمت التعبئة ✓' : 'لم تُعبأ بعد ⏳' }}
+            </span>
           </div>
         </div>
 

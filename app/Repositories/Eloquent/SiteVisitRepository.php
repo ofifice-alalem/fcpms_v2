@@ -243,14 +243,33 @@ class SiteVisitRepository extends BaseRepository implements SiteVisitRepositoryI
                 }
             }
 
-            // If user selected complete visit
+            // Update visit status strictly based on 100% daily tasks completion
+            $dailyTasksTotal = TaskResponse::where('site_visit_id', $siteVisit->id)
+                ->whereHas('taskDefinition', fn ($q) => $q->where('task_type', 'daily'))
+                ->count();
+
+            $completedDailyTasks = TaskResponse::where('site_visit_id', $siteVisit->id)
+                ->whereHas('taskDefinition', fn ($q) => $q->where('task_type', 'daily'))
+                ->where('status', 'submitted')
+                ->whereHas('values', function ($vq) {
+                    $vq->whereNotNull('value')->whereRaw("TRIM(value) != '' AND value != '[]' AND value != 'null'");
+                })
+                ->count();
+
+            $isFullyDone = $dailyTasksTotal > 0 && $completedDailyTasks >= $dailyTasksTotal;
+
             if (isset($responsesData['_complete_visit']) && $responsesData['_complete_visit']) {
                 $recordDate = Carbon::parse($siteVisit->dailyRecord->work_date);
                 $finishedAt = $recordDate->isToday() ? Carbon::now() : $recordDate->setTime(Carbon::now()->hour, Carbon::now()->minute, Carbon::now()->second);
 
                 $siteVisit->update([
-                    'status' => 'completed',
-                    'visit_finished_at' => $finishedAt,
+                    'status' => $isFullyDone ? 'completed' : 'in_progress',
+                    'visit_finished_at' => $isFullyDone ? $finishedAt : null,
+                ]);
+            } else {
+                $siteVisit->update([
+                    'status' => $isFullyDone ? 'completed' : 'in_progress',
+                    'visit_finished_at' => $isFullyDone ? ($siteVisit->visit_finished_at ?? Carbon::now()) : null,
                 ]);
             }
 

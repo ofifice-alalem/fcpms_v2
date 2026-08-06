@@ -296,14 +296,17 @@ class DailyVisitController extends Controller
             ]);
         }
 
-        $recordDate = \Carbon\Carbon::parse($visit->dailyRecord->work_date)->toDateString();
-        $todayDate = \Carbon\Carbon::today()->toDateString();
+        $recordDate = \Carbon\Carbon::parse($visit->dailyRecord->work_date)->format('Y-m-d');
+        $todayDate = \Carbon\Carbon::today()->format('Y-m-d');
 
-        if ($request->input('complete_visit') && $recordDate !== $todayDate) {
-            return redirect()->route('consultant.visits.index', ['date' => $recordDate])->with('success', 'تم حفظ إجابات وتفاصيل الزيارة بنجاح');
+        if ($request->input('complete_visit')) {
+            if ($recordDate !== $todayDate) {
+                return redirect()->route('consultant.visits.index', ['date' => $recordDate])->with('success', 'تم تعبئة واعتماد إجابات الزيارة بنجاح');
+            }
+            return redirect()->route('consultant.visits.index')->with('success', 'تم تعبئة واعتماد إجابات الزيارة بنجاح');
         }
 
-        return redirect()->back()->with('success', 'تم حفظ إجابات وتفاصيل الزيارة بنجاح');
+        return redirect()->back()->with('success', 'تم حفظ مسودة إجابات وتفاصيل الزيارة بنجاح');
     }
 
     public function show(SiteVisit $visit): JsonResponse

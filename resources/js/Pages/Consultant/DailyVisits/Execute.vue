@@ -315,8 +315,8 @@
           </SpatialCard>
         </div>
 
-        <!-- STICKY ACTION BAR -->
-        <div class="p-4 sm:p-6 rounded-3xl bg-white/90 dark:bg-slate-800/90 backdrop-blur-xl border border-black/10 dark:border-white/10 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 sticky bottom-3 sm:bottom-6 shadow-2xl z-20">
+        <!-- ACTION BAR (Natural flow at end of form) -->
+        <div class="p-4 sm:p-6 rounded-2xl bg-white dark:bg-slate-800/90 border border-slate-200 dark:border-white/10 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 shadow-lg mt-6">
           <SpatialButton variant="ghost" class="w-full sm:w-auto justify-center" @click="goBack">
             العودة لسجل اليوم
           </SpatialButton>
@@ -348,6 +348,8 @@
       @close="isDeleteModalOpen = false"
       @confirm="confirmRemoveOnDemand"
     />
+
+    <SpatialToast ref="toastRef" />
   </ConsultantLayout>
 </template>
 
@@ -373,6 +375,7 @@ const props = defineProps({
   availableOnDemandTasks: { type: Array, default: () => [] },
 });
 
+const toastRef = ref(null);
 const selectedSiteId = ref(null);
 const notes = ref('');
 const selectedOnDemandTaskId = ref(null);
@@ -497,7 +500,7 @@ const goBack = () => {
 const handleOpenSiteVisit = () => {
   if (!selectedSiteId.value) return;
   isSubmitting.value = true;
-  const targetDate = props.selectedDate || (props.dailyRecord ? props.dailyRecord.work_date : null);
+  const targetDate = (props.isHistorical && props.selectedDate) ? props.selectedDate : null;
   const payload = {
     site_id: selectedSiteId.value,
     notes: notes.value,
@@ -519,6 +522,7 @@ const handleTriggerOnDemand = () => {
     preserveScroll: true,
     onSuccess: () => {
       selectedOnDemandTaskId.value = null;
+      toastRef.value?.addToast('success', 'تمت إضافة المهمة الإضافية بنجاح ⚡');
       nextTick(() => {
         const el = document.getElementById('on-demand-tasks-section');
         if (el) {
@@ -543,6 +547,7 @@ const confirmRemoveOnDemand = () => {
     onSuccess: () => {
       isDeleteModalOpen.value = false;
       taskToDeleteId.value = null;
+      toastRef.value?.addToast('warning', 'تم حذف المهمة الإضافية 🗑️');
     },
     onFinish: () => (isSubmitting.value = false),
   });
@@ -580,15 +585,10 @@ const handleSaveResponses = (completeVisit = false) => {
     responses,
     complete_visit: completeVisit,
   }, {
+    preserveScroll: true,
     onSuccess: () => {
-      if (completeVisit) {
-        const targetDate = props.selectedDate || (props.dailyRecord ? props.dailyRecord.work_date : null);
-        if (targetDate) {
-          const dateStr = String(targetDate).split('T')[0];
-          router.get('/consultant/daily-visits', { date: dateStr });
-        } else {
-          router.get('/consultant/daily-visits');
-        }
+      if (!completeVisit) {
+        toastRef.value?.addToast('success', 'تم حفظ الخيارات كمسودة بنجاح 💾');
       }
     },
     onFinish: () => (isSubmitting.value = false),

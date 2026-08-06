@@ -232,17 +232,17 @@
               </span>
             </div>
 
-            <!-- Center Body: Circular Progress Ring & Metrics -->
-            <div v-if="day.record" class="flex items-center justify-between gap-4 py-1">
+            <!-- Center Body: Circular Progress Ring & Metrics (Always Rendered) -->
+            <div class="flex items-center justify-between gap-4 py-1">
               <!-- Center Circular Ring -->
               <div class="flex flex-col items-center justify-center shrink-0 pr-1">
                 <SpatialCircularProgress
-                  :percentage="day.record.completion_percentage"
+                  :percentage="day.record ? day.record.completion_percentage : 0"
                   :size="76"
                   :strokeWidth="7"
                 >
                   <span class="text-base font-black font-mono text-slate-900 dark:text-white">
-                    {{ Math.round(day.record.completion_percentage) }}%
+                    {{ day.record ? Math.round(day.record.completion_percentage) : 0 }}%
                   </span>
                 </SpatialCircularProgress>
                 <span class="text-[10px] font-black text-slate-500 dark:text-white/60 mt-1">نسبة الإنجاز</span>
@@ -251,30 +251,29 @@
               <!-- Right Metrics Stack -->
               <div class="flex-1 space-y-2">
                 <!-- Check-in Time -->
-                <div class="flex items-center justify-between p-2 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-100 dark:border-white/5 text-xs">
-                  <span class="font-bold text-slate-500 dark:text-white/60">⏰ وقت البدء:</span>
-                  <span class="font-mono font-black text-slate-900 dark:text-white">{{ day.record.check_in_time || '--' }}</span>
+                <div class="flex items-center justify-between p-2 rounded-xl bg-slate-100/90 dark:bg-white/5 border border-slate-200/80 dark:border-white/10 text-xs shadow-2xs">
+                  <span class="font-black text-slate-700 dark:text-white/70">⏰ وقت البدء:</span>
+                  <span class="font-mono font-black text-slate-900 dark:text-white">
+                    {{ day.record ? (day.record.check_in_time || '--') : '--' }}
+                  </span>
                 </div>
 
                 <!-- Visited Sites -->
-                <div class="flex items-center justify-between p-2 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-100 dark:border-white/5 text-xs">
-                  <span class="font-bold text-slate-500 dark:text-white/60">📍 المواقع:</span>
-                  <span class="font-mono font-black text-slate-900 dark:text-white">{{ day.record.site_visits_count }} مواقع</span>
+                <div class="flex items-center justify-between p-2 rounded-xl bg-slate-100/90 dark:bg-white/5 border border-slate-200/80 dark:border-white/10 text-xs shadow-2xs">
+                  <span class="font-black text-slate-700 dark:text-white/70">📍 المواقع:</span>
+                  <span class="font-mono font-black text-slate-900 dark:text-white">
+                    {{ day.record ? day.record.site_visits_count : 0 }} مواقع
+                  </span>
                 </div>
 
                 <!-- On-Demand Tasks -->
-                <div class="flex items-center justify-between p-2 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-100 dark:border-white/5 text-xs">
-                  <span class="font-bold text-slate-500 dark:text-white/60">⚡ إضافية:</span>
-                  <span :class="['font-mono font-black', day.record.on_demand_tasks_count > 0 ? 'text-amber-600 dark:text-amber-400 text-sm' : 'text-slate-400 dark:text-white/40']">
-                    {{ day.record.on_demand_tasks_count > 0 ? day.record.on_demand_tasks_count : '--' }}
+                <div class="flex items-center justify-between p-2 rounded-xl bg-slate-100/90 dark:bg-white/5 border border-slate-200/80 dark:border-white/10 text-xs shadow-2xs">
+                  <span class="font-black text-slate-700 dark:text-white/70">⚡ إضافية:</span>
+                  <span :class="['font-mono font-black', day.record && day.record.on_demand_tasks_count > 0 ? 'text-amber-600 dark:text-amber-400 text-sm' : 'text-slate-400 dark:text-white/40']">
+                    {{ day.record && day.record.on_demand_tasks_count > 0 ? day.record.on_demand_tasks_count : '--' }}
                   </span>
                 </div>
               </div>
-            </div>
-
-            <!-- Absent / No Record State Body -->
-            <div v-else class="py-2 text-center text-xs font-bold text-slate-400 dark:text-white/40">
-              لا توجد بيانات مسجلة لهذا اليوم
             </div>
 
             <!-- Action Button -->

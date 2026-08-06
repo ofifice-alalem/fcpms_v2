@@ -1,12 +1,12 @@
 <template>
-  <div class="min-h-screen transition-colors duration-500 flex flex-col md:flex-row custom-scroll font-sans relative overflow-x-clip bg-slate-50 dark:bg-[#090d16] text-slate-900 dark:text-white dir-rtl">
+  <div class="h-screen w-full transition-colors duration-500 flex flex-col md:flex-row font-sans relative overflow-hidden bg-slate-50 dark:bg-[#090d16] text-slate-900 dark:text-white dir-rtl">
     
     <!-- Background Glow Orbs (Desktop only for max mobile performance) -->
-    <div class="hidden md:block absolute -top-32 -left-32 w-96 h-96 bg-primary/15 rounded-full blur-3xl pointer-events-none"></div>
-    <div class="hidden md:block absolute -bottom-32 -right-32 w-96 h-96 bg-emerald-600/15 rounded-full blur-3xl pointer-events-none"></div>
+    <div class="hidden md:block absolute top-0 left-0 w-96 h-96 bg-primary/15 rounded-full blur-3xl pointer-events-none"></div>
+    <div class="hidden md:block absolute bottom-0 right-0 w-96 h-96 bg-emerald-600/15 rounded-full blur-3xl pointer-events-none"></div>
 
     <!-- Mobile Sticky Top Header (Fixed/Sticky on Mobile) -->
-    <header class="sticky top-0 z-40 md:hidden w-full bg-white/90 dark:bg-[#090d16]/90 backdrop-blur-xl border-b border-black/10 dark:border-white/10 px-4 py-3 flex items-center justify-between shadow-xs">
+    <header class="sticky top-0 z-40 md:hidden w-full bg-white/90 dark:bg-[#090d16]/90 backdrop-blur-xl border-b border-black/10 dark:border-white/10 px-4 py-3 flex items-center justify-between shadow-xs shrink-0">
       <!-- Right Side: Drawer Toggle Button & Brand -->
       <div class="flex items-center gap-3">
         <button
@@ -45,8 +45,8 @@
       </div>
     </header>
 
-    <!-- Desktop Sidebar Navigation (Fixed/Sticky on Desktop) -->
-    <aside class="hidden md:flex w-64 h-screen sticky top-0 bg-white/80 dark:bg-[#090d16]/80 backdrop-blur-2xl border-l border-black/10 dark:border-white/12 p-6 flex-col justify-between shrink-0 z-30 transition-all">
+    <!-- Desktop Sidebar Navigation (Full Height) -->
+    <aside class="hidden md:flex w-64 h-full bg-white/80 dark:bg-[#090d16]/80 backdrop-blur-2xl border-l border-black/10 dark:border-white/12 p-6 flex-col justify-between shrink-0 z-30 transition-all">
       <div class="space-y-8">
         <!-- Logo & Title -->
         <div class="flex items-center justify-between">
@@ -210,7 +210,7 @@
     </SpatialDrawer>
 
     <!-- Main Content Area -->
-    <main class="flex-1 p-4 md:p-8 overflow-y-auto max-w-7xl mx-auto w-full z-10 space-y-6 pb-24 md:pb-8">
+    <main class="flex-1 h-full overflow-y-auto custom-scroll p-4 md:p-8 max-w-7xl mx-auto w-full z-10 space-y-6 pb-24 md:pb-8">
       
       <!-- Retroactive Historical Mode Amber Banner (Enhanced Spatial UI Design) -->
       <div
