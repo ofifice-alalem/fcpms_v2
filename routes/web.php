@@ -19,22 +19,14 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/dashboard', function () {
         $user = Auth::user();
-        return Inertia::render('Dashboard', [
-            'auth' => [
-                'user' => [
-                    'id' => $user->id,
-                    'name' => $user->name,
-                    'email' => $user->email,
-                    'username' => $user->username,
-                    'status' => $user->status,
-                    'last_login_at' => $user->last_login_at?->format('Y-m-d H:i:s'),
-                ]
-            ]
-        ]);
+        if ($user && ($user->hasRole('hr') || $user->hasRole('admin'))) {
+            return redirect()->route('admin.consultants.index');
+        }
+        return redirect()->route('consultant.visits.index');
     })->name('dashboard');
 
     // Admin Routes
-    Route::prefix('admin')->name('admin.')->group(function () {
+    Route::prefix('admin')->name('admin.')->middleware('role:hr|admin')->group(function () {
         // Phase 01: Site & Location Management Routes
         Route::get('/sites', [SiteController::class, 'index'])->name('sites.index');
         Route::post('/sites', [SiteController::class, 'store'])->name('sites.store');
@@ -74,7 +66,7 @@ Route::middleware('auth')->group(function () {
     });
 
     // Phase 05: Consultant Daily Visits Portal Routes
-    Route::prefix('consultant')->name('consultant.')->group(function () {
+    Route::prefix('consultant')->name('consultant.')->middleware('role:consultant')->group(function () {
         Route::get('/daily-visits', [\App\Http\Controllers\Consultant\DailyVisitController::class, 'index'])->name('visits.index');
         Route::get('/past-records', [\App\Http\Controllers\Consultant\ConsultantHistoryController::class, 'index'])->name('history.index');
         Route::post('/daily-visits/start-day', [\App\Http\Controllers\Consultant\DailyVisitController::class, 'startDay'])->name('visits.start-day');
@@ -85,6 +77,8 @@ Route::middleware('auth')->group(function () {
         Route::post('/site-visits/{visit}/trigger-on-demand', [\App\Http\Controllers\Consultant\DailyVisitController::class, 'triggerOnDemand'])->name('site-visits.trigger-ondemand');
         Route::delete('/site-visits/{visit}/on-demand/{response}', [\App\Http\Controllers\Consultant\DailyVisitController::class, 'removeOnDemandTask'])->name('site-visits.remove-ondemand');
         Route::post('/site-visits/{visit}/save-responses', [\App\Http\Controllers\Consultant\DailyVisitController::class, 'saveResponses'])->name('site-visits.save-responses');
+        Route::post('/site-visits/{visit}/task-responses/{response}/submit', [\App\Http\Controllers\Consultant\DailyVisitController::class, 'submitTaskResponse'])->name('site-visits.submit-task-response');
+        Route::post('/site-visits/{visit}/submit-all-drafts', [\App\Http\Controllers\Consultant\DailyVisitController::class, 'submitAllDrafts'])->name('site-visits.submit-all-drafts');
         Route::get('/site-visits/{visit}', [\App\Http\Controllers\Consultant\DailyVisitController::class, 'show'])->name('site-visits.show');
         Route::delete('/site-visits/{visit}', [\App\Http\Controllers\Consultant\DailyVisitController::class, 'destroy'])->name('site-visits.destroy');
     });
@@ -95,7 +89,14 @@ Route::get('/design-system', function () {
     return Inertia::render('DesignSystemCatalog');
 })->name('design-system');
 
-// Root fallback to login or dashboard
+// Root fallback to login or role portal
 Route::get('/', function () {
-    return Auth::check() ? redirect()->route('dashboard') : redirect()->route('login');
+    if (!Auth::check()) {
+        return redirect()->route('login');
+    }
+    $user = Auth::user();
+    if ($user && ($user->hasRole('hr') || $user->hasRole('admin'))) {
+        return redirect()->route('admin.consultants.index');
+    }
+    return redirect()->route('consultant.visits.index');
 });

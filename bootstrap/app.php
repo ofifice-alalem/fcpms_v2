@@ -22,5 +22,22 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
-        //
+        $exceptions->respond(function (\Symfony\Component\HttpFoundation\Response $response, \Throwable $exception, \Illuminate\Http\Request $request) {
+            $statusCode = $response->getStatusCode();
+
+            if ($exception instanceof \Spatie\Permission\Exceptions\UnauthorizedException) {
+                $statusCode = 403;
+            }
+
+            if (in_array($statusCode, [403, 404, 500, 503])) {
+                return \Inertia\Inertia::render('Error', [
+                    'status' => $statusCode,
+                    'message' => $exception->getMessage() ?: null,
+                ])
+                ->toResponse($request)
+                ->setStatusCode($statusCode);
+            }
+
+            return $response;
+        });
     })->create();

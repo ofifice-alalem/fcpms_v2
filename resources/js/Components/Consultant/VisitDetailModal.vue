@@ -31,7 +31,7 @@
       </div>
 
       <!-- Navigation Tabs (4 Tabs Grid with Top-Centered Count Badges & Hidden Scrollbar) -->
-      <div class="flex sm:grid sm:grid-cols-4 items-center gap-2 pt-3 pb-1 overflow-x-auto [::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+      <div class="flex sm:grid sm:grid-cols-4 items-center gap-2 pt-3 pb-1 overflow-x-auto no-scrollbar" style="scrollbar-width: none; -ms-overflow-style: none;">
         <button
           type="button"
           @click="activeTab = 'completed_daily'"
@@ -44,7 +44,7 @@
         >
           <span
             :class="[
-              'absolute -top-2.5 left-1/2 -translate-x-1/2 px-2 py-0.2 rounded-full text-[10px] font-mono font-black border shadow-xs transition-all',
+              'absolute -top-2.5 left-1/2 -translate-x-1/2 px-2 py-0.5 rounded-full text-[10px] font-mono font-black border shadow-xs transition-all',
               activeTab === 'completed_daily'
                 ? 'bg-slate-900 text-emerald-400 border-emerald-400/60'
                 : 'bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border-emerald-500/30'
@@ -67,7 +67,7 @@
         >
           <span
             :class="[
-              'absolute -top-2.5 left-1/2 -translate-x-1/2 px-2 py-0.2 rounded-full text-[10px] font-mono font-black border shadow-xs transition-all',
+              'absolute -top-2.5 left-1/2 -translate-x-1/2 px-2 py-0.5 rounded-full text-[10px] font-mono font-black border shadow-xs transition-all',
               activeTab === 'uncompleted_daily'
                 ? 'bg-slate-900 text-amber-400 border-amber-400/60'
                 : 'bg-amber-500/20 text-amber-700 dark:text-amber-300 border-amber-500/30'
@@ -90,7 +90,7 @@
         >
           <span
             :class="[
-              'absolute -top-2.5 left-1/2 -translate-x-1/2 px-2 py-0.2 rounded-full text-[10px] font-mono font-black border shadow-xs transition-all',
+              'absolute -top-2.5 left-1/2 -translate-x-1/2 px-2 py-0.5 rounded-full text-[10px] font-mono font-black border shadow-xs transition-all',
               activeTab === 'on_demand'
                 ? 'bg-slate-900 text-blue-400 border-blue-400/60'
                 : 'bg-blue-500/20 text-blue-700 dark:text-blue-300 border-blue-500/30'
@@ -113,7 +113,7 @@
         >
           <span
             :class="[
-              'absolute -top-2.5 left-1/2 -translate-x-1/2 px-2 py-0.2 rounded-full text-[10px] font-mono font-black border shadow-xs transition-all',
+              'absolute -top-2.5 left-1/2 -translate-x-1/2 px-2 py-0.5 rounded-full text-[10px] font-mono font-black border shadow-xs transition-all',
               activeTab === 'draft_tasks'
                 ? 'bg-slate-900 text-purple-400 border-purple-400/60'
                 : 'bg-purple-500/20 text-purple-700 dark:text-purple-300 border-purple-500/30'
@@ -183,38 +183,70 @@
             </div>
           </div>
 
-          <!-- 3. Status Badges at Bottom Row -->
-          <div class="pt-3 border-t border-slate-100 dark:border-white/5 flex items-center justify-between gap-2">
-            <span
-              class="text-[11px] font-black px-3 py-1 rounded-full border"
-              :class="getTaskDef(resp)?.task_type === 'daily' ? 'bg-blue-50 dark:bg-blue-500/10 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-500/30' : 'bg-amber-50 dark:bg-amber-500/10 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-500/30'"
-            >
-              {{ getTaskDef(resp)?.task_type === 'daily' ? 'مهمة يومية' : 'عند الحاجة ⚡' }}
-            </span>
+          <!-- 3. Status Badges & Action Row -->
+          <div class="pt-3 border-t border-slate-100 dark:border-white/5 flex flex-wrap items-center justify-between gap-2">
+            <div class="flex items-center gap-2">
+              <span
+                class="text-[11px] font-black px-3 py-1 rounded-full border"
+                :class="getTaskDef(resp)?.task_type === 'daily' ? 'bg-blue-50 dark:bg-blue-500/10 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-500/30' : 'bg-amber-50 dark:bg-amber-500/10 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-500/30'"
+              >
+                {{ getTaskDef(resp)?.task_type === 'daily' ? 'مهمة يومية' : 'عند الحاجة ⚡' }}
+              </span>
 
-            <span
-              class="text-[11px] font-black px-3 py-1 rounded-full font-mono border"
-              :class="[
-                resp.status === 'submitted'
-                  ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-500/30'
-                  : (resp.values && resp.values.length > 0
-                      ? 'bg-amber-50 dark:bg-amber-500/10 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-500/30'
-                      : 'bg-slate-100 dark:bg-white/10 text-slate-500 dark:text-white/50 border-slate-200 dark:border-white/10')
-              ]"
+              <span
+                class="text-[11px] font-black px-3 py-1 rounded-full font-mono border"
+                :class="[
+                  resp.status === 'submitted'
+                    ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-500/30'
+                    : (resp.values && resp.values.length > 0
+                        ? 'bg-amber-50 dark:bg-amber-500/10 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-500/30'
+                        : 'bg-slate-100 dark:bg-white/10 text-slate-500 dark:text-white/50 border-slate-200 dark:border-white/10')
+                ]"
+              >
+                {{
+                  resp.status === 'submitted'
+                    ? 'مكتملة ومستلمة ✓'
+                    : (resp.values && resp.values.length > 0 ? 'مخزنة كمسودة 📝' : 'لم تُعبأ بعد ⏳')
+                }}
+              </span>
+            </div>
+
+            <!-- Convert Single Draft to Completed -->
+            <button
+              v-if="resp.status === 'draft' && resp.values && resp.values.length > 0"
+              type="button"
+              :disabled="isSubmitting"
+              @click="submitSingleTask(resp.id)"
+              class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-black bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm transition-all cursor-pointer disabled:opacity-50"
             >
-              {{
-                resp.status === 'submitted'
-                  ? 'مكتملة ومستلمة ✓'
-                  : (resp.values && resp.values.length > 0 ? 'مخزنة كمسودة 📝' : 'لم تُعبأ بعد ⏳')
-              }}
-            </span>
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+              </svg>
+              <span>تحويل إلى منجزة ✓</span>
+            </button>
           </div>
+        </div>
+
+        <!-- Convert All Drafts Action Button -->
+        <div v-if="activeTab === 'draft_tasks' && draftTasks.length > 0" class="pt-4 flex justify-center">
+          <button
+            type="button"
+            :disabled="isSubmitting"
+            @click="submitAllDrafts"
+            class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 rounded-2xl text-xs sm:text-sm font-black bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg shadow-emerald-600/25 transition-all cursor-pointer disabled:opacity-50"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span>جعل كل المسودة إلى منجزة ({{ draftTasks.length }}) ✨</span>
+          </button>
         </div>
 
         <!-- Empty Tab States -->
         <div v-if="currentTabTasks.length === 0" class="p-8 text-center rounded-3xl bg-slate-100/60 dark:bg-white/5 border border-dashed border-slate-200 dark:border-white/10 text-slate-500 dark:text-white/40 space-y-1">
           <p v-if="activeTab === 'completed_daily'" class="text-sm font-black">لا توجد مهام يومية تعبئتها المكتملة بعد.</p>
           <p v-else-if="activeTab === 'uncompleted_daily'" class="text-sm font-black text-emerald-600 dark:text-emerald-400">ممتاز! تم تعبئة جميع المهام اليومية الدورية بنجاح 🎉</p>
+          <p v-else-if="activeTab === 'draft_tasks'" class="text-sm font-black text-emerald-600 dark:text-emerald-400">لا توجد مسودات غير معتمدة، جميع المهام المعبأة معتمدة بنجاح ✨</p>
           <p v-else class="text-sm font-black">لم يتم إضافة أو تفعيل مهام إضافية (عند الحاجة) لهذه الزيارة.</p>
         </div>
       </div>
@@ -232,6 +264,7 @@
 
 <script setup>
 import { ref, computed } from 'vue';
+import { router } from '@inertiajs/vue3';
 import SpatialModal from '@/Components/Spatial/SpatialModal.vue';
 import SpatialButton from '@/Components/Spatial/SpatialButton.vue';
 import SpatialStatusPill from '@/Components/Spatial/SpatialStatusPill.vue';
@@ -249,7 +282,26 @@ const props = defineProps({
 
 defineEmits(['close']);
 
+const isSubmitting = ref(false);
 const activeTab = ref('completed_daily');
+
+const submitSingleTask = (responseId) => {
+  if (!props.visit || !responseId) return;
+  isSubmitting.value = true;
+  router.post(`/consultant/site-visits/${props.visit.id}/task-responses/${responseId}/submit`, {}, {
+    preserveScroll: true,
+    onFinish: () => (isSubmitting.value = false),
+  });
+};
+
+const submitAllDrafts = () => {
+  if (!props.visit) return;
+  isSubmitting.value = true;
+  router.post(`/consultant/site-visits/${props.visit.id}/submit-all-drafts`, {}, {
+    preserveScroll: true,
+    onFinish: () => (isSubmitting.value = false),
+  });
+};
 
 const taskResponses = computed(() => {
   return props.visit && props.visit.task_responses ? props.visit.task_responses : (props.visit && props.visit.taskResponses ? props.visit.taskResponses : []);

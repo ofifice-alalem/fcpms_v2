@@ -445,7 +445,7 @@
     <!-- MODALS -->
     <VisitDetailModal
       :is-open="showDetailModal"
-      :visit="selectedModalVisit"
+      :visit="currentSelectedVisit"
       @close="showDetailModal = false"
     />
 
@@ -513,6 +513,11 @@ const todayDateFormatted = computed(() => {
 
 const siteVisits = computed(() => {
   return props.dailyRecord && props.dailyRecord.site_visits ? props.dailyRecord.site_visits : [];
+});
+
+const currentSelectedVisit = computed(() => {
+  if (!selectedModalVisit.value) return null;
+  return siteVisits.value.find((v) => v.id === selectedModalVisit.value.id) || selectedModalVisit.value;
 });
 
 const getVisitProgress = (visit) => {

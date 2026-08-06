@@ -20,14 +20,7 @@ class ConsultantHistoryController extends Controller
             return $user->consultant;
         }
 
-        return Consultant::first() ?: Consultant::create([
-            'user_id' => $user?->id,
-            'employee_number' => 'CONS-001',
-            'full_name' => $user?->name ?? 'الاستشاري الميداني',
-            'phone' => '0910000000',
-            'hire_date' => now(),
-            'specialization' => 'مفتش ميداني عام',
-        ]);
+        abort(403, 'عذراً، هذا الحساب لا يملك ملف استشاري ميداني لفتح هذه البوابة.');
     }
 
     public function index(Request $request): Response

@@ -30,20 +30,7 @@ class DailyVisitController extends Controller
             return $user->consultant;
         }
 
-        // Fallback or preview for admin / first consultant
-        $consultant = Consultant::first();
-        if (!$consultant) {
-            $consultant = Consultant::create([
-                'user_id' => $user?->id,
-                'employee_number' => 'CONS-001',
-                'full_name' => $user?->name ?? 'الاستشاري الميداني',
-                'phone' => '0910000000',
-                'hire_date' => now(),
-                'specialization' => 'مفتش ميداني عام',
-            ]);
-        }
-
-        return $consultant;
+        abort(403, 'عذراً، هذا الحساب لا يملك ملف استشاري ميداني لفتح هذه البوابة.');
     }
 
     public function index(Request $request): Response|JsonResponse
@@ -317,6 +304,107 @@ class DailyVisitController extends Controller
             'success' => true,
             'data' => $details,
         ]);
+    }
+
+    public function submitTaskResponse(SiteVisit $visit, TaskResponse $response): RedirectResponse|JsonResponse
+    {
+        if ($response->site_visit_id !== $visit->id) {
+            abort(403);
+        }
+
+        $recordDate = \Carbon\Carbon::parse($visit->dailyRecord->work_date);
+        $taskTimestamp = $recordDate->isToday() ? \Carbon\Carbon::now() : $recordDate->setTime(\Carbon\Carbon::now()->hour, \Carbon\Carbon::now()->minute, \Carbon\Carbon::now()->second);
+
+        $response->update([
+            'status' => 'submitted',
+            'submitted_at' => $response->submitted_at ?? $taskTimestamp,
+            'completed_at' => $response->completed_at ?? $taskTimestamp,
+        ]);
+
+        $this->updateVisitAndRecordProgress($visit);
+
+        if (request()->wantsJson() && !request()->header('X-Inertia')) {
+            return response()->json([
+                'success' => true,
+                'message' => 'تم تحويل المهمة من مسودة إلى منجزة بنجاح',
+            ]);
+        }
+
+        return redirect()->back()->with('success', 'تم تحويل المهمة من مسودة إلى منجزة بنجاح');
+    }
+
+    public function submitAllDrafts(SiteVisit $visit): RedirectResponse|JsonResponse
+    {
+        $recordDate = \Carbon\Carbon::parse($visit->dailyRecord->work_date);
+        $taskTimestamp = $recordDate->isToday() ? \Carbon\Carbon::now() : $recordDate->setTime(\Carbon\Carbon::now()->hour, \Carbon\Carbon::now()->minute, \Carbon\Carbon::now()->second);
+
+        $draftResponses = TaskResponse::where('site_visit_id', $visit->id)
+            ->where('status', 'draft')
+            ->whereHas('values', function ($vq) {
+                $vq->whereNotNull('value')->whereRaw("TRIM(value) != '' AND value != '[]' AND value != 'null'");
+            })
+            ->get();
+
+        foreach ($draftResponses as $resp) {
+            $resp->update([
+                'status' => 'submitted',
+                'submitted_at' => $resp->submitted_at ?? $taskTimestamp,
+                'completed_at' => $resp->completed_at ?? $taskTimestamp,
+            ]);
+        }
+
+        $this->updateVisitAndRecordProgress($visit);
+
+        if (request()->wantsJson() && !request()->header('X-Inertia')) {
+            return response()->json([
+                'success' => true,
+                'message' => 'تم اعتماد وتحويل جميع المسودات إلى منجزة بنجاح',
+            ]);
+        }
+
+        return redirect()->back()->with('success', 'تم اعتماد وتحويل جميع المسودات إلى منجزة بنجاح');
+    }
+
+    private function updateVisitAndRecordProgress(SiteVisit $visit): void
+    {
+        $dailyRecord = $visit->dailyRecord;
+
+        $visitDailyTasksCount = TaskResponse::where('site_visit_id', $visit->id)
+            ->whereHas('taskDefinition', fn ($q) => $q->where('task_type', 'daily'))
+            ->count();
+
+        $completedVisitDailyTasksCount = TaskResponse::where('site_visit_id', $visit->id)
+            ->whereHas('taskDefinition', fn ($q) => $q->where('task_type', 'daily'))
+            ->where('status', 'submitted')
+            ->whereHas('values', function ($vq) {
+                $vq->whereNotNull('value')->whereRaw("TRIM(value) != '' AND value != '[]' AND value != 'null'");
+            })
+            ->count();
+
+        if ($visitDailyTasksCount > 0 && $completedVisitDailyTasksCount === $visitDailyTasksCount) {
+            $visit->update([
+                'status' => 'completed',
+                'visit_finished_at' => $visit->visit_finished_at ?? \Carbon\Carbon::now(),
+            ]);
+        }
+
+        if ($dailyRecord) {
+            $completedCount = TaskResponse::whereHas('siteVisit', fn ($q) => $q->where('daily_record_id', $dailyRecord->id))
+                ->whereHas('taskDefinition', fn ($q) => $q->where('task_type', 'daily'))
+                ->where('status', 'submitted')
+                ->whereHas('values', function ($vq) {
+                    $vq->whereNotNull('value')->whereRaw("TRIM(value) != '' AND value != '[]' AND value != 'null'");
+                })
+                ->count();
+
+            $totalRequired = max(1, $dailyRecord->required_daily_tasks);
+            $percentage = min(100, round(($completedCount / $totalRequired) * 100, 2));
+
+            $dailyRecord->update([
+                'completed_daily_tasks' => $completedCount,
+                'completion_percentage' => $percentage,
+            ]);
+        }
     }
 
     public function destroy(SiteVisit $visit): JsonResponse|RedirectResponse

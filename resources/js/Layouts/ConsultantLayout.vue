@@ -25,23 +25,32 @@
         </div>
       </div>
 
-      <!-- Center / Left: Retroactive Indicator or Circular Completion Progress Badge -->
+      <!-- Center / Left: Retroactive Indicator, Progress & Quick Logout Button -->
       <div class="flex items-center gap-2">
         <div v-if="$page.props.isHistorical" class="flex items-center gap-1 px-2.5 py-1 rounded-full bg-amber-500/20 border border-amber-500/40 text-amber-600 dark:text-amber-300 font-mono text-[10px] font-black animate-pulse">
-          <span>📅 سجل سابق: {{ formatDateOnly($page.props.selectedDate) }}</span>
+          <span>📅 {{ formatDateOnly($page.props.selectedDate) }}</span>
         </div>
 
-        <div v-else class="flex items-center gap-2 bg-emerald-500/10 dark:bg-emerald-500/15 border border-emerald-500/20 px-2.5 py-1.5 rounded-2xl">
-          <span class="text-[10px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-tighter">إنجاز اليوم</span>
-
+        <div v-else class="flex items-center gap-1.5 bg-emerald-500/10 dark:bg-emerald-500/15 border border-emerald-500/20 px-2 py-1 rounded-2xl">
           <SpatialCircularProgress
             :percentage="dailyCompletionPercentage"
-            :size="38"
-            :stroke-width="3.5"
+            :size="30"
+            :stroke-width="3"
           >
-            <span class="text-[9px] font-black font-mono text-slate-900 dark:text-white">{{ dailyCompletionPercentage.toFixed(0) }}%</span>
+            <span class="text-[8px] font-black font-mono text-slate-900 dark:text-white">{{ dailyCompletionPercentage.toFixed(0) }}%</span>
           </SpatialCircularProgress>
         </div>
+
+        <!-- Quick Logout Button on Mobile Header -->
+        <button
+          @click="logout"
+          title="تسجيل الخروج"
+          class="w-9 h-9 rounded-xl bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white border border-red-500/20 flex items-center justify-center transition-all cursor-pointer active:scale-95"
+        >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+          </svg>
+        </button>
       </div>
     </header>
 
@@ -102,11 +111,21 @@
       </div>
 
       <!-- Bottom User Controls -->
-      <div class="pt-6 border-t border-black/10 dark:border-white/10 space-y-3">
-        <div class="flex items-center justify-between">
+      <div class="pt-5 border-t border-black/10 dark:border-white/10 space-y-3">
+        <div class="p-3 rounded-2xl bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 flex items-center gap-3">
+          <div class="w-9 h-9 rounded-xl bg-emerald-500/20 text-emerald-500 border border-emerald-500/30 flex items-center justify-center font-black text-sm shrink-0">
+            {{ ($page.props.auth?.user?.name || 'استشاري').charAt(0) }}
+          </div>
+          <div class="space-y-0.5 min-w-0 flex-1">
+            <span class="font-black text-xs text-slate-900 dark:text-white block truncate">{{ $page.props.auth?.user?.name || 'الاستشاري الميداني' }}</span>
+            <span class="text-[10px] font-bold text-emerald-500 block truncate">استشاري ميداني 🟢</span>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2">
           <button
             @click="toggleTheme"
-            class="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-black/5 dark:bg-white/10 hover:bg-black/10 text-slate-900 dark:text-white font-bold text-xs transition-all cursor-pointer"
+            class="flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl bg-black/5 dark:bg-white/10 hover:bg-black/10 dark:hover:bg-white/20 text-slate-900 dark:text-white font-bold text-xs transition-all cursor-pointer border border-black/5 dark:border-white/10"
           >
             <span v-if="isDark">☀️ الفاتح</span>
             <span v-else>🌙 الداكن</span>
@@ -114,17 +133,13 @@
 
           <button
             @click="logout"
-            class="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-red-500/15 hover:bg-red-500 text-red-500 hover:text-white text-xs font-bold transition-all cursor-pointer"
+            class="flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl bg-red-500/10 hover:bg-red-600 text-red-500 hover:text-white border border-red-500/20 text-xs font-black transition-all cursor-pointer shadow-sm active:scale-95"
           >
-            <span>خروج 🚪</span>
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+            </svg>
+            <span>خروج</span>
           </button>
-        </div>
-
-        <div class="p-3.5 rounded-[16px] bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 flex items-center justify-between">
-          <div class="space-y-0.5">
-            <span class="font-black text-xs text-slate-900 dark:text-white block">{{ $page.props.auth?.user?.name || 'الاستشاري الميداني' }}</span>
-            <span class="text-[10px] font-bold text-slate-500 dark:text-white/60 block">{{ $page.props.auth?.user?.email || 'مفتش سلامة' }}</span>
-          </div>
         </div>
       </div>
     </aside>
@@ -136,58 +151,71 @@
       width="w-[300px]"
     >
       <div class="space-y-6 flex flex-col h-full justify-between dir-rtl">
-        <nav class="space-y-2 pt-2">
-          <Link
-            :href="route('consultant.visits.index')"
-            @click="isMobileDrawerOpen = false"
-            :class="[
-              'flex items-center gap-3 px-4 py-3.5 rounded-[16px] font-bold text-sm transition-all cursor-pointer',
-              $page.component === 'Consultant/DailyVisits/Index' ? 'bg-primary text-white shadow-md' : 'text-slate-700 dark:text-white/80 hover:bg-black/5 dark:hover:bg-white/10'
-            ]"
-          >
-            <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
-            <span>سجل الزيارات اليومية</span>
-          </Link>
+        <div class="space-y-4">
+          <!-- Profile Badge in Drawer -->
+          <div class="p-3.5 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-emerald-500 text-white flex items-center justify-center font-black text-base shrink-0 shadow-md shadow-emerald-500/30">
+              {{ ($page.props.auth?.user?.name || 'استشاري').charAt(0) }}
+            </div>
+            <div class="space-y-0.5 min-w-0 flex-1">
+              <span class="font-black text-xs text-slate-900 dark:text-white block truncate">{{ $page.props.auth?.user?.name || 'الاستشاري الميداني' }}</span>
+              <span class="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 block truncate">استشاري ميداني نشط 🟢</span>
+            </div>
+          </div>
 
-          <Link
-            :href="route('consultant.history.index')"
-            @click="isMobileDrawerOpen = false"
-            :class="[
-              'flex items-center gap-3 px-4 py-3.5 rounded-[16px] font-bold text-sm transition-all cursor-pointer',
-              $page.component === 'Consultant/History/Index' ? 'bg-primary text-white shadow-md' : 'text-slate-700 dark:text-white/80 hover:bg-black/5 dark:hover:bg-white/10'
-            ]"
-          >
-            <svg class="w-5 h-5 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-            <span>سجل الأيام السابقة</span>
-          </Link>
+          <nav class="space-y-2 pt-2">
+            <Link
+              :href="route('consultant.visits.index')"
+              @click="isMobileDrawerOpen = false"
+              :class="[
+                'flex items-center gap-3 px-4 py-3.5 rounded-[16px] font-bold text-sm transition-all cursor-pointer',
+                $page.component === 'Consultant/DailyVisits/Index' ? 'bg-primary text-white shadow-md' : 'text-slate-700 dark:text-white/80 hover:bg-black/5 dark:hover:bg-white/10'
+              ]"
+            >
+              <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+              <span>سجل الزيارات اليومية</span>
+            </Link>
 
-          <Link
-            :href="route('consultant.site-visits.create')"
-            @click="isMobileDrawerOpen = false"
-            :class="[
-              'flex items-center gap-3 px-4 py-3.5 rounded-[16px] font-bold text-sm transition-all cursor-pointer',
-              $page.component === 'Consultant/DailyVisits/Execute' && !$page.props.visit ? 'bg-primary text-white shadow-md' : 'text-slate-700 dark:text-white/80 hover:bg-black/5 dark:hover:bg-white/10'
-            ]"
-          >
-            <svg class="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-            <span>بدء زيارة موقع جديد</span>
-          </Link>
+            <Link
+              :href="route('consultant.history.index')"
+              @click="isMobileDrawerOpen = false"
+              :class="[
+                'flex items-center gap-3 px-4 py-3.5 rounded-[16px] font-bold text-sm transition-all cursor-pointer',
+                $page.component === 'Consultant/History/Index' ? 'bg-primary text-white shadow-md' : 'text-slate-700 dark:text-white/80 hover:bg-black/5 dark:hover:bg-white/10'
+              ]"
+            >
+              <svg class="w-5 h-5 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+              <span>سجل الأيام السابقة</span>
+            </Link>
 
-          <Link
-            href="/design-system"
-            @click="isMobileDrawerOpen = false"
-            class="flex items-center gap-3 px-4 py-3.5 rounded-[16px] font-bold text-sm text-slate-700 dark:text-white/80 hover:bg-black/5 dark:hover:bg-white/10 transition-all cursor-pointer"
-          >
-            <svg class="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"/></svg>
-            <span>كتالوج Spatial UI</span>
-          </Link>
-        </nav>
+            <Link
+              :href="route('consultant.site-visits.create')"
+              @click="isMobileDrawerOpen = false"
+              :class="[
+                'flex items-center gap-3 px-4 py-3.5 rounded-[16px] font-bold text-sm transition-all cursor-pointer',
+                $page.component === 'Consultant/DailyVisits/Execute' && !$page.props.visit ? 'bg-primary text-white shadow-md' : 'text-slate-700 dark:text-white/80 hover:bg-black/5 dark:hover:bg-white/10'
+              ]"
+            >
+              <svg class="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+              <span>بدء زيارة موقع جديد</span>
+            </Link>
 
-        <div class="pt-6 border-t border-black/10 dark:border-white/10 space-y-4">
-          <div class="flex items-center justify-between">
+            <Link
+              href="/design-system"
+              @click="isMobileDrawerOpen = false"
+              class="flex items-center gap-3 px-4 py-3.5 rounded-[16px] font-bold text-sm text-slate-700 dark:text-white/80 hover:bg-black/5 dark:hover:bg-white/10 transition-all cursor-pointer"
+            >
+              <svg class="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"/></svg>
+              <span>كتالوج Spatial UI</span>
+            </Link>
+          </nav>
+        </div>
+
+        <div class="pt-6 border-t border-black/10 dark:border-white/10 space-y-3">
+          <div class="flex items-center gap-2">
             <button
               @click="toggleTheme"
-              class="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-black/5 dark:bg-white/10 hover:bg-black/10 text-slate-900 dark:text-white font-bold text-xs transition-all cursor-pointer"
+              class="flex-1 flex items-center justify-center gap-1.5 px-3 py-3 rounded-xl bg-black/5 dark:bg-white/10 hover:bg-black/10 text-slate-900 dark:text-white font-bold text-xs transition-all cursor-pointer border border-black/5 dark:border-white/10"
             >
               <span v-if="isDark">☀️ الفاتح</span>
               <span v-else>🌙 الداكن</span>
@@ -195,15 +223,13 @@
 
             <button
               @click="logout"
-              class="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-red-500/15 hover:bg-red-500 text-red-500 hover:text-white text-xs font-bold transition-all cursor-pointer"
+              class="flex-1 flex items-center justify-center gap-1.5 px-3 py-3 rounded-xl bg-red-500/15 hover:bg-red-600 text-red-500 hover:text-white text-xs font-black transition-all cursor-pointer border border-red-500/30 active:scale-95 shadow-sm"
             >
-              <span>خروج 🚪</span>
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+              </svg>
+              <span>تسجيل الخروج 🚪</span>
             </button>
-          </div>
-
-          <div class="p-4 rounded-[16px] bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 space-y-1">
-            <span class="font-black text-xs text-slate-900 dark:text-white block">{{ $page.props.auth?.user?.name || 'الاستشاري الميداني' }}</span>
-            <span class="text-[10px] font-bold text-slate-500 dark:text-white/60 block">{{ $page.props.auth?.user?.email || 'مفتش سلامة' }}</span>
           </div>
         </div>
       </div>

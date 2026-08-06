@@ -25,10 +25,23 @@
         </div>
       </div>
 
-      <!-- Left Side: User / System Pill -->
-      <div class="flex items-center gap-2 bg-primary/10 border border-primary/20 px-3 py-1.5 rounded-2xl">
-        <span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
-        <span class="text-xs font-black text-slate-900 dark:text-white">{{ $page.props.auth?.user?.name || 'مدير النظام' }}</span>
+      <!-- Left Side: User Pill & Quick Logout -->
+      <div class="flex items-center gap-2">
+        <div class="flex items-center gap-1.5 bg-primary/10 border border-primary/20 px-2.5 py-1.5 rounded-2xl">
+          <span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+          <span class="text-xs font-black text-slate-900 dark:text-white max-w-[100px] truncate">{{ $page.props.auth?.user?.name || 'مدير النظام' }}</span>
+        </div>
+
+        <!-- Quick Logout Button on Mobile Header -->
+        <button
+          @click="logout"
+          title="تسجيل الخروج"
+          class="w-9 h-9 rounded-xl bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white border border-red-500/20 flex items-center justify-center transition-all cursor-pointer active:scale-95"
+        >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+          </svg>
+        </button>
       </div>
     </header>
 
@@ -111,11 +124,21 @@
       </div>
 
       <!-- Bottom User Controls -->
-      <div class="pt-6 border-t border-black/10 dark:border-white/10 space-y-3">
-        <div class="flex items-center justify-between">
+      <div class="pt-5 border-t border-black/10 dark:border-white/10 space-y-3">
+        <div class="p-3 rounded-2xl bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 flex items-center gap-3">
+          <div class="w-9 h-9 rounded-xl bg-primary/20 text-primary border border-primary/30 flex items-center justify-center font-black text-sm shrink-0">
+            {{ ($page.props.auth?.user?.name || 'مدير').charAt(0) }}
+          </div>
+          <div class="space-y-0.5 min-w-0 flex-1">
+            <span class="font-black text-xs text-slate-900 dark:text-white block truncate">{{ $page.props.auth?.user?.name || 'مدير النظام' }}</span>
+            <span class="text-[10px] font-bold text-primary block truncate">إدارة الموارد البشرية 🛡️</span>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2">
           <button
             @click="toggleTheme"
-            class="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-black/5 dark:bg-white/10 hover:bg-black/10 text-slate-900 dark:text-white font-bold text-xs transition-all cursor-pointer"
+            class="flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl bg-black/5 dark:bg-white/10 hover:bg-black/10 dark:hover:bg-white/20 text-slate-900 dark:text-white font-bold text-xs transition-all cursor-pointer border border-black/5 dark:border-white/10"
           >
             <span v-if="isDark">☀️ الفاتح</span>
             <span v-else>🌙 الداكن</span>
@@ -123,9 +146,12 @@
 
           <button
             @click="logout"
-            class="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-red-500/15 hover:bg-red-500 text-red-500 hover:text-white text-xs font-bold transition-all cursor-pointer"
+            class="flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl bg-red-500/10 hover:bg-red-600 text-red-500 hover:text-white border border-red-500/20 text-xs font-black transition-all cursor-pointer shadow-sm active:scale-95"
           >
-            <span>خروج 🚪</span>
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+            </svg>
+            <span>خروج</span>
           </button>
         </div>
       </div>
@@ -138,82 +164,95 @@
       width="w-[300px]"
     >
       <div class="space-y-6 flex flex-col h-full justify-between dir-rtl">
-        <nav class="space-y-2 pt-2">
-          <Link
-            :href="route('dashboard')"
-            @click="isMobileDrawerOpen = false"
-            :class="[
-              'flex items-center gap-3 px-4 py-3.5 rounded-[16px] font-bold text-sm transition-all cursor-pointer',
-              $page.component === 'Dashboard' ? 'bg-primary text-white shadow-md' : 'text-slate-700 dark:text-white/80 hover:bg-black/5 dark:hover:bg-white/10'
-            ]"
-          >
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
-            <span>الرئيسية</span>
-          </Link>
+        <div class="space-y-4">
+          <!-- Profile Badge in Drawer -->
+          <div class="p-3.5 rounded-2xl bg-primary/10 border border-primary/20 flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-primary text-white flex items-center justify-center font-black text-base shrink-0 shadow-md shadow-primary/30">
+              {{ ($page.props.auth?.user?.name || 'مدير').charAt(0) }}
+            </div>
+            <div class="space-y-0.5 min-w-0 flex-1">
+              <span class="font-black text-xs text-slate-900 dark:text-white block truncate">{{ $page.props.auth?.user?.name || 'مدير النظام' }}</span>
+              <span class="text-[10px] font-bold text-primary block truncate">إدارة الموارد البشرية 🛡️</span>
+            </div>
+          </div>
 
-          <Link
-            :href="route('admin.sites.index')"
-            @click="isMobileDrawerOpen = false"
-            :class="[
-              'flex items-center gap-3 px-4 py-3.5 rounded-[16px] font-bold text-sm transition-all cursor-pointer',
-              $page.component.startsWith('Admin/Sites') ? 'bg-primary text-white shadow-md' : 'text-slate-700 dark:text-white/80 hover:bg-black/5 dark:hover:bg-white/10'
-            ]"
-          >
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5m3 0h1m-1-4h.01M9 16h.01M9 12h.01M9 8h.01M15 16h.01M15 12h.01M15 8h.01"/></svg>
-            <span>دليل المواقع الميدانية</span>
-          </Link>
+          <nav class="space-y-2 pt-2">
+            <Link
+              :href="route('dashboard')"
+              @click="isMobileDrawerOpen = false"
+              :class="[
+                'flex items-center gap-3 px-4 py-3.5 rounded-[16px] font-bold text-sm transition-all cursor-pointer',
+                $page.component === 'Dashboard' ? 'bg-primary text-white shadow-md' : 'text-slate-700 dark:text-white/80 hover:bg-black/5 dark:hover:bg-white/10'
+              ]"
+            >
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+              <span>الرئيسية</span>
+            </Link>
 
-          <Link
-            :href="route('admin.consultants.index')"
-            @click="isMobileDrawerOpen = false"
-            :class="[
-              'flex items-center gap-3 px-4 py-3.5 rounded-[16px] font-bold text-sm transition-all cursor-pointer',
-              $page.component.startsWith('Admin/Consultants') ? 'bg-primary text-white shadow-md' : 'text-slate-700 dark:text-white/80 hover:bg-black/5 dark:hover:bg-white/10'
-            ]"
-          >
-            <svg class="w-5 h-5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
-            <span>دليل الاستشاريين الميدانيين</span>
-          </Link>
+            <Link
+              :href="route('admin.sites.index')"
+              @click="isMobileDrawerOpen = false"
+              :class="[
+                'flex items-center gap-3 px-4 py-3.5 rounded-[16px] font-bold text-sm transition-all cursor-pointer',
+                $page.component.startsWith('Admin/Sites') ? 'bg-primary text-white shadow-md' : 'text-slate-700 dark:text-white/80 hover:bg-black/5 dark:hover:bg-white/10'
+              ]"
+            >
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5m3 0h1m-1-4h.01M9 16h.01M9 12h.01M9 8h.01M15 16h.01M15 12h.01M15 8h.01"/></svg>
+              <span>دليل المواقع الميدانية</span>
+            </Link>
 
-          <Link
-            :href="route('admin.schedules.index')"
-            @click="isMobileDrawerOpen = false"
-            :class="[
-              'flex items-center gap-3 px-4 py-3.5 rounded-[16px] font-bold text-sm transition-all cursor-pointer',
-              $page.component.startsWith('Admin/WorkSchedules') ? 'bg-primary text-white shadow-md' : 'text-slate-700 dark:text-white/80 hover:bg-black/5 dark:hover:bg-white/10'
-            ]"
-          >
-            <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-            <span>جداول الدوام والإجازات</span>
-          </Link>
+            <Link
+              :href="route('admin.consultants.index')"
+              @click="isMobileDrawerOpen = false"
+              :class="[
+                'flex items-center gap-3 px-4 py-3.5 rounded-[16px] font-bold text-sm transition-all cursor-pointer',
+                $page.component.startsWith('Admin/Consultants') ? 'bg-primary text-white shadow-md' : 'text-slate-700 dark:text-white/80 hover:bg-black/5 dark:hover:bg-white/10'
+              ]"
+            >
+              <svg class="w-5 h-5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+              <span>دليل الاستشاريين الميدانيين</span>
+            </Link>
 
-          <Link
-            :href="route('admin.tasks.index')"
-            @click="isMobileDrawerOpen = false"
-            :class="[
-              'flex items-center gap-3 px-4 py-3.5 rounded-[16px] font-bold text-sm transition-all cursor-pointer',
-              $page.component.startsWith('Admin/TaskBuilder') ? 'bg-primary text-white shadow-md' : 'text-slate-700 dark:text-white/80 hover:bg-black/5 dark:hover:bg-white/10'
-            ]"
-          >
-            <svg class="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
-            <span>منشئ المهام وتكليفات الميدان</span>
-          </Link>
+            <Link
+              :href="route('admin.schedules.index')"
+              @click="isMobileDrawerOpen = false"
+              :class="[
+                'flex items-center gap-3 px-4 py-3.5 rounded-[16px] font-bold text-sm transition-all cursor-pointer',
+                $page.component.startsWith('Admin/WorkSchedules') ? 'bg-primary text-white shadow-md' : 'text-slate-700 dark:text-white/80 hover:bg-black/5 dark:hover:bg-white/10'
+              ]"
+            >
+              <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+              <span>جداول الدوام والإجازات</span>
+            </Link>
 
-          <Link
-            href="/design-system"
-            @click="isMobileDrawerOpen = false"
-            class="flex items-center gap-3 px-4 py-3.5 rounded-[16px] font-bold text-sm text-slate-700 dark:text-white/80 hover:bg-black/5 dark:hover:bg-white/10 transition-all cursor-pointer"
-          >
-            <svg class="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"/></svg>
-            <span>كتالوج Spatial UI</span>
-          </Link>
-        </nav>
+            <Link
+              :href="route('admin.tasks.index')"
+              @click="isMobileDrawerOpen = false"
+              :class="[
+                'flex items-center gap-3 px-4 py-3.5 rounded-[16px] font-bold text-sm transition-all cursor-pointer',
+                $page.component.startsWith('Admin/TaskBuilder') ? 'bg-primary text-white shadow-md' : 'text-slate-700 dark:text-white/80 hover:bg-black/5 dark:hover:bg-white/10'
+              ]"
+            >
+              <svg class="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
+              <span>منشئ المهام وتكليفات الميدان</span>
+            </Link>
 
-        <div class="pt-6 border-t border-black/10 dark:border-white/10 space-y-4">
-          <div class="flex items-center justify-between">
+            <Link
+              href="/design-system"
+              @click="isMobileDrawerOpen = false"
+              class="flex items-center gap-3 px-4 py-3.5 rounded-[16px] font-bold text-sm text-slate-700 dark:text-white/80 hover:bg-black/5 dark:hover:bg-white/10 transition-all cursor-pointer"
+            >
+              <svg class="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"/></svg>
+              <span>كتالوج Spatial UI</span>
+            </Link>
+          </nav>
+        </div>
+
+        <div class="pt-6 border-t border-black/10 dark:border-white/10 space-y-3">
+          <div class="flex items-center gap-2">
             <button
               @click="toggleTheme"
-              class="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-black/5 dark:bg-white/10 hover:bg-black/10 text-slate-900 dark:text-white font-bold text-xs transition-all cursor-pointer"
+              class="flex-1 flex items-center justify-center gap-1.5 px-3 py-3 rounded-xl bg-black/5 dark:bg-white/10 hover:bg-black/10 text-slate-900 dark:text-white font-bold text-xs transition-all cursor-pointer border border-black/5 dark:border-white/10"
             >
               <span v-if="isDark">☀️ الفاتح</span>
               <span v-else>🌙 الداكن</span>
@@ -221,9 +260,12 @@
 
             <button
               @click="logout"
-              class="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-red-500/15 hover:bg-red-500 text-red-500 hover:text-white text-xs font-bold transition-all cursor-pointer"
+              class="flex-1 flex items-center justify-center gap-1.5 px-3 py-3 rounded-xl bg-red-500/15 hover:bg-red-600 text-red-500 hover:text-white text-xs font-black transition-all cursor-pointer border border-red-500/30 active:scale-95 shadow-sm"
             >
-              <span>خروج 🚪</span>
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+              </svg>
+              <span>تسجيل الخروج 🚪</span>
             </button>
           </div>
         </div>

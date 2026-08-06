@@ -38,7 +38,12 @@ class LoginController extends Controller
 
         $request->session()->regenerate();
 
-        return redirect()->intended('/dashboard');
+        $user = Auth::user();
+        if ($user && ($user->hasRole('hr') || $user->hasRole('admin'))) {
+            return redirect()->intended(route('admin.consultants.index'));
+        }
+
+        return redirect()->intended(route('consultant.visits.index'));
     }
 
     /**
