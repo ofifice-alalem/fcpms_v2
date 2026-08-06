@@ -210,42 +210,64 @@
                 </div>
 
                 <!-- Dynamic Options Manager -->
-                <div v-if="['select', 'checkbox'].includes(comp.component_type)" class="p-4 rounded-2xl bg-black/5 dark:bg-[#0c121e] border border-black/5 dark:border-white/10 space-y-3">
-                  <div class="flex items-center justify-between">
-                    <label class="text-xs font-black text-slate-900 dark:text-white">خيارات الاختيار</label>
-                    <button
-                      type="button"
-                      @click="addOption(comp)"
-                      class="text-xs font-black text-primary hover:underline cursor-pointer"
-                    >
-                      + إضافة خيار
-                    </button>
+                <div
+                  v-if="['select', 'checkbox', 'choice'].includes(comp.component_type)"
+                  class="p-4.5 rounded-2xl bg-slate-100/80 dark:bg-[#0c121e] border border-black/10 dark:border-white/10 space-y-3"
+                >
+                  <!-- Header labels for columns -->
+                  <div v-if="comp.options && comp.options.length > 0" class="grid grid-cols-12 gap-2.5 px-1 text-[11px] font-black text-slate-500 dark:text-white/50">
+                    <div class="col-span-6 sm:col-span-7">نص الخيار (الظاهر للميدان) *</div>
+                    <div class="col-span-5 sm:col-span-4">القيمة المخزنة (Value)</div>
+                    <div class="col-span-1 text-center">حذف</div>
                   </div>
 
-                  <div class="space-y-2">
+                  <!-- Options List -->
+                  <div class="space-y-2.5">
                     <div
                       v-for="(opt, optIdx) in comp.options"
                       :key="optIdx"
-                      class="flex items-center gap-2"
+                      class="grid grid-cols-12 gap-2.5 items-center"
                     >
-                      <SpatialInput
-                        v-model="opt.label"
-                        placeholder="نص الخيار (مطابق)"
-                        class="flex-1"
-                      />
-                      <SpatialInput
-                        v-model="opt.value"
-                        placeholder="القيمة (yes)"
-                        class="w-36 font-mono text-xs"
-                      />
-                      <button
-                        type="button"
-                        @click="removeOption(comp, optIdx)"
-                        class="p-2 text-red-500 hover:bg-red-500/10 rounded-lg cursor-pointer"
-                      >
-                        ×
-                      </button>
+                      <div class="col-span-6 sm:col-span-7">
+                        <SpatialInput
+                          v-model="opt.label"
+                          placeholder="مثال: ممتاز / مطابق 🟢"
+                        />
+                      </div>
+                      <div class="col-span-5 sm:col-span-4">
+                        <SpatialInput
+                          v-model="opt.value"
+                          placeholder="مثال: yes / compliant"
+                          input-class="font-mono text-xs"
+                        />
+                      </div>
+                      <div class="col-span-1 flex justify-center">
+                        <button
+                          type="button"
+                          @click="removeOption(comp, optIdx)"
+                          class="w-10 h-[52px] flex items-center justify-center text-red-500 hover:text-white bg-red-500/10 hover:bg-red-500 rounded-2xl transition-all cursor-pointer text-base font-bold"
+                          title="حذف الخيار"
+                        >
+                          ✕
+                        </button>
+                      </div>
                     </div>
+
+                    <div v-if="!comp.options || comp.options.length === 0" class="p-4 text-center text-xs font-bold text-slate-400 dark:text-white/40 border border-dashed border-slate-300 dark:border-white/10 rounded-2xl">
+                      لا توجد خيارات مضافة بعد.
+                    </div>
+                  </div>
+
+                  <!-- Enhanced Add Option Button -->
+                  <div class="pt-1">
+                    <button
+                      type="button"
+                      @click="addOption(comp)"
+                      class="w-full py-3 rounded-2xl bg-primary/10 hover:bg-primary/20 text-primary border-2 border-dashed border-primary/30 hover:border-primary text-xs font-black flex items-center justify-center gap-2 transition-all cursor-pointer shadow-xs active:scale-[0.99]"
+                    >
+                      <span class="w-5 h-5 rounded-lg bg-primary text-white flex items-center justify-center text-xs font-black">+</span>
+                      <span>إضافة خيار جديد</span>
+                    </button>
                   </div>
                 </div>
 
@@ -435,15 +457,26 @@
                   <SpatialInput v-model="previewValues[getCompKey(comp)]" type="number" :placeholder="comp.placeholder || 'أدخل الرقم...'" />
                 </div>
 
-                <div v-else-if="comp.component_type === 'select'">
+                <div v-else-if="comp.component_type === 'select' || comp.component_type === 'choice'">
                   <SpatialDropdown
                     v-model="previewValues[getCompKey(comp)]"
                     placeholder="اختر إجابة..."
-                    :options="comp.options ? comp.options.map(o => ({ label: o.label, value: o.value })) : []"
+                    :options="comp.options ? comp.options.map(o => ({ label: o.label || o.value, value: o.value || o.label })) : []"
                   />
                 </div>
 
-                <div v-else-if="comp.component_type === 'image_upload'">
+                <div v-else-if="comp.component_type === 'checkbox'" class="space-y-2 pt-1">
+                  <div
+                    v-for="(opt, optIdx) in (comp.options || [])"
+                    :key="optIdx"
+                    class="flex items-center gap-2 p-2 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200/60 dark:border-white/5"
+                  >
+                    <SpatialCheckbox :model-value="false" />
+                    <span class="text-xs font-bold text-slate-800 dark:text-white/90">{{ opt.label || opt.value || 'خيار' }}</span>
+                  </div>
+                </div>
+
+                <div v-else-if="comp.component_type === 'image_upload' || comp.component_type === 'image'">
                   <SpatialImageUpload />
                 </div>
               </div>
@@ -502,6 +535,7 @@ const componentTypeOptions = [
   { label: '✏️ نص عادي (Text)', value: 'text' },
   { label: '🔢 رقم (Number)', value: 'number' },
   { label: '📋 قائمة اختيار (Select)', value: 'select' },
+  { label: '🔘 اختيار متعدد (Choice)', value: 'choice' },
   { label: '☑️ مربع اختيار (Checkbox)', value: 'checkbox' },
   { label: '📸 منطقة رفع الإثبات الحية (Image Upload)', value: 'image_upload' },
   { label: '📅 تاريخ (Date)', value: 'date' },
