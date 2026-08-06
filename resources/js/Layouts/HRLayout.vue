@@ -235,85 +235,80 @@
       <slot />
     </main>
 
-    <!-- Mobile Bottom Navigation Dock (Fixed on Mobile) -->
-    <nav class="fixed bottom-0 inset-x-0 z-40 md:hidden bg-white/90 dark:bg-[#090d16]/90 backdrop-blur-2xl border-t border-black/10 dark:border-white/12 px-2 py-2 flex items-center justify-around shadow-2xl">
-      <!-- Item 1: Dashboard -->
+    <!-- Mobile Native App Bottom Navigation Bar -->
+    <SpatialMobileBottomNav>
       <Link
         :href="route('dashboard')"
         :class="[
-          'flex flex-col items-center gap-1 py-1 px-2 rounded-2xl transition-all font-bold text-[10px] cursor-pointer',
+          'relative flex-1 flex flex-col items-center justify-center py-1 transition-all duration-150 active:scale-90 cursor-pointer',
           $page.component === 'Dashboard'
-            ? 'text-primary font-black scale-105'
-            : 'text-slate-500 dark:text-white/60 hover:text-slate-900 dark:hover:text-white'
+            ? 'text-primary dark:text-primary font-black'
+            : 'text-slate-400 dark:text-white/40 hover:text-slate-700 dark:hover:text-white'
         ]"
       >
-        <div :class="['w-9 h-9 rounded-2xl flex items-center justify-center transition-all', $page.component === 'Dashboard' ? 'bg-primary/15 border border-primary/30' : 'bg-transparent']">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
-        </div>
-        <span>الرئيسية</span>
+        <div v-if="$page.component === 'Dashboard'" class="absolute -top-1.5 w-7 h-1 rounded-full bg-primary shadow-[0_0_8px_rgba(59,130,246,0.8)]"></div>
+        <svg class="w-6 h-6 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+        <span class="text-[10px] font-bold tracking-tight mt-1 leading-none">الرئيسية</span>
       </Link>
 
-      <!-- Item 2: Sites -->
       <Link
         :href="route('admin.sites.index')"
         :class="[
-          'flex flex-col items-center gap-1 py-1 px-2 rounded-2xl transition-all font-bold text-[10px] cursor-pointer',
+          'relative flex-1 flex flex-col items-center justify-center py-1 transition-all duration-150 active:scale-90 cursor-pointer',
           $page.component.startsWith('Admin/Sites')
-            ? 'text-primary font-black scale-105'
-            : 'text-slate-500 dark:text-white/60 hover:text-slate-900 dark:hover:text-white'
+            ? 'text-primary dark:text-primary font-black'
+            : 'text-slate-400 dark:text-white/40 hover:text-slate-700 dark:hover:text-white'
         ]"
       >
-        <div :class="['w-9 h-9 rounded-2xl flex items-center justify-center transition-all', $page.component.startsWith('Admin/Sites') ? 'bg-primary/15 border border-primary/30' : 'bg-transparent']">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5m3 0h1m-1-4h.01M9 16h.01M9 12h.01M9 8h.01M15 16h.01M15 12h.01M15 8h.01"/></svg>
-        </div>
-        <span>المواقع</span>
+        <div v-if="$page.component.startsWith('Admin/Sites')" class="absolute -top-1.5 w-7 h-1 rounded-full bg-primary shadow-[0_0_8px_rgba(59,130,246,0.8)]"></div>
+        <svg class="w-6 h-6 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5m3 0h1m-1-4h.01M9 16h.01M9 12h.01M9 8h.01M15 16h.01M15 12h.01M15 8h.01"/></svg>
+        <span class="text-[10px] font-bold tracking-tight mt-1 leading-none">المواقع</span>
       </Link>
 
-      <!-- Item 3: Consultants -->
       <Link
         :href="route('admin.consultants.index')"
         :class="[
-          'flex flex-col items-center gap-1 py-1 px-2 rounded-2xl transition-all font-bold text-[10px] cursor-pointer',
+          'relative flex-1 flex flex-col items-center justify-center py-1 transition-all duration-150 active:scale-90 cursor-pointer',
           $page.component.startsWith('Admin/Consultants')
-            ? 'text-primary font-black scale-105'
-            : 'text-slate-500 dark:text-white/60 hover:text-slate-900 dark:hover:text-white'
+            ? 'text-primary dark:text-primary font-black'
+            : 'text-slate-400 dark:text-white/40 hover:text-slate-700 dark:hover:text-white'
         ]"
       >
-        <div :class="['w-9 h-9 rounded-2xl flex items-center justify-center transition-all', $page.component.startsWith('Admin/Consultants') ? 'bg-primary/15 border border-primary/30' : 'bg-transparent']">
-          <svg class="w-5 h-5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
-        </div>
-        <span>الاستشاريون</span>
+        <div v-if="$page.component.startsWith('Admin/Consultants')" class="absolute -top-1.5 w-7 h-1 rounded-full bg-primary shadow-[0_0_8px_rgba(59,130,246,0.8)]"></div>
+        <svg class="w-6 h-6 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+        <span class="text-[10px] font-bold tracking-tight mt-1 leading-none">الاستشاريون</span>
       </Link>
 
-      <!-- Item 4: Schedules -->
       <Link
         :href="route('admin.schedules.index')"
         :class="[
-          'flex flex-col items-center gap-1 py-1 px-2 rounded-2xl transition-all font-bold text-[10px] cursor-pointer',
+          'relative flex-1 flex flex-col items-center justify-center py-1 transition-all duration-150 active:scale-90 cursor-pointer',
           $page.component.startsWith('Admin/WorkSchedules')
-            ? 'text-primary font-black scale-105'
-            : 'text-slate-500 dark:text-white/60 hover:text-slate-900 dark:hover:text-white'
+            ? 'text-primary dark:text-primary font-black'
+            : 'text-slate-400 dark:text-white/40 hover:text-slate-700 dark:hover:text-white'
         ]"
       >
-        <div :class="['w-9 h-9 rounded-2xl flex items-center justify-center transition-all', $page.component.startsWith('Admin/WorkSchedules') ? 'bg-primary/15 border border-primary/30' : 'bg-transparent']">
-          <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-        </div>
-        <span>الدوام</span>
+        <div v-if="$page.component.startsWith('Admin/WorkSchedules')" class="absolute -top-1.5 w-7 h-1 rounded-full bg-primary shadow-[0_0_8px_rgba(59,130,246,0.8)]"></div>
+        <svg class="w-6 h-6 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+        <span class="text-[10px] font-bold tracking-tight mt-1 leading-none">الدوام</span>
       </Link>
 
-      <!-- Item 5: Drawer Menu Toggle -->
       <button
         @click="isMobileDrawerOpen = true"
-        class="flex flex-col items-center gap-1 py-1 px-2 rounded-2xl transition-all font-bold text-[10px] text-slate-500 dark:text-white/60 hover:text-slate-900 dark:hover:text-white cursor-pointer"
+        :class="[
+          'relative flex-1 flex flex-col items-center justify-center py-1 transition-all duration-150 active:scale-90 cursor-pointer',
+          isMobileDrawerOpen
+            ? 'text-primary dark:text-primary font-black'
+            : 'text-slate-400 dark:text-white/40 hover:text-slate-700 dark:hover:text-white'
+        ]"
       >
-        <div class="w-9 h-9 rounded-2xl flex items-center justify-center bg-transparent">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
-          </svg>
-        </div>
-        <span>القائمة</span>
+        <div v-if="isMobileDrawerOpen" class="absolute -top-1.5 w-7 h-1 rounded-full bg-primary shadow-[0_0_8px_rgba(59,130,246,0.8)]"></div>
+        <svg class="w-6 h-6 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+        </svg>
+        <span class="text-[10px] font-bold tracking-tight mt-1 leading-none">القائمة</span>
       </button>
-    </nav>
+    </SpatialMobileBottomNav>
 
   </div>
 </template>
@@ -322,6 +317,7 @@
 import { ref, onMounted } from 'vue';
 import { Link, router } from '@inertiajs/vue3';
 import SpatialDrawer from '@/Components/Spatial/SpatialDrawer.vue';
+import SpatialMobileBottomNav from '@/Components/Spatial/SpatialMobileBottomNav.vue';
 
 const isDark = ref(true);
 const isMobileDrawerOpen = ref(false);
