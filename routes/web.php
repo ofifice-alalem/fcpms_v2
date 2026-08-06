@@ -1,8 +1,10 @@
 <?php
 
 use App\Http\Controllers\Admin\ConsultantController;
+use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\SiteController;
 use App\Http\Controllers\Auth\LoginController;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -17,10 +19,10 @@ Route::middleware('guest')->group(function () {
 Route::middleware('auth')->group(function () {
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
-    Route::get('/dashboard', function () {
+    Route::get('/dashboard', function (Request $request) {
         $user = Auth::user();
         if ($user && ($user->hasRole('hr') || $user->hasRole('admin'))) {
-            return redirect()->route('admin.consultants.index');
+            return app(\App\Http\Controllers\Admin\DashboardController::class)->index($request);
         }
         return redirect()->route('consultant.visits.index');
     })->name('dashboard');
