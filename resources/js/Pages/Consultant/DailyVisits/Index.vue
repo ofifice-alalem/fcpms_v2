@@ -253,87 +253,121 @@
         </div>
       </SpatialCard>
 
-      <!-- 1. GRID CARDS VIEW -->
+      <!-- 1. GRID CARDS VIEW (Ultra-Clean Dual Theme Design matching Past Records) -->
       <div v-if="viewMode === 'grid' && filteredVisits.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-        <SpatialCard
+        <div
           v-for="visit in filteredVisits"
           :key="visit.id"
-          padding="p-6"
-          class="relative group flex flex-col justify-between space-y-4 hover:border-primary/50 transition-all"
+          :class="[
+            'relative p-5 rounded-3xl transition-all duration-200 flex flex-col justify-between space-y-4 border shadow-lg',
+            getVisitProgress(visit) >= 100
+              ? 'bg-white dark:bg-slate-800/80 border-slate-200/80 dark:border-white/10 shadow-slate-200/50 dark:shadow-black/30'
+              : 'bg-amber-50/70 dark:bg-slate-800/90 border-amber-500/40 shadow-amber-500/10'
+          ]"
         >
-          <!-- Card Header -->
-          <div class="space-y-3">
-            <div class="flex items-start justify-between gap-2">
-              <div class="space-y-0.5">
-                <h3 class="text-base font-black text-slate-900 dark:text-white">
-                  {{ visit.site ? visit.site.name : 'موقع ميداني' }}
-                </h3>
-                <p class="text-xs text-slate-500 dark:text-white/50 font-mono">
-                  كود الموقع: {{ visit.site ? visit.site.code : '' }}
-                </p>
-              </div>
-
-              <SpatialStatusPill
-                :type="visit.status === 'completed' ? 'completed' : 'pending'"
-                :pulse="visit.status !== 'completed'"
-              >
-                {{ visit.status === 'completed' ? 'مكتملة' : 'قيد التنفيذ' }}
-              </SpatialStatusPill>
+          <!-- Top Header: Site Name, Code Badge, & Status Pill -->
+          <div class="flex items-start justify-between gap-2 pb-3 border-b border-slate-100 dark:border-white/10">
+            <div class="space-y-1">
+              <h3 class="text-base font-black text-slate-900 dark:text-white leading-tight">
+                {{ visit.site ? visit.site.name : 'موقع ميداني' }}
+              </h3>
+              <span class="text-xs font-mono font-black text-slate-700 dark:text-slate-200 dir-ltr inline-block bg-slate-100 dark:bg-white/10 px-2.5 py-0.5 rounded-md border border-slate-200 dark:border-white/10">
+                كود: {{ visit.site ? visit.site.code : '' }}
+              </span>
             </div>
 
-            <!-- Metrics -->
-            <div class="p-3 rounded-2xl bg-slate-100 dark:bg-white/5 space-y-2 border border-slate-200/60 dark:border-white/5">
-              <div class="flex items-center justify-between text-xs">
-                <span class="font-bold text-slate-500 dark:text-white/60">نسبة الإنجاز:</span>
-                <span class="font-black text-emerald-500 font-mono">{{ getVisitProgress(visit) }}%</span>
-              </div>
-              <SpatialProgressBar :value="getVisitProgress(visit)" />
+            <SpatialStatusPill
+              :type="getVisitProgress(visit) >= 100 ? 'completed' : 'pending'"
+              :pulse="getVisitProgress(visit) < 100"
+              class="shrink-0"
+            >
+              {{ getVisitProgress(visit) >= 100 ? 'مكتملة' : 'قيد التنفيذ' }}
+            </SpatialStatusPill>
+          </div>
 
-              <div class="flex items-center justify-between text-[11px] pt-1">
-                <span class="text-slate-500 dark:text-white/60 font-bold">المهام الإضافية:</span>
-                <span class="px-2 py-0.5 rounded-md bg-amber-500/15 text-amber-600 dark:text-amber-400 font-black font-mono">
-                  {{ getOnDemandTasksCount(visit) }} مهام عند الحاجة
+          <!-- Center Body: Circular Progress Ring & Metrics -->
+          <div class="flex items-center justify-between gap-4 py-1">
+            <!-- Center Circular Progress Ring -->
+            <div class="flex flex-col items-center justify-center shrink-0 pr-1">
+              <SpatialCircularProgress
+                :percentage="getVisitProgress(visit)"
+                :size="76"
+                :strokeWidth="7"
+              >
+                <span class="text-base font-black font-mono text-slate-900 dark:text-white">
+                  {{ getVisitProgress(visit) }}%
+                </span>
+              </SpatialCircularProgress>
+              <span class="text-[10px] font-black text-slate-500 dark:text-white/60 mt-1">نسبة الإنجاز</span>
+            </div>
+
+            <!-- Right Metrics Stack -->
+            <div class="flex-1 space-y-2">
+              <!-- Check-in / Start Time -->
+              <div class="flex items-center justify-between p-2 rounded-xl bg-slate-100/90 dark:bg-white/5 border border-slate-200/80 dark:border-white/10 text-xs shadow-2xs">
+                <span class="font-black text-slate-700 dark:text-white/70">⏰ وقت البدء:</span>
+                <span class="font-mono font-black text-slate-900 dark:text-white">
+                  {{ formatTime(visit.visit_started_at) || '--' }}
+                </span>
+              </div>
+
+              <!-- On-Demand Tasks Count -->
+              <div class="flex items-center justify-between p-2 rounded-xl bg-slate-100/90 dark:bg-white/5 border border-slate-200/80 dark:border-white/10 text-xs shadow-2xs">
+                <span class="font-black text-slate-700 dark:text-white/70">⚡ إضافية:</span>
+                <span :class="['font-mono font-black', getOnDemandTasksCount(visit) > 0 ? 'text-amber-600 dark:text-amber-400 text-sm' : 'text-slate-400 dark:text-white/40']">
+                  {{ getOnDemandTasksCount(visit) > 0 ? getOnDemandTasksCount(visit) : '--' }}
+                </span>
+              </div>
+
+              <!-- Daily Tasks Fraction -->
+              <div class="flex items-center justify-between p-2 rounded-xl bg-slate-100/90 dark:bg-white/5 border border-slate-200/80 dark:border-white/10 text-xs shadow-2xs">
+                <span class="font-black text-slate-700 dark:text-white/70">📋 المهام:</span>
+                <span class="font-mono font-black text-slate-900 dark:text-white dir-ltr">
+                  {{ getDailyTasksFraction(visit) }}
                 </span>
               </div>
             </div>
           </div>
 
-          <!-- Actions Bar -->
-          <div class="pt-3 border-t border-slate-200/60 dark:border-white/10 flex items-center justify-between">
-            <div class="flex items-center gap-2">
-              <SpatialIconButton
-                variant="ghost"
-                title="عرض التفاصيل"
+          <!-- Bottom Actions Bar (Circular Ring Buttons - Enlarged Icons) -->
+          <div class="pt-3 border-t border-slate-200/80 dark:border-white/10 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <!-- View / Details Button -->
+              <button
                 @click="openDetailsModal(visit)"
+                class="w-11 h-11 rounded-full border-2 border-blue-500/40 hover:border-blue-600 dark:border-blue-400/40 text-blue-600 dark:text-blue-400 bg-transparent hover:bg-blue-50 dark:hover:bg-blue-500/10 flex items-center justify-center transition-all duration-200 cursor-pointer shadow-xs active:scale-95"
+                title="عرض تفاصيل الزيارة والمهام"
               >
-                <svg class="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
                 </svg>
-              </SpatialIconButton>
+              </button>
 
-              <SpatialIconButton
-                variant="warning"
-                title="تعديل النماذج والبيانات"
+              <!-- Edit / Execute Button -->
+              <button
                 @click="goToExecuteVisit(visit)"
+                class="w-11 h-11 rounded-full border-2 border-amber-500/40 hover:border-amber-600 dark:border-amber-400/40 text-amber-600 dark:text-amber-400 bg-transparent hover:bg-amber-50 dark:hover:bg-amber-500/10 flex items-center justify-center transition-all duration-200 cursor-pointer shadow-xs active:scale-95"
+                title="تعديل واستكمال البيانات"
               >
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
                 </svg>
-              </SpatialIconButton>
+              </button>
             </div>
 
-            <SpatialIconButton
-              variant="danger"
-              title="إلغاء الزيارة"
+            <!-- Delete / Cancel Button -->
+            <button
               @click="confirmCancelVisit(visit)"
+              class="w-11 h-11 rounded-full border-2 border-rose-500/40 hover:border-rose-600 dark:border-rose-400/40 text-rose-600 dark:text-rose-400 bg-transparent hover:bg-rose-50 dark:hover:bg-rose-500/10 flex items-center justify-center transition-all duration-200 cursor-pointer shadow-xs active:scale-95"
+              title="إلغاء الزيارة"
             >
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
               </svg>
-            </SpatialIconButton>
+            </button>
           </div>
-        </SpatialCard>
+        </div>
       </div>
 
       <!-- 2. HIGH-FIDELITY TABLE VIEW (MATCHING HR TABLE DESIGN) -->
@@ -364,8 +398,8 @@
                   {{ visit.site ? visit.site.code : '' }}
                 </td>
                 <td class="p-4 text-center whitespace-nowrap">
-                  <SpatialStatusPill :type="visit.status === 'completed' ? 'completed' : 'pending'">
-                    {{ visit.status === 'completed' ? 'مكتملة' : 'قيد التنفيذ' }}
+                  <SpatialStatusPill :type="getVisitProgress(visit) >= 100 ? 'completed' : 'pending'">
+                    {{ getVisitProgress(visit) >= 100 ? 'مكتملة' : 'قيد التنفيذ' }}
                   </SpatialStatusPill>
                 </td>
                 <td class="p-4 w-44">
@@ -505,8 +539,21 @@ const getVisitProgress = (visit) => {
 const getOnDemandTasksCount = (visit) => {
   if (!visit.task_responses) return 0;
   return visit.task_responses.filter(
-    (r) => r.task_definition && r.task_definition.task_type === 'on_demand'
+    (r) => r.task_definition && (r.task_definition.task_type === 'on_demand' || r.task_definition.task_type?.value === 'on_demand')
   ).length;
+};
+
+const getDailyTasksFraction = (visit) => {
+  if (!visit.task_responses) return '0 / 0';
+  const dailyResponses = visit.task_responses.filter((r) => {
+    return r.task_definition && (r.task_definition.task_type === 'daily' || r.task_definition.task_type?.value === 'daily');
+  });
+  if (dailyResponses.length === 0) return '0 / 0';
+  const completed = dailyResponses.filter((r) => {
+    const hasValues = r.values && r.values.some(v => v.value && String(v.value).trim() !== '' && String(v.value) !== '[]' && String(v.value) !== 'null');
+    return r.status === 'submitted' || (r.completed_at && hasValues);
+  }).length;
+  return `${completed} / ${dailyResponses.length}`;
 };
 
 const formatTime = (isoString) => {
