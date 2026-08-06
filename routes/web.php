@@ -76,6 +76,7 @@ Route::middleware('auth')->group(function () {
     // Phase 05: Consultant Daily Visits Portal Routes
     Route::prefix('consultant')->name('consultant.')->group(function () {
         Route::get('/daily-visits', [\App\Http\Controllers\Consultant\DailyVisitController::class, 'index'])->name('visits.index');
+        Route::get('/past-records', [\App\Http\Controllers\Consultant\ConsultantHistoryController::class, 'index'])->name('history.index');
         Route::post('/daily-visits/start-day', [\App\Http\Controllers\Consultant\DailyVisitController::class, 'startDay'])->name('visits.start-day');
         
         Route::get('/site-visits/create', [\App\Http\Controllers\Consultant\DailyVisitController::class, 'createVisit'])->name('site-visits.create');

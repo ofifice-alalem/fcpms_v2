@@ -65,7 +65,7 @@
             <span>بدء اليوم العملي</span>
           </SpatialButton>
 
-          <Link :href="route('consultant.site-visits.create')">
+          <Link :href="isHistorical && selectedDate ? route('consultant.site-visits.create', { date: selectedDate }) : route('consultant.site-visits.create')">
             <SpatialButton variant="primary">
               <div class="w-6 h-6 rounded-xl bg-white/20 flex items-center justify-center text-white">
                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -446,6 +446,8 @@ const props = defineProps({
   availableSites: { type: Array, default: () => [] },
   activeVisit: { type: Object, default: null },
   availableOnDemandTasks: { type: Array, default: () => [] },
+  isHistorical: { type: Boolean, default: false },
+  selectedDate: { type: String, default: null },
 });
 
 const isSubmitting = ref(false);
@@ -515,13 +517,21 @@ const formatTime = (isoString) => {
 // Handlers
 const handleStartDay = () => {
   isSubmitting.value = true;
-  router.post('/consultant/daily-visits/start-day', {}, {
+  const payload = {};
+  if (props.isHistorical && props.selectedDate) {
+    payload.date = props.selectedDate;
+  }
+  router.post('/consultant/daily-visits/start-day', payload, {
     onFinish: () => (isSubmitting.value = false),
   });
 };
 
 const goToExecuteVisit = (visit) => {
-  router.get(`/consultant/site-visits/${visit.id}/execute`);
+  if (props.isHistorical && props.selectedDate) {
+    router.get(`/consultant/site-visits/${visit.id}/execute`, { date: props.selectedDate });
+  } else {
+    router.get(`/consultant/site-visits/${visit.id}/execute`);
+  }
 };
 
 const openDetailsModal = (visit) => {

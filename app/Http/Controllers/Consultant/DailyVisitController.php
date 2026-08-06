@@ -49,7 +49,10 @@ class DailyVisitController extends Controller
     public function index(Request $request): Response|JsonResponse
     {
         $consultant = $this->getConsultant();
-        $dailyRecord = $this->visitService->getTodayRecord($consultant);
+        $targetDate = $request->query('date');
+        $dailyRecord = $targetDate 
+            ? $this->visitService->getRecordForDate($consultant, $targetDate) 
+            : $this->visitService->getTodayRecord($consultant);
 
         // Sanitize any existing task responses marked as submitted without having any valid filled values
         \App\Models\TaskResponse::whereHas('siteVisit', fn ($q) => $q->where('daily_record_id', $dailyRecord->id))
@@ -97,6 +100,10 @@ class DailyVisitController extends Controller
             'siteVisits.taskResponses.attachments',
         ]);
 
+        $recordDate = \Carbon\Carbon::parse($dailyRecord->work_date)->toDateString();
+        $todayDate = \Carbon\Carbon::today()->toDateString();
+        $isHistorical = $recordDate !== $todayDate;
+
         if ($request->wantsJson() && !$request->header('X-Inertia')) {
             return response()->json([
                 'success' => true,
@@ -105,6 +112,8 @@ class DailyVisitController extends Controller
                     'available_sites' => $availableSites,
                     'active_visit' => $activeVisit,
                     'available_on_demand_tasks' => $availableOnDemandTasks,
+                    'is_historical' => $isHistorical,
+                    'selected_date' => $recordDate,
                 ],
             ]);
         }
@@ -115,13 +124,23 @@ class DailyVisitController extends Controller
             'availableSites' => $availableSites,
             'activeVisit' => $activeVisit,
             'availableOnDemandTasks' => $availableOnDemandTasks,
+            'isHistorical' => $isHistorical,
+            'selectedDate' => $recordDate,
         ]);
     }
 
     public function startDay(StartDailyRecordRequest $request): RedirectResponse|JsonResponse
     {
         $consultant = $this->getConsultant();
-        $record = $this->visitService->startDay($consultant, $request->input('notes'));
+        $targetDate = $request->input('date');
+        $record = $targetDate ? $this->visitService->getRecordForDate($consultant, $targetDate) : $this->visitService->getTodayRecord($consultant);
+
+        if (!$record->check_in_time) {
+            $record->update([
+                'check_in_time' => \Carbon\Carbon::now(),
+                'notes' => $request->input('notes') ?: $record->notes,
+            ]);
+        }
 
         if ($request->wantsJson() && !$request->header('X-Inertia')) {
             return response()->json([
@@ -134,11 +153,16 @@ class DailyVisitController extends Controller
         return redirect()->back()->with('success', 'تم بدء اليوم العملي بنجاح');
     }
 
-    public function createVisit(): Response
+    public function createVisit(Request $request): Response
     {
         $consultant = $this->getConsultant();
-        $dailyRecord = $this->visitService->getTodayRecord($consultant);
+        $targetDate = $request->query('date');
+        $dailyRecord = $targetDate ? $this->visitService->getRecordForDate($consultant, $targetDate) : $this->visitService->getTodayRecord($consultant);
         $availableSites = $this->visitService->getAvailableSites($dailyRecord);
+
+        $recordDate = \Carbon\Carbon::parse($dailyRecord->work_date)->toDateString();
+        $todayDate = \Carbon\Carbon::today()->toDateString();
+        $isHistorical = $recordDate !== $todayDate;
 
         return Inertia::render('Consultant/DailyVisits/Execute', [
             'consultant' => $consultant,
@@ -146,16 +170,22 @@ class DailyVisitController extends Controller
             'visit' => null,
             'availableSites' => $availableSites,
             'availableOnDemandTasks' => [],
+            'isHistorical' => $isHistorical,
+            'selectedDate' => $recordDate,
         ]);
     }
 
     public function executeVisit(SiteVisit $visit): Response
     {
         $consultant = $this->getConsultant();
-        $dailyRecord = $this->visitService->getTodayRecord($consultant);
+        $dailyRecord = $visit->dailyRecord;
         $visitDetails = $this->visitService->getVisitDetails($visit->id);
         $availableSites = $this->visitService->getAvailableSites($dailyRecord);
         $availableOnDemandTasks = $this->visitService->getAvailableOnDemandTasks($visit->site_id, $consultant);
+
+        $recordDate = \Carbon\Carbon::parse($dailyRecord->work_date)->toDateString();
+        $todayDate = \Carbon\Carbon::today()->toDateString();
+        $isHistorical = $recordDate !== $todayDate;
 
         return Inertia::render('Consultant/DailyVisits/Execute', [
             'consultant' => $consultant,
@@ -163,13 +193,16 @@ class DailyVisitController extends Controller
             'visit' => $visitDetails,
             'availableSites' => $availableSites,
             'availableOnDemandTasks' => $availableOnDemandTasks,
+            'isHistorical' => $isHistorical,
+            'selectedDate' => $recordDate,
         ]);
     }
 
     public function storeVisit(OpenSiteVisitRequest $request): RedirectResponse|JsonResponse
     {
         $consultant = $this->getConsultant();
-        $dailyRecord = $this->visitService->getTodayRecord($consultant);
+        $targetDate = $request->input('date');
+        $dailyRecord = $targetDate ? $this->visitService->getRecordForDate($consultant, $targetDate) : $this->visitService->getTodayRecord($consultant);
 
         $visit = $this->visitService->openSiteVisit(
             $dailyRecord,
@@ -191,6 +224,13 @@ class DailyVisitController extends Controller
                     'available_on_demand_tasks' => $availableOnDemandTasks,
                 ],
             ], 201);
+        }
+
+        $recordDate = \Carbon\Carbon::parse($dailyRecord->work_date)->toDateString();
+        $todayDate = \Carbon\Carbon::today()->toDateString();
+
+        if ($recordDate !== $todayDate || $targetDate) {
+            return redirect()->route('consultant.site-visits.execute', ['visit' => $visit->id, 'date' => $recordDate])->with('success', 'تم فتح زيارة الموقع بنجاح');
         }
 
         return redirect()->route('consultant.site-visits.execute', $visit->id)->with('success', 'تم فتح زيارة الموقع بنجاح');

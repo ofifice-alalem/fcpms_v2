@@ -25,17 +25,23 @@
         </div>
       </div>
 
-      <!-- Left Side: Circular Completion Progress Badge -->
-      <div class="flex items-center gap-2 bg-emerald-500/10 dark:bg-emerald-500/15 border border-emerald-500/20 px-2.5 py-1.5 rounded-2xl">
-        <span class="text-[10px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-tighter">إنجاز اليوم</span>
+      <!-- Center / Left: Retroactive Indicator or Circular Completion Progress Badge -->
+      <div class="flex items-center gap-2">
+        <div v-if="$page.props.isHistorical" class="flex items-center gap-1 px-2.5 py-1 rounded-full bg-amber-500/20 border border-amber-500/40 text-amber-600 dark:text-amber-300 font-mono text-[10px] font-black animate-pulse">
+          <span>📅 سجل سابق: {{ formatDateOnly($page.props.selectedDate) }}</span>
+        </div>
 
-        <SpatialCircularProgress
-          :percentage="dailyCompletionPercentage"
-          :size="38"
-          :stroke-width="3.5"
-        >
-          <span class="text-[9px] font-black font-mono text-slate-900 dark:text-white">{{ dailyCompletionPercentage.toFixed(0) }}%</span>
-        </SpatialCircularProgress>
+        <div v-else class="flex items-center gap-2 bg-emerald-500/10 dark:bg-emerald-500/15 border border-emerald-500/20 px-2.5 py-1.5 rounded-2xl">
+          <span class="text-[10px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-tighter">إنجاز اليوم</span>
+
+          <SpatialCircularProgress
+            :percentage="dailyCompletionPercentage"
+            :size="38"
+            :stroke-width="3.5"
+          >
+            <span class="text-[9px] font-black font-mono text-slate-900 dark:text-white">{{ dailyCompletionPercentage.toFixed(0) }}%</span>
+          </SpatialCircularProgress>
+        </div>
       </div>
     </header>
 
@@ -61,6 +67,17 @@
           >
             <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
             <span>سجل الزيارات اليومية</span>
+          </Link>
+
+          <Link
+            :href="route('consultant.history.index')"
+            :class="[
+              'flex items-center gap-3 px-4 py-3 rounded-[16px] font-bold text-sm transition-all cursor-pointer',
+              $page.component === 'Consultant/History/Index' ? 'bg-primary text-white shadow-md scale-102' : 'text-slate-600 dark:text-white/70 hover:bg-black/5 dark:hover:bg-white/5 hover:text-slate-900 dark:hover:text-white'
+            ]"
+          >
+            <svg class="w-5 h-5 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+            <span>سجل الأيام السابقة</span>
           </Link>
 
           <Link
@@ -133,6 +150,18 @@
           </Link>
 
           <Link
+            :href="route('consultant.history.index')"
+            @click="isMobileDrawerOpen = false"
+            :class="[
+              'flex items-center gap-3 px-4 py-3.5 rounded-[16px] font-bold text-sm transition-all cursor-pointer',
+              $page.component === 'Consultant/History/Index' ? 'bg-primary text-white shadow-md' : 'text-slate-700 dark:text-white/80 hover:bg-black/5 dark:hover:bg-white/10'
+            ]"
+          >
+            <svg class="w-5 h-5 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+            <span>سجل الأيام السابقة</span>
+          </Link>
+
+          <Link
             :href="route('consultant.site-visits.create')"
             @click="isMobileDrawerOpen = false"
             :class="[
@@ -182,6 +211,18 @@
 
     <!-- Main Content Area -->
     <main class="flex-1 p-4 md:p-8 overflow-y-auto max-w-7xl mx-auto w-full z-10 space-y-6 pb-24 md:pb-8">
+      
+      <!-- Retroactive Historical Mode Amber Banner (Desktop & Mobile warning) -->
+      <div v-if="$page.props.isHistorical" class="p-4 rounded-2xl bg-amber-500/15 border border-amber-500/40 backdrop-blur-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-amber-700 dark:text-amber-300 text-xs font-black shadow-lg animate-fade-in">
+        <div class="flex items-center gap-2">
+          <span class="text-lg shrink-0">⚠️</span>
+          <span>تنبيه الوضع التاريخي: أنت تتصفح وتعدل حالياً على سجل عمل سابق بتاريخ <span class="font-mono underline font-bold dir-ltr inline-block text-amber-600 dark:text-amber-200">{{ formatDateOnly($page.props.selectedDate) }}</span>.</span>
+        </div>
+        <Link :href="route('consultant.visits.index')" class="px-3.5 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs transition-all shrink-0 text-center shadow-md">
+          العودة لليوم الحالي 📍
+        </Link>
+      </div>
+
       <slot />
     </main>
 
@@ -189,7 +230,7 @@
     <SpatialMobileBottomNav>
       <!-- Item 1: Start New Visit (Right in RTL) -->
       <Link
-        :href="route('consultant.site-visits.create')"
+        :href="$page.props.isHistorical && $page.props.selectedDate ? route('consultant.site-visits.create', { date: formatDateOnly($page.props.selectedDate) }) : route('consultant.site-visits.create')"
         :class="[
           'relative flex-1 flex flex-col items-center justify-center py-1 transition-all duration-150 active:scale-90 cursor-pointer',
           $page.component === 'Consultant/DailyVisits/Execute' && !$page.props.visit
@@ -210,7 +251,7 @@
 
       <!-- Item 2: Visits History (CENTER) -->
       <Link
-        :href="route('consultant.visits.index')"
+        :href="$page.props.isHistorical && $page.props.selectedDate ? route('consultant.visits.index', { date: formatDateOnly($page.props.selectedDate) }) : route('consultant.visits.index')"
         :class="[
           'relative flex-1 flex flex-col items-center justify-center py-1 transition-all duration-150 active:scale-90 cursor-pointer',
           $page.component === 'Consultant/DailyVisits/Index'
@@ -267,6 +308,11 @@ defineProps({
 const page = usePage();
 const isDark = ref(true);
 const isMobileDrawerOpen = ref(false);
+
+const formatDateOnly = (dateStr) => {
+  if (!dateStr) return '';
+  return String(dateStr).split('T')[0];
+};
 
 const dailyCompletionPercentage = computed(() => {
   const record = page.props.dailyRecord || page.props.visit?.daily_record || page.props.activeVisit?.dailyRecord || page.props.visit?.dailyRecord;

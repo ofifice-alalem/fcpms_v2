@@ -47,12 +47,15 @@ class SiteVisitRepository extends BaseRepository implements SiteVisitRepositoryI
     public function openVisit(DailyRecord $dailyRecord, int $siteId, ?string $notes = null): SiteVisit
     {
         return DB::transaction(function () use ($dailyRecord, $siteId, $notes) {
+            $recordDate = Carbon::parse($dailyRecord->work_date);
+            $startedAt = $recordDate->isToday() ? Carbon::now() : $recordDate->setTime(Carbon::now()->hour, Carbon::now()->minute, Carbon::now()->second);
+
             $visit = SiteVisit::firstOrCreate([
                 'daily_record_id' => $dailyRecord->id,
                 'site_id' => $siteId,
             ], [
                 'status' => 'in_progress',
-                'visit_started_at' => Carbon::now(),
+                'visit_started_at' => $startedAt,
                 'notes' => $notes,
             ]);
 
@@ -192,12 +195,15 @@ class SiteVisitRepository extends BaseRepository implements SiteVisitRepositoryI
                     ->whereRaw("TRIM(value) != '' AND value != '[]' AND value != 'null'")
                     ->exists();
 
+                $recordDate = Carbon::parse($siteVisit->dailyRecord->work_date);
+                $taskTimestamp = $recordDate->isToday() ? Carbon::now() : $recordDate->setTime(Carbon::now()->hour, Carbon::now()->minute, Carbon::now()->second);
+
                 // Update response status based on whether it has actual values
                 if ($hasNonEmptyValue || $dbHasValues) {
                     $taskResponse->update([
                         'status' => 'submitted',
-                        'submitted_at' => $taskResponse->submitted_at ?? Carbon::now(),
-                        'completed_at' => $taskResponse->completed_at ?? Carbon::now(),
+                        'submitted_at' => $taskResponse->submitted_at ?? $taskTimestamp,
+                        'completed_at' => $taskResponse->completed_at ?? $taskTimestamp,
                     ]);
                 } else {
                     $taskResponse->update([
@@ -210,6 +216,9 @@ class SiteVisitRepository extends BaseRepository implements SiteVisitRepositoryI
 
             // Handle file attachments if provided in request
             if (!empty($attachmentsData)) {
+                $recordDate = Carbon::parse($siteVisit->dailyRecord->work_date);
+                $uploadTimestamp = $recordDate->isToday() ? Carbon::now() : $recordDate->setTime(Carbon::now()->hour, Carbon::now()->minute, Carbon::now()->second);
+
                 foreach ($attachmentsData as $taskDefId => $files) {
                     $taskResponse = TaskResponse::where('site_visit_id', $siteVisit->id)
                         ->where('task_definition_id', $taskDefId)
@@ -226,7 +235,7 @@ class SiteVisitRepository extends BaseRepository implements SiteVisitRepositoryI
                                     'file_path' => Storage::url($path),
                                     'mime_type' => $file->getClientMimeType(),
                                     'file_size' => $file->getSize(),
-                                    'uploaded_at' => Carbon::now(),
+                                    'uploaded_at' => $uploadTimestamp,
                                 ]);
                             }
                         }
@@ -236,9 +245,12 @@ class SiteVisitRepository extends BaseRepository implements SiteVisitRepositoryI
 
             // If user selected complete visit
             if (isset($responsesData['_complete_visit']) && $responsesData['_complete_visit']) {
+                $recordDate = Carbon::parse($siteVisit->dailyRecord->work_date);
+                $finishedAt = $recordDate->isToday() ? Carbon::now() : $recordDate->setTime(Carbon::now()->hour, Carbon::now()->minute, Carbon::now()->second);
+
                 $siteVisit->update([
                     'status' => 'completed',
-                    'visit_finished_at' => Carbon::now(),
+                    'visit_finished_at' => $finishedAt,
                 ]);
             }
 

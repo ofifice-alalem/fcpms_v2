@@ -15,14 +15,14 @@ class DailyRecordRepository extends BaseRepository implements DailyRecordReposit
         return DailyRecord::class;
     }
 
-    public function getTodayRecord(Consultant $consultant): DailyRecord
+    public function getRecordForDate(Consultant $consultant, ?string $date = null): DailyRecord
     {
-        $today = Carbon::today()->toDateString();
+        $targetDate = $date ? Carbon::parse($date)->toDateString() : Carbon::today()->toDateString();
 
         return DailyRecord::firstOrCreate(
             [
                 'consultant_id' => $consultant->id,
-                'work_date' => $today,
+                'work_date' => $targetDate,
             ],
             [
                 'required_daily_tasks' => 0,
@@ -30,6 +30,11 @@ class DailyRecordRepository extends BaseRepository implements DailyRecordReposit
                 'completion_percentage' => 0.00,
             ]
         );
+    }
+
+    public function getTodayRecord(Consultant $consultant): DailyRecord
+    {
+        return $this->getRecordForDate($consultant);
     }
 
     public function startDay(Consultant $consultant, ?string $notes = null): DailyRecord

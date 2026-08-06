@@ -487,16 +487,24 @@ const toggleCheckbox = (taskId, compId, val) => {
 };
 
 const goBack = () => {
-  router.get('/consultant/daily-visits');
+  if (props.isHistorical && props.selectedDate) {
+    router.get('/consultant/daily-visits', { date: props.selectedDate });
+  } else {
+    router.get('/consultant/daily-visits');
+  }
 };
 
 const handleOpenSiteVisit = () => {
   if (!selectedSiteId.value) return;
   isSubmitting.value = true;
-  router.post('/consultant/site-visits', {
+  const payload = {
     site_id: selectedSiteId.value,
     notes: notes.value,
-  }, {
+  };
+  if (props.isHistorical && props.selectedDate) {
+    payload.date = props.selectedDate;
+  }
+  router.post('/consultant/site-visits', payload, {
     onFinish: () => (isSubmitting.value = false),
   });
 };
@@ -573,7 +581,11 @@ const handleSaveResponses = (completeVisit = false) => {
   }, {
     onSuccess: () => {
       if (completeVisit) {
-        router.get('/consultant/daily-visits');
+        if (props.isHistorical && props.selectedDate) {
+          router.get('/consultant/daily-visits', { date: props.selectedDate });
+        } else {
+          router.get('/consultant/daily-visits');
+        }
       }
     },
     onFinish: () => (isSubmitting.value = false),

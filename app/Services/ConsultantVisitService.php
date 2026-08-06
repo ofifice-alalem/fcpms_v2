@@ -23,6 +23,11 @@ class ConsultantVisitService
         return $this->dailyRecordRepo->getTodayRecord($consultant);
     }
 
+    public function getRecordForDate(Consultant $consultant, ?string $date = null): DailyRecord
+    {
+        return $this->dailyRecordRepo->getRecordForDate($consultant, $date);
+    }
+
     public function startDay(Consultant $consultant, ?string $notes = null): DailyRecord
     {
         return $this->dailyRecordRepo->startDay($consultant, $notes);
