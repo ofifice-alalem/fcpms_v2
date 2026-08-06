@@ -294,25 +294,26 @@
         <span class="text-[10px] font-bold tracking-tight mt-1 leading-none">سجل اليوم</span>
       </Link>
 
-      <!-- Item 3: Drawer Menu Toggle (Left in RTL) -->
-      <button
-        @click="isMobileDrawerOpen = true"
+      <!-- Item 3: History Records (Left in RTL) -->
+      <Link
+        :href="route('consultant.history.index')"
         :class="[
           'relative flex-1 flex flex-col items-center justify-center py-1 transition-all duration-150 active:scale-90 cursor-pointer',
-          isMobileDrawerOpen
+          $page.component === 'Consultant/History/Index'
             ? 'text-emerald-500 dark:text-emerald-400 font-black'
             : 'text-slate-400 dark:text-white/40 hover:text-slate-700 dark:hover:text-white'
         ]"
       >
-        <div v-if="isMobileDrawerOpen" class="absolute -top-1.5 w-7 h-1 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)]"></div>
+        <!-- Active Top Indicator Pill -->
+        <div v-if="$page.component === 'Consultant/History/Index'" class="absolute -top-1.5 w-7 h-1 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)]"></div>
 
         <div class="relative">
           <svg class="w-6 h-6 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
           </svg>
         </div>
-        <span class="text-[10px] font-bold tracking-tight mt-1 leading-none">القائمة</span>
-      </button>
+        <span class="text-[10px] font-bold tracking-tight mt-1 leading-none">الأيام السابقة</span>
+      </Link>
     </SpatialMobileBottomNav>
 
   </div>
