@@ -24,9 +24,14 @@ class DashboardController extends Controller
         $totalConsultantsCount = $allConsultants->count();
 
         // 2. Checked In Consultants Today (Daily Records with check_in_time)
-        $todayDailyRecords = DailyRecord::with(['consultant.user', 'siteVisits.site', 'siteVisits.taskResponses.taskDefinition'])
-            ->whereDate('work_date', $today)
-            ->get();
+        $todayDailyRecords = DailyRecord::with([
+            'consultant.user', 
+            'siteVisits.site', 
+            'siteVisits.taskResponses.taskDefinition',
+            'siteVisits.taskResponses.values'
+        ])
+        ->whereDate('work_date', $today)
+        ->get();
 
         $checkedInConsultantIds = $todayDailyRecords->whereNotNull('check_in_time')->pluck('consultant_id')->toArray();
         $checkedInCount = count($checkedInConsultantIds);
@@ -76,8 +81,59 @@ class DashboardController extends Controller
         // Detailed Lists for Dashboard Views
         $consultantsStatusList = $allConsultants->map(function ($c) use ($checkedInConsultantIds, $todayDailyRecords, $leavesToday) {
             $isLeave = in_array($c->id, $leavesToday);
+            
+            // Find record for today, or fallback to latest record
             $record = $todayDailyRecords->firstWhere('consultant_id', $c->id);
-            $isCheckedIn = in_array($c->id, $checkedInConsultantIds);
+            if (!$record) {
+                $record = DailyRecord::where('consultant_id', $c->id)
+                    ->with([
+                        'siteVisits.site',
+                        'siteVisits.taskResponses.taskDefinition',
+                        'siteVisits.taskResponses.values'
+                    ])
+                    ->latest('id')
+                    ->first();
+            }
+
+            $isCheckedIn = in_array($c->id, $checkedInConsultantIds) || ($record && !is_null($record->check_in_time));
+
+            $siteVisitsList = [];
+            if ($record && $record->siteVisits) {
+                $siteVisitsList = $record->siteVisits->map(function ($visit) {
+                    return [
+                        'id' => $visit->id,
+                        'site_id' => $visit->site_id,
+                        'status' => $visit->status ?? ($visit->visit_finished_at ? 'completed' : 'in_progress'),
+                        'visit_started_at' => $visit->visit_started_at ? $visit->visit_started_at->toIso8601String() : null,
+                        'visit_finished_at' => $visit->visit_finished_at ? $visit->visit_finished_at->toIso8601String() : null,
+                        'notes' => $visit->notes,
+                        'site' => $visit->site ? [
+                            'id' => $visit->site->id,
+                            'name' => $visit->site->name,
+                            'code' => $visit->site->code,
+                        ] : null,
+                        'task_responses' => $visit->taskResponses ? $visit->taskResponses->map(function ($r) {
+                            return [
+                                'id' => $r->id,
+                                'status' => $r->status,
+                                'completed_at' => $r->completed_at ? $r->completed_at->toIso8601String() : null,
+                                'task_definition' => $r->taskDefinition ? [
+                                    'id' => $r->taskDefinition->id,
+                                    'title' => $r->taskDefinition->title,
+                                    'task_type' => $r->taskDefinition->task_type,
+                                ] : null,
+                                'values' => $r->values ? $r->values->map(function ($v) {
+                                    return [
+                                        'id' => $v->id,
+                                        'task_component_id' => $v->task_component_id,
+                                        'value' => $v->value,
+                                    ];
+                                })->values()->all() : [],
+                            ];
+                        })->values()->all() : [],
+                    ];
+                })->values()->all();
+            }
 
             return [
                 'id' => $c->id,
@@ -90,6 +146,7 @@ class DashboardController extends Controller
                 'completed_daily_tasks' => $record ? $record->completed_daily_tasks : 0,
                 'required_daily_tasks' => $record ? $record->required_daily_tasks : 0,
                 'completion_percentage' => $record ? (float) $record->completion_percentage : 0,
+                'site_visits' => $siteVisitsList,
             ];
         });
 
@@ -103,7 +160,7 @@ class DashboardController extends Controller
                 'started_at' => $visit->visit_started_at ? Carbon::parse($visit->visit_started_at)->format('H:i') : '--',
                 'task_count' => $visit->taskResponses ? $visit->taskResponses->count() : 0,
             ];
-        });
+        })->values()->all();
 
         return Inertia::render('Admin/Dashboard/Index', [
             'stats' => [

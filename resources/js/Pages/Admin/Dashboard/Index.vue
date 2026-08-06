@@ -316,18 +316,18 @@
                   <span v-else class="text-xs text-slate-400 dark:text-white/40 italic">--</span>
                 </td>
                 <td class="p-4 text-center whitespace-nowrap">
-                  <Link :href="route('admin.consultants.show', c.id)">
-                    <button
-                      type="button"
-                      title="عرض ملف الاستشاري"
-                      class="w-8 h-8 border border-indigo-500/60 text-indigo-600 dark:text-indigo-400 bg-transparent hover:bg-indigo-500/15 flex items-center justify-center transition-all duration-200 hover:scale-105 cursor-pointer rounded-full mx-auto"
-                    >
-                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                      </svg>
-                    </button>
-                  </Link>
+                  <!-- View Consultant Visited Sites Cards Button -->
+                  <button
+                    type="button"
+                    title="معاينة المواقع المزارة اليوم لهذا الاستشاري"
+                    @click="openConsultantVisitsModal(c)"
+                    class="w-8 h-8 border border-indigo-500/60 text-indigo-600 dark:text-indigo-400 bg-transparent hover:bg-indigo-500/15 flex items-center justify-center transition-all duration-200 hover:scale-105 cursor-pointer rounded-full mx-auto"
+                  >
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                    </svg>
+                  </button>
                 </td>
               </tr>
             </tbody>
@@ -402,6 +402,155 @@
         </div>
       </SpatialCard>
 
+      <!-- MODAL 1: Consultant Visited Sites Cards Modal -->
+      <SpatialModal
+        :is-open="isConsultantVisitsModalOpen"
+        :title="`المواقع المزارة اليوم - ${selectedConsultantForVisits?.full_name || ''}`"
+        max-width="max-w-[850px]"
+        @close="isConsultantVisitsModalOpen = false"
+      >
+        <div v-if="selectedConsultantForVisits" class="space-y-6 text-right dir-rtl">
+          <!-- Consultant Info Header Pill -->
+          <div class="p-4 rounded-2xl bg-slate-100/90 dark:bg-slate-800/80 border border-slate-200/80 dark:border-white/10 flex flex-wrap items-center justify-between gap-3">
+            <div class="space-y-1">
+              <h3 class="text-sm font-black text-slate-900 dark:text-white flex items-center gap-2">
+                <span>{{ selectedConsultantForVisits.full_name }}</span>
+                <span class="text-xs font-mono font-bold text-slate-500 dark:text-white/60">({{ selectedConsultantForVisits.employee_number }})</span>
+              </h3>
+              <p class="text-xs font-bold text-slate-500 dark:text-white/60">
+                التخصص: {{ selectedConsultantForVisits.specialization || 'استشاري ميداني' }}
+              </p>
+            </div>
+
+            <div class="flex items-center gap-2">
+              <span class="px-3 py-1.5 rounded-xl bg-indigo-500/15 text-indigo-600 dark:text-indigo-400 font-mono font-black text-xs border border-indigo-500/30">
+                📍 إجمالي المواقع المزارة: {{ consultantVisits.length }}
+              </span>
+            </div>
+          </div>
+
+          <!-- Cards Grid matching Consultant/DailyVisits/Index.vue (WITHOUT Edit/Delete Buttons) -->
+          <div
+            v-if="consultantVisits.length > 0"
+            class="grid grid-cols-1 sm:grid-cols-2 gap-4"
+          >
+            <div
+              v-for="visit in consultantVisits"
+              :key="visit.id"
+              :class="[
+                'relative p-5 rounded-3xl transition-all duration-200 flex flex-col justify-between space-y-4 border shadow-lg w-full',
+                isVisitCompleted(visit)
+                  ? 'bg-white dark:bg-slate-800/80 border-slate-200/80 dark:border-white/10 shadow-slate-200/50 dark:shadow-black/30'
+                  : 'bg-amber-50/70 dark:bg-slate-800/90 border-amber-500/40 shadow-amber-500/10'
+              ]"
+            >
+              <!-- Card Header: Site Name, Code Badge & Status Pill -->
+              <div class="flex items-start justify-between gap-2 pb-3 border-b border-slate-100 dark:border-white/10">
+                <div class="space-y-1">
+                  <h3 class="text-base font-black text-slate-900 dark:text-white leading-tight">
+                    {{ visit.site ? visit.site.name : 'موقع ميداني' }}
+                  </h3>
+                  <span class="text-xs font-mono font-black text-slate-700 dark:text-slate-200 dir-ltr inline-block bg-slate-100 dark:bg-white/10 px-2.5 py-0.5 rounded-md border border-slate-200 dark:border-white/10">
+                    كود: {{ visit.site ? visit.site.code : '' }}
+                  </span>
+                </div>
+
+                <SpatialStatusPill
+                  :type="isVisitCompleted(visit) ? 'completed' : 'pending'"
+                  :pulse="!isVisitCompleted(visit)"
+                  class="shrink-0"
+                >
+                  {{ isVisitCompleted(visit) ? 'مكتملة' : 'قيد التنفيذ' }}
+                </SpatialStatusPill>
+              </div>
+
+              <!-- Card Body: Circular Progress Ring & Metrics Stack -->
+              <div class="flex items-center justify-between gap-4 py-1">
+                <!-- Center Circular Progress Ring -->
+                <div class="flex flex-col items-center justify-center shrink-0 pr-1">
+                  <SpatialCircularProgress
+                    :percentage="getVisitProgress(visit)"
+                    :size="76"
+                    :strokeWidth="7"
+                  >
+                    <span class="text-base font-black font-mono text-slate-900 dark:text-white">
+                      {{ getVisitProgress(visit) }}%
+                    </span>
+                  </SpatialCircularProgress>
+                  <span class="text-[10px] font-black text-slate-500 dark:text-white/60 mt-1">نسبة الإنجاز</span>
+                </div>
+
+                <!-- Right Metrics Stack -->
+                <div class="flex-1 space-y-2">
+                  <!-- Check-in / Start Time -->
+                  <div class="flex items-center justify-between p-2 rounded-xl bg-slate-100/90 dark:bg-white/5 border border-slate-200/80 dark:border-white/10 text-xs shadow-2xs">
+                    <span class="font-black text-slate-700 dark:text-white/70">⏰ وقت البدء:</span>
+                    <span class="font-mono font-black text-slate-900 dark:text-white">
+                      {{ formatTime(visit.visit_started_at) }}
+                    </span>
+                  </div>
+
+                  <!-- On-Demand Tasks Count -->
+                  <div class="flex items-center justify-between p-2 rounded-xl bg-slate-100/90 dark:bg-white/5 border border-slate-200/80 dark:border-white/10 text-xs shadow-2xs">
+                    <span class="font-black text-slate-700 dark:text-white/70">⚡ إضافية:</span>
+                    <span :class="['font-mono font-black', getOnDemandTasksCount(visit) > 0 ? 'text-amber-600 dark:text-amber-400 text-sm' : 'text-slate-400 dark:text-white/40']">
+                      {{ getOnDemandTasksCount(visit) > 0 ? getOnDemandTasksCount(visit) : '--' }}
+                    </span>
+                  </div>
+
+                  <!-- Daily Tasks Fraction -->
+                  <div class="flex items-center justify-between p-2 rounded-xl bg-slate-100/90 dark:bg-white/5 border border-slate-200/80 dark:border-white/10 text-xs shadow-2xs">
+                    <span class="font-black text-slate-700 dark:text-white/70">📋 المهام:</span>
+                    <span class="font-mono font-black text-slate-900 dark:text-white dir-ltr">
+                      {{ getDailyTasksFraction(visit) }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Bottom Actions Bar (With Text: عرض التفاصيل) -->
+              <div class="pt-3 border-t border-slate-200/80 dark:border-white/10 flex items-center justify-center">
+                <button
+                  type="button"
+                  @click="openVisitDetailsModal(visit)"
+                  class="w-full inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-2xl border-2 border-blue-500/40 hover:border-blue-600 dark:border-blue-400/40 text-blue-600 dark:text-blue-400 bg-transparent hover:bg-blue-50 dark:hover:bg-blue-500/10 transition-all duration-200 cursor-pointer text-xs font-black shadow-xs active:scale-95"
+                >
+                  <svg class="w-4 h-4 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                  </svg>
+                  <span>عرض التفاصيل</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Empty State -->
+          <div
+            v-else
+            class="p-10 text-center rounded-3xl bg-slate-100/50 dark:bg-white/5 border border-dashed border-slate-300 dark:border-white/10 text-slate-500 dark:text-white/50 text-sm font-bold space-y-2"
+          >
+            <span class="text-3xl block">📍</span>
+            <p>لم يُسجّل هذا الاستشاري أي زيارات ميدانية للمواقع اليوم بعد.</p>
+          </div>
+        </div>
+
+        <template #footer>
+          <div class="flex justify-end">
+            <SpatialButton variant="secondary" @click="isConsultantVisitsModalOpen = false">
+              إغلاق
+            </SpatialButton>
+          </div>
+        </template>
+      </SpatialModal>
+
+      <!-- MODAL 2: Visit Detailed Task Responses Modal -->
+      <VisitDetailModal
+        :is-open="isVisitDetailModalOpen"
+        :visit="selectedVisitForDetails"
+        @close="isVisitDetailModalOpen = false"
+      />
+
     </div>
   </HRLayout>
 </template>
@@ -415,6 +564,8 @@ import SpatialButton from '@/Components/Spatial/SpatialButton.vue';
 import SpatialStatusPill from '@/Components/Spatial/SpatialStatusPill.vue';
 import SpatialToast from '@/Components/Spatial/SpatialToast.vue';
 import SpatialCircularProgress from '@/Components/Spatial/SpatialCircularProgress.vue';
+import SpatialModal from '@/Components/Spatial/SpatialModal.vue';
+import VisitDetailModal from '@/Components/Consultant/VisitDetailModal.vue';
 
 const props = defineProps({
   stats: {
@@ -437,6 +588,23 @@ const props = defineProps({
 
 const toastRef = ref(null);
 const consultantsFilter = ref('all'); // 'all' | 'checked_in' | 'absent'
+
+// Modal states
+const isConsultantVisitsModalOpen = ref(false);
+const selectedConsultantForVisits = ref(null);
+
+const isVisitDetailModalOpen = ref(false);
+const selectedVisitForDetails = ref(null);
+
+const openConsultantVisitsModal = (consultant) => {
+  selectedConsultantForVisits.value = consultant;
+  isConsultantVisitsModalOpen.value = true;
+};
+
+const openVisitDetailsModal = (visit) => {
+  selectedVisitForDetails.value = visit;
+  isVisitDetailModalOpen.value = true;
+};
 
 const checkedInPercentage = computed(() => {
   if (!props.stats.total_consultants) return 0;
@@ -462,4 +630,65 @@ const filteredConsultants = computed(() => {
   }
   return props.consultants_status;
 });
+
+const consultantVisits = computed(() => {
+  if (!selectedConsultantForVisits.value || !selectedConsultantForVisits.value.site_visits) return [];
+  const raw = selectedConsultantForVisits.value.site_visits;
+  if (Array.isArray(raw)) return raw;
+  if (typeof raw === 'object' && raw !== null) return Object.values(raw);
+  return [];
+});
+
+// Visit progress & card helper functions
+const isVisitCompleted = (visit) => {
+  if (!visit) return false;
+  if (visit.status === 'completed' || visit.visit_finished_at) return true;
+  const responses = visit.task_responses || visit.taskResponses || [];
+  if (responses.length === 0) return false;
+  return responses.every(r => r.status === 'submitted');
+};
+
+const getVisitProgress = (visit) => {
+  if (!visit) return 0;
+  const responses = visit.task_responses || visit.taskResponses || [];
+  if (!responses || responses.length === 0) return 0;
+  const completed = responses.filter(r => {
+    const hasValues = r.values && r.values.some(v => v.value && String(v.value).trim() !== '' && String(v.value) !== '[]' && String(v.value) !== 'null');
+    return r.status === 'submitted' || (r.completed_at && hasValues);
+  }).length;
+  return Math.round((completed / responses.length) * 100);
+};
+
+const getOnDemandTasksCount = (visit) => {
+  if (!visit) return 0;
+  const responses = visit.task_responses || visit.taskResponses || [];
+  return responses.filter(r => {
+    const type = r.task_definition?.task_type || r.taskDefinition?.task_type;
+    return type === 'on_demand' || type?.value === 'on_demand';
+  }).length;
+};
+
+const getDailyTasksFraction = (visit) => {
+  if (!visit) return '0 / 0';
+  const responses = visit.task_responses || visit.taskResponses || [];
+  const dailyTasks = responses.filter(r => {
+    const type = r.task_definition?.task_type || r.taskDefinition?.task_type || 'daily';
+    return type === 'daily';
+  });
+  if (dailyTasks.length === 0) return '0 / 0';
+  const completedDaily = dailyTasks.filter(r => {
+    const hasValues = r.values && r.values.some(v => v.value && String(v.value).trim() !== '' && String(v.value) !== '[]' && String(v.value) !== 'null');
+    return r.status === 'submitted' || (r.completed_at && hasValues);
+  }).length;
+  return `${completedDaily} / ${dailyTasks.length}`;
+};
+
+const formatTime = (isoString) => {
+  if (!isoString) return '--';
+  try {
+    return new Date(isoString).toLocaleTimeString('ar-LY', { hour: '2-digit', minute: '2-digit' });
+  } catch (e) {
+    return isoString;
+  }
+};
 </script>
