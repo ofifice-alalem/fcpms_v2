@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\BackupController;
 use App\Http\Controllers\Admin\ConsultantController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\SiteController;
@@ -55,6 +56,15 @@ Route::middleware('auth')->group(function () {
         Route::post('/work-schedules/leaves', [\App\Http\Controllers\Admin\WorkScheduleController::class, 'storeLeave'])->name('schedules.leaves.store');
         Route::put('/work-schedules/leaves/{leave}', [\App\Http\Controllers\Admin\WorkScheduleController::class, 'updateLeave'])->name('schedules.leaves.update');
         Route::delete('/work-schedules/leaves/{leave}', [\App\Http\Controllers\Admin\WorkScheduleController::class, 'destroyLeave'])->name('schedules.leaves.destroy');
+
+        // Phase 08: Backup System Routes
+        Route::get('/backups', [BackupController::class, 'index'])->name('backups.index');
+        Route::post('/backups/create', [BackupController::class, 'create'])->name('backups.create');
+        Route::post('/backups/upload', [BackupController::class, 'upload'])->name('backups.upload');
+        Route::post('/backups/open-folder', [BackupController::class, 'openFolder'])->name('backups.open-folder');
+        Route::post('/backups/restore/{filename}', [BackupController::class, 'restore'])->name('backups.restore');
+        Route::get('/backups/download/{filename}', [BackupController::class, 'download'])->name('backups.download');
+        Route::delete('/backups/{filename}', [BackupController::class, 'delete'])->name('backups.delete');
 
         // Phase 04: Dynamic Task Builder & Assignments Routes
         Route::get('/task-builder', [\App\Http\Controllers\Admin\TaskBuilderController::class, 'index'])->name('tasks.index');
