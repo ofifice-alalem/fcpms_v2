@@ -198,8 +198,10 @@ class SiteVisitRepository extends BaseRepository implements SiteVisitRepositoryI
                 $recordDate = Carbon::parse($siteVisit->dailyRecord->work_date);
                 $taskTimestamp = $recordDate->isToday() ? Carbon::now() : $recordDate->setTime(Carbon::now()->hour, Carbon::now()->minute, Carbon::now()->second);
 
-                // Update response status based on whether it has actual values
-                if ($hasNonEmptyValue || $dbHasValues) {
+                $shouldSubmit = isset($responsesData['_complete_visit']) && $responsesData['_complete_visit'];
+                $wasSubmitted = $taskResponse->status === 'submitted';
+
+                if (($shouldSubmit || $wasSubmitted) && ($hasNonEmptyValue || $dbHasValues)) {
                     $taskResponse->update([
                         'status' => 'submitted',
                         'submitted_at' => $taskResponse->submitted_at ?? $taskTimestamp,

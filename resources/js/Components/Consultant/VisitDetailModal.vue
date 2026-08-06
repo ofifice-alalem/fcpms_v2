@@ -30,21 +30,21 @@
         </div>
       </div>
 
-      <!-- 3 TABS NAVIGATION BAR (Top-Centered Count Badges) -->
-      <div class="grid grid-cols-3 gap-2 p-1.5 rounded-2xl bg-slate-100 dark:bg-slate-800/90 border border-slate-200/80 dark:border-white/10 pt-4">
+      <!-- Navigation Tabs (4 Tabs Grid with Top-Centered Count Badges & Hidden Scrollbar) -->
+      <div class="flex sm:grid sm:grid-cols-4 items-center gap-2 pt-3 pb-1 overflow-x-auto [::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
         <button
           type="button"
           @click="activeTab = 'completed_daily'"
           :class="[
-            'relative py-3 px-2 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-1 cursor-pointer select-none text-center',
+            'flex-1 min-w-[85px] sm:min-w-0 relative pt-3.5 pb-2.5 px-1.5 rounded-xl text-xs font-black transition-all flex flex-col items-center justify-center gap-1 cursor-pointer select-none text-center',
             activeTab === 'completed_daily'
-              ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-600/30'
-              : 'text-slate-700 dark:text-white/80 hover:bg-white/60 dark:hover:bg-white/10'
+              ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/30'
+              : 'bg-slate-100 dark:bg-slate-900/80 text-slate-700 dark:text-white/80 hover:bg-white/60 dark:hover:bg-white/10 border border-slate-200/80 dark:border-white/10'
           ]"
         >
           <span
             :class="[
-              'absolute -top-3 left-1/2 -translate-x-1/2 px-2.5 py-0.5 rounded-full text-[11px] font-mono font-black border shadow-xs transition-all',
+              'absolute -top-2.5 left-1/2 -translate-x-1/2 px-2 py-0.2 rounded-full text-[10px] font-mono font-black border shadow-xs transition-all',
               activeTab === 'completed_daily'
                 ? 'bg-slate-900 text-emerald-400 border-emerald-400/60'
                 : 'bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border-emerald-500/30'
@@ -52,22 +52,22 @@
           >
             {{ completedDailyTasks.length }}
           </span>
-          <span>المهام التي تمت</span>
+          <span class="whitespace-nowrap">مهام تمت</span>
         </button>
 
         <button
           type="button"
           @click="activeTab = 'uncompleted_daily'"
           :class="[
-            'relative py-3 px-2 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-1 cursor-pointer select-none text-center',
+            'flex-1 min-w-[85px] sm:min-w-0 relative pt-3.5 pb-2.5 px-1.5 rounded-xl text-xs font-black transition-all flex flex-col items-center justify-center gap-1 cursor-pointer select-none text-center',
             activeTab === 'uncompleted_daily'
-              ? 'bg-amber-500 text-white shadow-lg shadow-amber-500/30'
-              : 'text-slate-700 dark:text-white/80 hover:bg-white/60 dark:hover:bg-white/10'
+              ? 'bg-amber-500 text-white shadow-md shadow-amber-500/30'
+              : 'bg-slate-100 dark:bg-slate-900/80 text-slate-700 dark:text-white/80 hover:bg-white/60 dark:hover:bg-white/10 border border-slate-200/80 dark:border-white/10'
           ]"
         >
           <span
             :class="[
-              'absolute -top-3 left-1/2 -translate-x-1/2 px-2.5 py-0.5 rounded-full text-[11px] font-mono font-black border shadow-xs transition-all',
+              'absolute -top-2.5 left-1/2 -translate-x-1/2 px-2 py-0.2 rounded-full text-[10px] font-mono font-black border shadow-xs transition-all',
               activeTab === 'uncompleted_daily'
                 ? 'bg-slate-900 text-amber-400 border-amber-400/60'
                 : 'bg-amber-500/20 text-amber-700 dark:text-amber-300 border-amber-500/30'
@@ -75,22 +75,22 @@
           >
             {{ uncompletedDailyTasks.length }}
           </span>
-          <span>غير المنجزة</span>
+          <span class="whitespace-nowrap">غير منجزة</span>
         </button>
 
         <button
           type="button"
           @click="activeTab = 'on_demand'"
           :class="[
-            'relative py-3 px-2 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-1 cursor-pointer select-none text-center',
+            'flex-1 min-w-[85px] sm:min-w-0 relative pt-3.5 pb-2.5 px-1.5 rounded-xl text-xs font-black transition-all flex flex-col items-center justify-center gap-1 cursor-pointer select-none text-center',
             activeTab === 'on_demand'
-              ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30'
-              : 'text-slate-700 dark:text-white/80 hover:bg-white/60 dark:hover:bg-white/10'
+              ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30'
+              : 'bg-slate-100 dark:bg-slate-900/80 text-slate-700 dark:text-white/80 hover:bg-white/60 dark:hover:bg-white/10 border border-slate-200/80 dark:border-white/10'
           ]"
         >
           <span
             :class="[
-              'absolute -top-3 left-1/2 -translate-x-1/2 px-2.5 py-0.5 rounded-full text-[11px] font-mono font-black border shadow-xs transition-all',
+              'absolute -top-2.5 left-1/2 -translate-x-1/2 px-2 py-0.2 rounded-full text-[10px] font-mono font-black border shadow-xs transition-all',
               activeTab === 'on_demand'
                 ? 'bg-slate-900 text-blue-400 border-blue-400/60'
                 : 'bg-blue-500/20 text-blue-700 dark:text-blue-300 border-blue-500/30'
@@ -98,7 +98,30 @@
           >
             {{ onDemandTasks.length }}
           </span>
-          <span>المهام الإضافية</span>
+          <span class="whitespace-nowrap">إضافية</span>
+        </button>
+
+        <button
+          type="button"
+          @click="activeTab = 'draft_tasks'"
+          :class="[
+            'flex-1 min-w-[85px] sm:min-w-0 relative pt-3.5 pb-2.5 px-1.5 rounded-xl text-xs font-black transition-all flex flex-col items-center justify-center gap-1 cursor-pointer select-none text-center',
+            activeTab === 'draft_tasks'
+              ? 'bg-purple-600 text-white shadow-md shadow-purple-600/30'
+              : 'bg-slate-100 dark:bg-slate-900/80 text-slate-700 dark:text-white/80 hover:bg-white/60 dark:hover:bg-white/10 border border-slate-200/80 dark:border-white/10'
+          ]"
+        >
+          <span
+            :class="[
+              'absolute -top-2.5 left-1/2 -translate-x-1/2 px-2 py-0.2 rounded-full text-[10px] font-mono font-black border shadow-xs transition-all',
+              activeTab === 'draft_tasks'
+                ? 'bg-slate-900 text-purple-400 border-purple-400/60'
+                : 'bg-purple-500/20 text-purple-700 dark:text-purple-300 border-purple-500/30'
+            ]"
+          >
+            {{ draftTasks.length }}
+          </span>
+          <span class="whitespace-nowrap">مسودة</span>
         </button>
       </div>
 
@@ -171,9 +194,19 @@
 
             <span
               class="text-[11px] font-black px-3 py-1 rounded-full font-mono border"
-              :class="resp.values && resp.values.length > 0 ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-500/30' : 'bg-amber-50 dark:bg-amber-500/10 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-500/30'"
+              :class="[
+                resp.status === 'submitted'
+                  ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-500/30'
+                  : (resp.values && resp.values.length > 0
+                      ? 'bg-amber-50 dark:bg-amber-500/10 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-500/30'
+                      : 'bg-slate-100 dark:bg-white/10 text-slate-500 dark:text-white/50 border-slate-200 dark:border-white/10')
+              ]"
             >
-              {{ resp.values && resp.values.length > 0 ? 'تمت التعبئة ✓' : 'لم تُعبأ بعد ⏳' }}
+              {{
+                resp.status === 'submitted'
+                  ? 'مكتملة ومستلمة ✓'
+                  : (resp.values && resp.values.length > 0 ? 'مخزنة كمسودة 📝' : 'لم تُعبأ بعد ⏳')
+              }}
             </span>
           </div>
         </div>
@@ -240,7 +273,14 @@ const completedDailyTasks = computed(() => {
     const taskDef = getTaskDef(resp);
     const type = taskDef?.task_type || 'daily';
     const hasValues = resp.values && resp.values.length > 0;
-    return type === 'daily' && hasValues;
+    return type === 'daily' && hasValues && resp.status === 'submitted';
+  });
+});
+
+const draftTasks = computed(() => {
+  return taskResponses.value.filter((resp) => {
+    const hasValues = resp.values && resp.values.length > 0;
+    return hasValues && resp.status === 'draft';
   });
 });
 
@@ -264,6 +304,7 @@ const currentTabTasks = computed(() => {
   if (activeTab.value === 'completed_daily') return completedDailyTasks.value;
   if (activeTab.value === 'uncompleted_daily') return uncompletedDailyTasks.value;
   if (activeTab.value === 'on_demand') return onDemandTasks.value;
+  if (activeTab.value === 'draft_tasks') return draftTasks.value;
   return [];
 });
 
