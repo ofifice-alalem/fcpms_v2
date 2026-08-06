@@ -52,4 +52,9 @@ class Consultant extends Model
     {
         return $this->hasMany(ConsultantLeave::class);
     }
+
+    public function consultantLeaves(): HasMany
+    {
+        return $this->hasMany(ConsultantLeave::class);
+    }
 }

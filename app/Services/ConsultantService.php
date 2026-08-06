@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Enums\ConsultantStatus;
 use App\Enums\UserStatus;
+use App\Events\ConsultantUpdatedEvent;
 use App\Models\Consultant;
 use App\Models\User;
 use App\Repositories\Contracts\ConsultantRepositoryInterface;
@@ -108,6 +109,8 @@ class ConsultantService
                 'work_schedule_template_id' => array_key_exists('work_schedule_template_id', $data) ? $data['work_schedule_template_id'] : $consultant->work_schedule_template_id,
                 'notes' => array_key_exists('notes', $data) ? $data['notes'] : $consultant->notes,
             ]);
+
+            ConsultantUpdatedEvent::dispatch($consultant);
 
             return $consultant->fresh(['user', 'workScheduleTemplate']);
         });
