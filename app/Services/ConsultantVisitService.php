@@ -28,12 +28,24 @@ class ConsultantVisitService
         return $this->dailyRecordRepo->startDay($consultant, $notes);
     }
 
-    public function getAvailableSites(): Collection
+    public function getAvailableSites(?DailyRecord $dailyRecord = null): Collection
     {
-        return Site::where(function ($q) {
+        $query = Site::where(function ($q) {
             $q->where('status', 'active')
               ->orWhere('status', \App\Enums\SiteStatus::ACTIVE ?? 'active');
-        })->select('id', 'name', 'code', 'address')->get();
+        });
+
+        if ($dailyRecord) {
+            $visitedSiteIds = SiteVisit::where('daily_record_id', $dailyRecord->id)
+                ->pluck('site_id')
+                ->toArray();
+
+            if (!empty($visitedSiteIds)) {
+                $query->whereNotIn('id', $visitedSiteIds);
+            }
+        }
+
+        return $query->select('id', 'name', 'code', 'address')->get();
     }
 
     public function getAvailableOnDemandTasks(int $siteId, Consultant $consultant): Collection

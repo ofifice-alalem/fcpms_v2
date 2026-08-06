@@ -66,7 +66,7 @@ class DailyVisitController extends Controller
             ]);
         }
 
-        $availableSites = $this->visitService->getAvailableSites();
+        $availableSites = $this->visitService->getAvailableSites($dailyRecord);
         $activeVisit = $this->visitService->getActiveVisit($dailyRecord);
 
         $availableOnDemandTasks = [];
@@ -122,7 +122,7 @@ class DailyVisitController extends Controller
     {
         $consultant = $this->getConsultant();
         $dailyRecord = $this->visitService->getTodayRecord($consultant);
-        $availableSites = $this->visitService->getAvailableSites();
+        $availableSites = $this->visitService->getAvailableSites($dailyRecord);
 
         return Inertia::render('Consultant/DailyVisits/Execute', [
             'consultant' => $consultant,
@@ -138,7 +138,7 @@ class DailyVisitController extends Controller
         $consultant = $this->getConsultant();
         $dailyRecord = $this->visitService->getTodayRecord($consultant);
         $visitDetails = $this->visitService->getVisitDetails($visit->id);
-        $availableSites = $this->visitService->getAvailableSites();
+        $availableSites = $this->visitService->getAvailableSites($dailyRecord);
         $availableOnDemandTasks = $this->visitService->getAvailableOnDemandTasks($visit->site_id, $consultant);
 
         return Inertia::render('Consultant/DailyVisits/Execute', [

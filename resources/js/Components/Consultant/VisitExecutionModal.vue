@@ -11,9 +11,6 @@
       <div v-if="!visit" class="space-y-4 p-6 rounded-3xl bg-slate-800/60 border border-white/10">
         <div class="space-y-1">
           <h3 class="text-base font-black text-white">📍 اختر الموقع الميداني للزيارة</h3>
-          <p class="text-xs text-white/60 font-bold">
-            اختر الموقع من القائمة المنسدلة لبدء الزيارة وجلب المهام اليومية الدورية المسندة فوراً.
-          </p>
         </div>
 
         <div class="space-y-4 pt-2">
@@ -114,8 +111,30 @@
                     <SpatialInput v-model="formValues[getTaskKey(resp.task_definition_id, comp.id)]" type="number" :placeholder="comp.placeholder || 'أدخل رقم...'" />
                   </div>
 
-                  <div v-else-if="comp.component_type === 'select' || comp.component_type === 'choice'">
-                    <SpatialDropdown v-model="formValues[getTaskKey(resp.task_definition_id, comp.id)]" placeholder="اختر الخيار..." :options="getComponentOptions(comp)" />
+                  <div v-else-if="comp.component_type === 'select' || comp.component_type === 'choice'" class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
+                    <div
+                      v-for="opt in getComponentOptions(comp)"
+                      :key="opt.value"
+                      :class="[
+                        'flex items-center justify-between p-3 rounded-xl border transition-all cursor-pointer select-none font-black text-xs',
+                        formValues[getTaskKey(resp.task_definition_id, comp.id)] === opt.value
+                          ? 'bg-primary/20 border-primary text-white shadow-xs'
+                          : 'bg-white/5 border-white/10 text-white/80 hover:bg-white/10'
+                      ]"
+                      @click="selectRadioOption(resp.task_definition_id, comp.id, opt.value)"
+                    >
+                      <span class="font-black text-xs">{{ opt.label }}</span>
+                      <div
+                        :class="[
+                          'w-4 h-4 rounded-full border flex items-center justify-center transition-all',
+                          formValues[getTaskKey(resp.task_definition_id, comp.id)] === opt.value
+                            ? 'border-primary bg-primary'
+                            : 'border-white/40 bg-transparent'
+                        ]"
+                      >
+                        <div v-if="formValues[getTaskKey(resp.task_definition_id, comp.id)] === opt.value" class="w-1.5 h-1.5 rounded-full bg-white"></div>
+                      </div>
+                    </div>
                   </div>
 
                   <div v-else-if="comp.component_type === 'checkbox'" class="space-y-1.5 pt-1">
@@ -364,6 +383,11 @@ const getVisibleComponentsForTask = (resp) => {
 const isCheckboxChecked = (taskId, compId, val) => {
   const current = formValues.value[getTaskKey(taskId, compId)];
   return Array.isArray(current) ? current.includes(val) : false;
+};
+
+const selectRadioOption = (taskId, compId, val) => {
+  const key = getTaskKey(taskId, compId);
+  formValues.value[key] = val;
 };
 
 const toggleCheckbox = (taskId, compId, val) => {

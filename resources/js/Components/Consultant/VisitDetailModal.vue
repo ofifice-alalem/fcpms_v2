@@ -52,9 +52,6 @@
               <span class="text-sm font-black text-slate-900 dark:text-white block">
                 {{ getTaskDef(resp)?.title || 'مهمة ميدانية' }}
               </span>
-              <span v-if="getTaskDef(resp)?.description" class="text-xs text-slate-500 dark:text-white/60 block">
-                {{ getTaskDef(resp)?.description }}
-              </span>
             </div>
 
             <div class="flex flex-col items-end gap-1 shrink-0">
@@ -77,12 +74,17 @@
             <div
               v-for="val in resp.values"
               :key="val.id"
-              class="flex items-center justify-between text-xs py-1 px-3 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-100 dark:border-white/5"
+              class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs p-3 rounded-2xl bg-slate-50 dark:bg-white/5 border border-slate-100 dark:border-white/5"
             >
               <span class="font-bold text-slate-600 dark:text-white/70">
                 {{ getComponentLabel(val) }}:
               </span>
-              <span class="font-black text-slate-900 dark:text-white">
+              <span
+                :class="[
+                  'inline-flex items-center px-3 py-1 rounded-xl font-black text-xs border transition-all self-start sm:self-auto',
+                  getValueBadgeClass(val.value)
+                ]"
+              >
                 {{ val.value || '-' }}
               </span>
             </div>
@@ -162,5 +164,19 @@ const getComponentLabel = (val) => {
 const formatTime = (isoString) => {
   if (!isoString) return '';
   return new Date(isoString).toLocaleTimeString('ar-LY', { hour: '2-digit', minute: '2-digit' });
+};
+
+const getValueBadgeClass = (valStr) => {
+  if (!valStr || valStr === '-') {
+    return 'bg-slate-200/80 dark:bg-slate-700/80 text-slate-600 dark:text-slate-300 border-slate-300 dark:border-slate-600';
+  }
+  const str = String(valStr).toLowerCase();
+  if (str.includes('ملتزم') || str.includes('مطابق') || str.includes('نعم') || str.includes('سليم') || str.includes('ممتاز')) {
+    return 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border-emerald-500/30';
+  }
+  if (str.includes('غير') || str.includes('لا') || str.includes('مخالف') || str.includes('عطل') || str.includes('خطر')) {
+    return 'bg-rose-500/15 text-rose-700 dark:text-rose-300 border-rose-500/30';
+  }
+  return 'bg-primary/15 text-primary dark:text-blue-300 border-primary/30';
 };
 </script>

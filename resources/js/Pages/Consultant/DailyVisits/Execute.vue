@@ -45,9 +45,6 @@
           <h3 class="text-lg font-black text-slate-900 dark:text-white flex items-center gap-2">
             <span>اختيار الموقع الميداني للزيارة</span>
           </h3>
-          <p class="text-xs text-slate-500 dark:text-white/60 font-bold">
-            اختر الموقع من القائمة المنسدلة لبدء الزيارة وجلب المهام اليومية الدورية المسندة فوراً.
-          </p>
         </div>
 
         <div class="space-y-4">
@@ -143,12 +140,30 @@
                     />
                   </div>
 
-                  <div v-else-if="comp.component_type === 'select' || comp.component_type === 'choice'">
-                    <SpatialDropdown
-                      v-model="formValues[getTaskKey(resp.task_definition_id, comp.id)]"
-                      placeholder="اختر الخيار المناسب..."
-                      :options="getComponentOptions(comp)"
-                    />
+                  <div v-else-if="comp.component_type === 'select' || comp.component_type === 'choice'" class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
+                    <div
+                      v-for="opt in getComponentOptions(comp)"
+                      :key="opt.value"
+                      :class="[
+                        'flex items-center justify-between p-3.5 rounded-2xl border-2 transition-all cursor-pointer select-none font-black text-xs',
+                        formValues[getTaskKey(resp.task_definition_id, comp.id)] === opt.value
+                          ? 'bg-primary/10 dark:bg-primary/20 border-primary text-primary shadow-xs'
+                          : 'bg-white dark:bg-slate-800/80 border-slate-200 dark:border-slate-700/80 text-slate-700 dark:text-slate-200 hover:border-slate-300 dark:hover:border-slate-600'
+                      ]"
+                      @click="selectRadioOption(resp.task_definition_id, comp.id, opt.value)"
+                    >
+                      <span class="font-black text-xs sm:text-sm">{{ opt.label }}</span>
+                      <div
+                        :class="[
+                          'w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all',
+                          formValues[getTaskKey(resp.task_definition_id, comp.id)] === opt.value
+                            ? 'border-primary bg-primary'
+                            : 'border-slate-300 dark:border-slate-600 bg-transparent'
+                        ]"
+                      >
+                        <div v-if="formValues[getTaskKey(resp.task_definition_id, comp.id)] === opt.value" class="w-2 h-2 rounded-full bg-white"></div>
+                      </div>
+                    </div>
                   </div>
 
                   <div v-else-if="comp.component_type === 'checkbox'" class="space-y-2 pt-1">
@@ -212,6 +227,42 @@
                   </div>
                   <div v-else-if="comp.component_type === 'number'">
                     <SpatialInput v-model="formValues[getTaskKey(resp.task_definition_id, comp.id)]" type="number" />
+                  </div>
+                  <div v-else-if="comp.component_type === 'select' || comp.component_type === 'choice'" class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
+                    <div
+                      v-for="opt in getComponentOptions(comp)"
+                      :key="opt.value"
+                      :class="[
+                        'flex items-center justify-between p-3.5 rounded-2xl border-2 transition-all cursor-pointer select-none font-black text-xs',
+                        formValues[getTaskKey(resp.task_definition_id, comp.id)] === opt.value
+                          ? 'bg-primary/10 dark:bg-primary/20 border-primary text-primary shadow-xs'
+                          : 'bg-white dark:bg-slate-800/80 border-slate-200 dark:border-slate-700/80 text-slate-700 dark:text-slate-200 hover:border-slate-300 dark:hover:border-slate-600'
+                      ]"
+                      @click="selectRadioOption(resp.task_definition_id, comp.id, opt.value)"
+                    >
+                      <span class="font-black text-xs sm:text-sm">{{ opt.label }}</span>
+                      <div
+                        :class="[
+                          'w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all',
+                          formValues[getTaskKey(resp.task_definition_id, comp.id)] === opt.value
+                            ? 'border-primary bg-primary'
+                            : 'border-slate-300 dark:border-slate-600 bg-transparent'
+                        ]"
+                      >
+                        <div v-if="formValues[getTaskKey(resp.task_definition_id, comp.id)] === opt.value" class="w-2 h-2 rounded-full bg-white"></div>
+                      </div>
+                    </div>
+                  </div>
+                  <div v-else-if="comp.component_type === 'checkbox'" class="space-y-2 pt-1">
+                    <div
+                      v-for="opt in getComponentOptions(comp)"
+                      :key="opt.value"
+                      class="flex items-center gap-2 cursor-pointer p-2.5 rounded-xl bg-white dark:bg-white/5 hover:bg-slate-100 dark:hover:bg-white/10 border border-slate-200/60 dark:border-white/5 transition-colors"
+                      @click="toggleCheckbox(resp.task_definition_id, comp.id, opt.value)"
+                    >
+                      <SpatialCheckbox :model-value="isCheckboxChecked(resp.task_definition_id, comp.id, opt.value)" />
+                      <span class="text-xs font-bold text-slate-800 dark:text-white/90">{{ opt.label }}</span>
+                    </div>
                   </div>
                   <div v-else-if="comp.component_type === 'image_upload' || comp.component_type === 'image'">
                     <SpatialImageUpload />
@@ -392,6 +443,11 @@ const getVisibleComponentsForTask = (resp) => {
 const isCheckboxChecked = (taskId, compId, val) => {
   const current = formValues.value[getTaskKey(taskId, compId)];
   return Array.isArray(current) ? current.includes(val) : false;
+};
+
+const selectRadioOption = (taskId, compId, val) => {
+  const key = getTaskKey(taskId, compId);
+  formValues.value[key] = val;
 };
 
 const toggleCheckbox = (taskId, compId, val) => {
