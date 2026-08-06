@@ -179,10 +179,10 @@
                 color="blue"
               >
                 <div class="flex flex-col items-center justify-center">
-                  <span class="text-3xl font-black font-stat-number tracking-tight text-amber-600 dark:text-amber-400 leading-none">
-                    {{ stats.total_tasks_count }}
+                  <span class="text-2xl font-black font-stat-number tracking-tight text-amber-600 dark:text-amber-400 leading-none dir-ltr">
+                    {{ stats.completed_tasks_count }} / {{ stats.total_tasks_count }}
                   </span>
-                  <span class="text-[10px] font-bold text-slate-500 dark:text-white/60 mt-1">مهمة كلية ⚡</span>
+                  <span class="text-[10px] font-bold text-slate-500 dark:text-white/60 mt-1">منجزة من الكلي ⚡</span>
                 </div>
               </SpatialCircularProgress>
             </div>
@@ -343,12 +343,12 @@
               🏛️ سجل المواقع المزارة اليوم
             </h2>
             <p class="text-xs font-bold text-slate-500 dark:text-white/60 mt-0.5">
-              متابعة الزيارات الفردية المسجلة في المواقع الميدانية اليوم
+              متابعة الزيارات الفردية والجماعية المسجلة في المواقع الميدانية اليوم
             </p>
           </div>
 
           <span class="text-xs font-mono font-black text-slate-500 dark:text-white/60">
-            إجمالي الزيارات: {{ recent_visits.length }}
+            إجمالي المواقع المزارة: {{ recent_visits.length }}
           </span>
         </div>
 
@@ -358,10 +358,12 @@
               <tr class="border-b border-slate-200 dark:border-white/10 text-xs font-black text-slate-600 dark:text-white/70 bg-slate-100/90 dark:bg-white/5">
                 <th class="p-4">اسم الموقع الميداني</th>
                 <th class="p-4">كود الموقع</th>
-                <th class="p-4">الاستشاري المنفّذ</th>
+                <th class="p-4 text-center">الاستشاريون المنفّذون</th>
                 <th class="p-4">وقت بدء الزيارة</th>
-                <th class="p-4 text-center">المهام الموثقة</th>
+                <th class="p-4 text-center">إجمالي المهام الموثقة</th>
+                <th class="p-4 text-center">المهام الإضافية ⚡</th>
                 <th class="p-4 text-center">حالة الزيارة</th>
+                <th class="p-4 text-center">الإجراءات</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-slate-100 dark:divide-white/5 text-sm font-bold">
@@ -376,21 +378,42 @@
                 <td class="p-4 font-mono text-xs font-bold text-slate-500 dark:text-white/60">
                   {{ v.site_code }}
                 </td>
-                <td class="p-4 text-xs font-bold text-slate-700 dark:text-white/80">
-                  {{ v.consultant_name }}
+                <td class="p-4 text-center whitespace-nowrap">
+                  <span class="px-3 py-1 rounded-full bg-indigo-500/15 text-indigo-600 dark:text-indigo-400 font-mono font-black text-xs border border-indigo-500/25">
+                    {{ v.consultants_count }} {{ v.consultants_count === 1 ? 'استشاري' : 'استشاريين' }}
+                  </span>
                 </td>
                 <td class="p-4 font-mono text-xs font-bold text-slate-600 dark:text-white/70">
                   ⏰ {{ v.started_at }}
                 </td>
+                <td class="p-4 text-center font-mono text-xs font-bold text-slate-800 dark:text-white whitespace-nowrap dir-ltr">
+                  <span class="px-3 py-1 rounded-lg bg-purple-500/15 text-purple-600 dark:text-purple-300 font-mono font-black border border-purple-500/20">
+                    {{ v.completed_tasks }} / {{ v.total_tasks }}
+                  </span>
+                </td>
                 <td class="p-4 text-center whitespace-nowrap">
-                  <span class="px-3 py-1 rounded-lg bg-purple-500/15 text-purple-600 dark:text-purple-300 font-mono font-black text-xs border border-purple-500/20">
-                    {{ v.task_count }} مهام
+                  <span :class="['px-2.5 py-1 rounded-lg font-mono font-black text-xs border', v.on_demand_tasks > 0 ? 'bg-amber-500/15 text-amber-600 dark:text-amber-400 border-amber-500/25' : 'bg-slate-100 dark:bg-white/5 text-slate-400 dark:text-white/40 border-slate-200 dark:border-white/10']">
+                    {{ v.on_demand_tasks > 0 ? v.on_demand_tasks : '--' }}
                   </span>
                 </td>
                 <td class="p-4 text-center whitespace-nowrap">
                   <SpatialStatusPill :type="v.status === 'completed' ? 'completed' : 'pending'">
                     {{ v.status === 'completed' ? 'مكتملة 🟢' : 'قيد التنفيذ ⏳' }}
                   </SpatialStatusPill>
+                </td>
+                <td class="p-4 text-center whitespace-nowrap">
+                  <!-- View Site Consultants Button -->
+                  <button
+                    type="button"
+                    title="معاينة الاستشاريين الذين زاروا هذا الموقع"
+                    @click="openSiteConsultantsModal(v)"
+                    class="w-8 h-8 border border-indigo-500/60 text-indigo-600 dark:text-indigo-400 bg-transparent hover:bg-indigo-500/15 flex items-center justify-center transition-all duration-200 hover:scale-105 cursor-pointer rounded-full mx-auto"
+                  >
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                    </svg>
+                  </button>
                 </td>
               </tr>
             </tbody>
@@ -544,7 +567,140 @@
         </template>
       </SpatialModal>
 
-      <!-- MODAL 2: Visit Detailed Task Responses Modal -->
+      <!-- MODAL 2: Site Consultants Modal -->
+      <SpatialModal
+        :is-open="isSiteConsultantsModalOpen"
+        :title="`الاستشاريون الذين زاروا موقع: ${selectedSiteForConsultants?.site_name || ''} (${selectedSiteForConsultants?.site_code || ''})`"
+        max-width="max-w-[750px]"
+        @close="isSiteConsultantsModalOpen = false"
+      >
+        <div v-if="selectedSiteForConsultants" class="space-y-6 text-right dir-rtl">
+          <!-- Header Summary Pill -->
+          <div class="p-4 rounded-2xl bg-slate-100/90 dark:bg-slate-800/80 border border-slate-200/80 dark:border-white/10 flex flex-wrap items-center justify-between gap-3">
+            <div class="space-y-1">
+              <h3 class="text-sm font-black text-slate-900 dark:text-white flex items-center gap-2">
+                <span>🏛️ {{ selectedSiteForConsultants.site_name }}</span>
+                <span class="text-xs font-mono font-bold text-slate-500 dark:text-white/60">(كود: {{ selectedSiteForConsultants.site_code }})</span>
+              </h3>
+              <p class="text-xs font-bold text-slate-500 dark:text-white/60">
+                إجمالي المهام المسجلة اليوم: {{ selectedSiteForConsultants.completed_tasks }} / {{ selectedSiteForConsultants.total_tasks }}
+              </p>
+            </div>
+
+            <span class="px-3 py-1.5 rounded-xl bg-indigo-500/15 text-indigo-600 dark:text-indigo-400 font-mono font-black text-xs border border-indigo-500/30">
+              👥 عدد الاستشاريين: {{ selectedSiteForConsultants.consultants_count }}
+            </span>
+          </div>
+
+          <!-- Consultants List / Cards matching Consultant/DailyVisits/Index.vue -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div
+              v-for="c in selectedSiteForConsultants.consultants"
+              :key="c.visit_id"
+              :class="[
+                'relative p-5 rounded-3xl transition-all duration-200 flex flex-col justify-between space-y-4 border shadow-lg w-full',
+                c.status === 'completed'
+                  ? 'bg-white dark:bg-slate-800/80 border-slate-200/80 dark:border-white/10 shadow-slate-200/50 dark:shadow-black/30'
+                  : 'bg-amber-50/70 dark:bg-slate-800/90 border-amber-500/40 shadow-amber-500/10'
+              ]"
+            >
+              <!-- Card Header: Consultant Name, Employee Number & Status Pill -->
+              <div class="flex items-start justify-between gap-2 pb-3 border-b border-slate-100 dark:border-white/10">
+                <div class="space-y-1">
+                  <h3 class="text-base font-black text-slate-900 dark:text-white leading-tight">
+                    {{ c.full_name }}
+                  </h3>
+                  <div class="flex items-center gap-2 flex-wrap">
+                    <span class="text-xs font-mono font-black text-slate-700 dark:text-slate-200 dir-ltr inline-block bg-slate-100 dark:bg-white/10 px-2.5 py-0.5 rounded-md border border-slate-200 dark:border-white/10">
+                      {{ c.employee_number }}
+                    </span>
+                    <span class="text-xs font-bold text-slate-500 dark:text-white/60">
+                      {{ c.specialization }}
+                    </span>
+                  </div>
+                </div>
+
+                <SpatialStatusPill
+                  :type="c.status === 'completed' ? 'completed' : 'pending'"
+                  :pulse="c.status !== 'completed'"
+                  class="shrink-0"
+                >
+                  {{ c.status === 'completed' ? 'مكتملة' : 'قيد التنفيذ' }}
+                </SpatialStatusPill>
+              </div>
+
+              <!-- Card Body: Circular Progress Ring & Metrics Stack -->
+              <div class="flex items-center justify-between gap-4 py-1">
+                <!-- Center Circular Progress Ring -->
+                <div class="flex flex-col items-center justify-center shrink-0 pr-1">
+                  <SpatialCircularProgress
+                    :percentage="c.completion_percentage"
+                    :size="76"
+                    :strokeWidth="7"
+                  >
+                    <span class="text-base font-black font-mono text-slate-900 dark:text-white">
+                      {{ c.completion_percentage }}%
+                    </span>
+                  </SpatialCircularProgress>
+                  <span class="text-[10px] font-black text-slate-500 dark:text-white/60 mt-1">نسبة الإنجاز</span>
+                </div>
+
+                <!-- Right Metrics Stack -->
+                <div class="flex-1 space-y-2">
+                  <!-- Check-in / Start Time -->
+                  <div class="flex items-center justify-between p-2 rounded-xl bg-slate-100/90 dark:bg-white/5 border border-slate-200/80 dark:border-white/10 text-xs shadow-2xs">
+                    <span class="font-black text-slate-700 dark:text-white/70">⏰ وقت البدء:</span>
+                    <span class="font-mono font-black text-slate-900 dark:text-white">
+                      {{ c.started_at }}
+                    </span>
+                  </div>
+
+                  <!-- On-Demand Tasks Count -->
+                  <div class="flex items-center justify-between p-2 rounded-xl bg-slate-100/90 dark:bg-white/5 border border-slate-200/80 dark:border-white/10 text-xs shadow-2xs">
+                    <span class="font-black text-slate-700 dark:text-white/70">⚡ إضافية:</span>
+                    <span :class="['font-mono font-black', c.on_demand_tasks > 0 ? 'text-amber-600 dark:text-amber-400 text-sm' : 'text-slate-400 dark:text-white/40']">
+                      {{ c.on_demand_tasks > 0 ? c.on_demand_tasks : '--' }}
+                    </span>
+                  </div>
+
+                  <!-- Daily Tasks Fraction -->
+                  <div class="flex items-center justify-between p-2 rounded-xl bg-slate-100/90 dark:bg-white/5 border border-slate-200/80 dark:border-white/10 text-xs shadow-2xs">
+                    <span class="font-black text-slate-700 dark:text-white/70">📋 المهام:</span>
+                    <span class="font-mono font-black text-slate-900 dark:text-white dir-ltr">
+                      {{ c.completed_tasks }} / {{ c.total_tasks }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Bottom Actions Bar -->
+              <div class="pt-3 border-t border-slate-200/80 dark:border-white/10 flex items-center justify-center">
+                <button
+                  type="button"
+                  @click="openVisitDetailsModal(c.raw_visit)"
+                  class="w-full inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-2xl border-2 border-blue-500/40 hover:border-blue-600 dark:border-blue-400/40 text-blue-600 dark:text-blue-400 bg-transparent hover:bg-blue-50 dark:hover:bg-blue-500/10 transition-all duration-200 cursor-pointer text-xs font-black shadow-xs active:scale-95"
+                >
+                  <svg class="w-4 h-4 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                  </svg>
+                  <span>عرض التفاصيل</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <template #footer>
+          <div class="flex justify-end">
+            <SpatialButton variant="secondary" @click="isSiteConsultantsModalOpen = false">
+              إغلاق
+            </SpatialButton>
+          </div>
+        </template>
+      </SpatialModal>
+
+      <!-- MODAL 3: Visit Detailed Task Responses Modal -->
       <VisitDetailModal
         :is-open="isVisitDetailModalOpen"
         :visit="selectedVisitForDetails"
@@ -593,12 +749,20 @@ const consultantsFilter = ref('all'); // 'all' | 'checked_in' | 'absent'
 const isConsultantVisitsModalOpen = ref(false);
 const selectedConsultantForVisits = ref(null);
 
+const isSiteConsultantsModalOpen = ref(false);
+const selectedSiteForConsultants = ref(null);
+
 const isVisitDetailModalOpen = ref(false);
 const selectedVisitForDetails = ref(null);
 
 const openConsultantVisitsModal = (consultant) => {
   selectedConsultantForVisits.value = consultant;
   isConsultantVisitsModalOpen.value = true;
+};
+
+const openSiteConsultantsModal = (site) => {
+  selectedSiteForConsultants.value = site;
+  isSiteConsultantsModalOpen.value = true;
 };
 
 const openVisitDetailsModal = (visit) => {

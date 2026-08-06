@@ -28,7 +28,7 @@ class DashboardController extends Controller
             'consultant.user', 
             'siteVisits.site', 
             'siteVisits.taskResponses.taskDefinition',
-            'siteVisits.taskResponses.values'
+            'siteVisits.taskResponses.values.component'
         ])
         ->whereDate('work_date', $today)
         ->get();
@@ -45,11 +45,16 @@ class DashboardController extends Controller
         $absentCount = max(0, $totalConsultantsCount - $checkedInCount);
 
         // 4. Visited Sites Today
-        $todaySiteVisits = SiteVisit::with(['site', 'dailyRecord.consultant', 'taskResponses.taskDefinition'])
-            ->whereHas('dailyRecord', function ($q) use ($today) {
-                $q->whereDate('work_date', $today);
-            })
-            ->get();
+        $todaySiteVisits = SiteVisit::with([
+            'site', 
+            'dailyRecord.consultant', 
+            'taskResponses.taskDefinition',
+            'taskResponses.values.component'
+        ])
+        ->whereHas('dailyRecord', function ($q) use ($today) {
+            $q->whereDate('work_date', $today);
+        })
+        ->get();
 
         $visitedSitesCount = $todaySiteVisits->pluck('site_id')->unique()->count();
         $totalVisitsCount = $todaySiteVisits->count();
@@ -89,7 +94,7 @@ class DashboardController extends Controller
                     ->with([
                         'siteVisits.site',
                         'siteVisits.taskResponses.taskDefinition',
-                        'siteVisits.taskResponses.values'
+                        'siteVisits.taskResponses.values.component'
                     ])
                     ->latest('id')
                     ->first();
@@ -127,6 +132,16 @@ class DashboardController extends Controller
                                         'id' => $v->id,
                                         'task_component_id' => $v->task_component_id,
                                         'value' => $v->value,
+                                        'component' => $v->component ? [
+                                            'id' => $v->component->id,
+                                            'label' => $v->component->label,
+                                            'component_type' => $v->component->component_type,
+                                        ] : null,
+                                        'task_component' => $v->component ? [
+                                            'id' => $v->component->id,
+                                            'label' => $v->component->label,
+                                            'component_type' => $v->component->component_type,
+                                        ] : null,
                                     ];
                                 })->values()->all() : [],
                             ];
@@ -150,15 +165,94 @@ class DashboardController extends Controller
             ];
         });
 
-        $recentSiteVisitsList = $todaySiteVisits->map(function ($visit) {
+        // Group visited sites by site_id for Section 2
+        $recentSiteVisitsList = $todaySiteVisits->groupBy('site_id')->map(function ($visits, $siteId) {
+            $firstVisit = $visits->first();
+            $site = $firstVisit ? $firstVisit->site : null;
+
+            $consultants = $visits->map(function ($visit) use ($site) {
+                $record = $visit->dailyRecord;
+                $c = $record ? $record->consultant : null;
+
+                $taskResponses = $visit->taskResponses;
+                $totalTasks = $taskResponses ? $taskResponses->count() : 0;
+                $completedTasks = $taskResponses ? $taskResponses->filter(function ($r) {
+                    $hasValues = $r->values && $r->values->some(fn($v) => !empty($v->value));
+                    return $r->status === 'submitted' || ($r->completed_at && $hasValues);
+                })->count() : 0;
+
+                $pct = $totalTasks > 0 ? (int) round(($completedTasks / $totalTasks) * 100) : 0;
+
+                $onDemandTasks = $taskResponses ? $taskResponses->filter(function ($r) {
+                    $type = $r->taskDefinition->task_type ?? null;
+                    return $type === 'on_demand' || (is_object($type) && $type->value === 'on_demand');
+                })->count() : 0;
+
+                return [
+                    'visit_id' => $visit->id,
+                    'consultant_id' => $c ? $c->id : null,
+                    'full_name' => $c ? $c->full_name : 'استشاري',
+                    'employee_number' => $c ? $c->employee_number : '',
+                    'specialization' => $c ? $c->specialization : 'استشاري ميداني',
+                    'started_at' => $visit->visit_started_at ? Carbon::parse($visit->visit_started_at)->format('H:i') : '--',
+                    'completed_tasks' => $completedTasks,
+                    'total_tasks' => $totalTasks,
+                    'on_demand_tasks' => $onDemandTasks,
+                    'completion_percentage' => $pct,
+                    'status' => $visit->status ?? ($visit->visit_finished_at ? 'completed' : 'in_progress'),
+                    'raw_visit' => [
+                        'id' => $visit->id,
+                        'site_id' => $visit->site_id,
+                        'status' => $visit->status ?? ($visit->visit_finished_at ? 'completed' : 'in_progress'),
+                        'visit_started_at' => $visit->visit_started_at ? $visit->visit_started_at->toIso8601String() : null,
+                        'visit_finished_at' => $visit->visit_finished_at ? $visit->visit_finished_at->toIso8601String() : null,
+                        'site' => $site ? ['id' => $site->id, 'name' => $site->name, 'code' => $site->code] : null,
+                        'task_responses' => $taskResponses ? $taskResponses->map(function ($r) {
+                            return [
+                                'id' => $r->id,
+                                'status' => $r->status,
+                                'completed_at' => $r->completed_at ? $r->completed_at->toIso8601String() : null,
+                                'task_definition' => $r->taskDefinition ? [
+                                    'id' => $r->taskDefinition->id,
+                                    'title' => $r->taskDefinition->title,
+                                    'task_type' => $r->taskDefinition->task_type,
+                                ] : null,
+                                'values' => $r->values ? $r->values->map(function ($v) {
+                                    return [
+                                        'id' => $v->id,
+                                        'task_component_id' => $v->task_component_id,
+                                        'value' => $v->value,
+                                        'component' => $v->component ? [
+                                            'id' => $v->component->id,
+                                            'label' => $v->component->label,
+                                            'component_type' => $v->component->component_type,
+                                        ] : null,
+                                        'task_component' => $v->component ? [
+                                            'id' => $v->component->id,
+                                            'label' => $v->component->label,
+                                            'component_type' => $v->component->component_type,
+                                        ] : null,
+                                    ];
+                                })->values()->all() : [],
+                            ];
+                        })->values()->all() : [],
+                    ],
+                ];
+            })->values()->all();
+
+            $allCompleted = $visits->every(fn($v) => $v->status === 'completed' || !is_null($v->visit_finished_at));
+
             return [
-                'id' => $visit->id,
-                'site_name' => $visit->site ? $visit->site->name : 'موقع ميداني',
-                'site_code' => $visit->site ? $visit->site->code : '',
-                'consultant_name' => $visit->dailyRecord && $visit->dailyRecord->consultant ? $visit->dailyRecord->consultant->full_name : 'استشاري',
-                'status' => $visit->status ?? ($visit->visit_finished_at ? 'completed' : 'in_progress'),
-                'started_at' => $visit->visit_started_at ? Carbon::parse($visit->visit_started_at)->format('H:i') : '--',
-                'task_count' => $visit->taskResponses ? $visit->taskResponses->count() : 0,
+                'id' => $siteId,
+                'site_name' => $site ? $site->name : 'موقع ميداني',
+                'site_code' => $site ? $site->code : '',
+                'consultants_count' => count($consultants),
+                'consultants' => $consultants,
+                'started_at' => $firstVisit && $firstVisit->visit_started_at ? Carbon::parse($firstVisit->visit_started_at)->format('H:i') : '--',
+                'total_tasks' => array_sum(array_column($consultants, 'total_tasks')),
+                'completed_tasks' => array_sum(array_column($consultants, 'completed_tasks')),
+                'on_demand_tasks' => array_sum(array_column($consultants, 'on_demand_tasks')),
+                'status' => $allCompleted ? 'completed' : 'in_progress',
             ];
         })->values()->all();
 

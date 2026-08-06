@@ -361,7 +361,7 @@ const currentTabTasks = computed(() => {
 });
 
 const getComponentLabel = (val) => {
-  return val?.component?.label || val?.task_component?.label || 'العنصر';
+  return val?.component?.label || val?.task_component?.label || val?.taskComponent?.label || val?.label || 'العنصر';
 };
 
 const formatTime = (isoString) => {
