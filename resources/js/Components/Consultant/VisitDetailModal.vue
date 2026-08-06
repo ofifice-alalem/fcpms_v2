@@ -31,19 +31,82 @@
         </div>
       </div>
 
-      <!-- Task Responses List -->
-      <div class="space-y-4">
-        <div class="flex items-center justify-between border-b border-slate-200 dark:border-white/10 pb-2">
-          <h4 class="text-xs font-black text-slate-500 dark:text-white/50 uppercase tracking-wider">
-            مهام وإجابات هذه الزيارة ({{ taskResponses.length }})
-          </h4>
-          <span class="text-[11px] font-bold text-slate-400 dark:text-white/40">
-            سجل الاستبيانات والمدخلات
+      <!-- 3 TABS NAVIGATION BAR (MOBILE OPTIMIZED WITH TOP-CENTERED BADGES) -->
+      <div class="grid grid-cols-3 gap-2 p-1.5 rounded-2xl bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 pt-4">
+        <button
+          type="button"
+          @click="activeTab = 'completed_daily'"
+          :class="[
+            'relative py-3 px-2 rounded-xl text-[11px] sm:text-xs font-black transition-all flex items-center justify-center gap-1 cursor-pointer select-none text-center',
+            activeTab === 'completed_daily'
+              ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/20'
+              : 'text-slate-600 dark:text-white/70 hover:bg-white/50 dark:hover:bg-white/10'
+          ]"
+        >
+          <span
+            :class="[
+              'absolute -top-3 left-1/2 -translate-x-1/2 px-2 py-0.5 rounded-full text-[10px] font-mono font-black border shadow-md transition-all',
+              activeTab === 'completed_daily'
+                ? 'bg-slate-900 text-emerald-400 border-emerald-400/50'
+                : 'bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border-emerald-500/30'
+            ]"
+          >
+            {{ completedDailyTasks.length }}
           </span>
-        </div>
+          <span>المهام التي تمت</span>
+        </button>
 
+        <button
+          type="button"
+          @click="activeTab = 'uncompleted_daily'"
+          :class="[
+            'relative py-3 px-2 rounded-xl text-[11px] sm:text-xs font-black transition-all flex items-center justify-center gap-1 cursor-pointer select-none text-center',
+            activeTab === 'uncompleted_daily'
+              ? 'bg-amber-500 text-white shadow-lg shadow-amber-500/20'
+              : 'text-slate-600 dark:text-white/70 hover:bg-white/50 dark:hover:bg-white/10'
+          ]"
+        >
+          <span
+            :class="[
+              'absolute -top-3 left-1/2 -translate-x-1/2 px-2 py-0.5 rounded-full text-[10px] font-mono font-black border shadow-md transition-all',
+              activeTab === 'uncompleted_daily'
+                ? 'bg-slate-900 text-amber-400 border-amber-400/50'
+                : 'bg-amber-500/20 text-amber-700 dark:text-amber-300 border-amber-500/30'
+            ]"
+          >
+            {{ uncompletedDailyTasks.length }}
+          </span>
+          <span>غير المنجزة</span>
+        </button>
+
+        <button
+          type="button"
+          @click="activeTab = 'on_demand'"
+          :class="[
+            'relative py-3 px-2 rounded-xl text-[11px] sm:text-xs font-black transition-all flex items-center justify-center gap-1 cursor-pointer select-none text-center',
+            activeTab === 'on_demand'
+              ? 'bg-primary text-white shadow-lg shadow-primary/20'
+              : 'text-slate-600 dark:text-white/70 hover:bg-white/50 dark:hover:bg-white/10'
+          ]"
+        >
+          <span
+            :class="[
+              'absolute -top-3 left-1/2 -translate-x-1/2 px-2 py-0.5 rounded-full text-[10px] font-mono font-black border shadow-md transition-all',
+              activeTab === 'on_demand'
+                ? 'bg-slate-900 text-blue-400 border-blue-400/50'
+                : 'bg-primary/20 text-primary dark:text-blue-300 border-primary/30'
+            ]"
+          >
+            {{ onDemandTasks.length }}
+          </span>
+          <span>المهام الإضافية</span>
+        </button>
+      </div>
+
+      <!-- Task Responses List under active tab -->
+      <div class="space-y-4">
         <div
-          v-for="resp in taskResponses"
+          v-for="resp in currentTabTasks"
           :key="resp.id"
           class="p-4 rounded-2xl bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 space-y-3 shadow-sm"
         >
@@ -114,8 +177,11 @@
           </div>
         </div>
 
-        <div v-if="taskResponses.length === 0" class="p-6 text-center text-xs font-bold text-slate-400 dark:text-white/40">
-          لم يتم تسجيل إجابات بعد في هذه الزيارة.
+        <!-- Empty Tab States -->
+        <div v-if="currentTabTasks.length === 0" class="p-8 text-center rounded-2xl bg-slate-50 dark:bg-white/5 border border-dashed border-slate-200 dark:border-white/10 text-slate-500 dark:text-white/40 space-y-1">
+          <p v-if="activeTab === 'completed_daily'" class="text-xs font-bold">لا توجد مهام يومية تعبئتها المكتملة بعد.</p>
+          <p v-else-if="activeTab === 'uncompleted_daily'" class="text-xs font-bold">ممتاز! تم تعبئة جميع المهام اليومية الدورية بنجاح 🎉</p>
+          <p v-else class="text-xs font-bold">لم يتم إضافة أو تفعيل مهام إضافية (عند الحاجة) لهذه الزيارة.</p>
         </div>
       </div>
     </div>
@@ -131,7 +197,7 @@
 </template>
 
 <script setup>
-import { computed } from 'vue';
+import { ref, computed } from 'vue';
 import SpatialModal from '@/Components/Spatial/SpatialModal.vue';
 import SpatialButton from '@/Components/Spatial/SpatialButton.vue';
 import SpatialStatusPill from '@/Components/Spatial/SpatialStatusPill.vue';
@@ -149,6 +215,8 @@ const props = defineProps({
 
 defineEmits(['close']);
 
+const activeTab = ref('completed_daily');
+
 const taskResponses = computed(() => {
   return props.visit && props.visit.task_responses ? props.visit.task_responses : (props.visit && props.visit.taskResponses ? props.visit.taskResponses : []);
 });
@@ -156,6 +224,38 @@ const taskResponses = computed(() => {
 const getTaskDef = (resp) => {
   return resp?.task_definition || resp?.taskDefinition || null;
 };
+
+const completedDailyTasks = computed(() => {
+  return taskResponses.value.filter((resp) => {
+    const taskDef = getTaskDef(resp);
+    const type = taskDef?.task_type || 'daily';
+    const hasValues = resp.values && resp.values.length > 0;
+    return type === 'daily' && hasValues;
+  });
+});
+
+const uncompletedDailyTasks = computed(() => {
+  return taskResponses.value.filter((resp) => {
+    const taskDef = getTaskDef(resp);
+    const type = taskDef?.task_type || 'daily';
+    const hasValues = resp.values && resp.values.length > 0;
+    return type === 'daily' && !hasValues;
+  });
+});
+
+const onDemandTasks = computed(() => {
+  return taskResponses.value.filter((resp) => {
+    const taskDef = getTaskDef(resp);
+    return taskDef?.task_type === 'on_demand';
+  });
+});
+
+const currentTabTasks = computed(() => {
+  if (activeTab.value === 'completed_daily') return completedDailyTasks.value;
+  if (activeTab.value === 'uncompleted_daily') return uncompletedDailyTasks.value;
+  if (activeTab.value === 'on_demand') return onDemandTasks.value;
+  return [];
+});
 
 const getComponentLabel = (val) => {
   return val?.component?.label || val?.task_component?.label || 'العنصر';

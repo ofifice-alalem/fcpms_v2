@@ -212,14 +212,38 @@
     <!-- Main Content Area -->
     <main class="flex-1 p-4 md:p-8 overflow-y-auto max-w-7xl mx-auto w-full z-10 space-y-6 pb-24 md:pb-8">
       
-      <!-- Retroactive Historical Mode Amber Banner (Desktop & Mobile warning) -->
-      <div v-if="$page.props.isHistorical" class="p-4 rounded-2xl bg-amber-500/15 border border-amber-500/40 backdrop-blur-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-amber-700 dark:text-amber-300 text-xs font-black shadow-lg animate-fade-in">
-        <div class="flex items-center gap-2">
-          <span class="text-lg shrink-0">⚠️</span>
-          <span>تنبيه الوضع التاريخي: أنت تتصفح وتعدل حالياً على سجل عمل سابق بتاريخ <span class="font-mono underline font-bold dir-ltr inline-block text-amber-600 dark:text-amber-200">{{ formatDateOnly($page.props.selectedDate) }}</span>.</span>
+      <!-- Retroactive Historical Mode Amber Banner (Enhanced Spatial UI Design) -->
+      <div
+        v-if="$page.props.isHistorical"
+        class="relative p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-amber-500/20 via-amber-500/10 to-amber-500/20 border border-amber-500/40 backdrop-blur-xl flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-xl shadow-amber-500/5 animate-fade-in"
+      >
+        <div class="flex items-start sm:items-center gap-3.5">
+          <!-- Pulsing Status Indicator -->
+          <div class="relative flex items-center justify-center shrink-0 mt-0.5 sm:mt-0">
+            <span class="animate-ping absolute inline-flex h-4 w-4 rounded-full bg-amber-400 opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-3.5 w-3.5 bg-amber-500 shadow-sm"></span>
+          </div>
+
+          <div class="space-y-1">
+            <div class="flex items-center gap-2 flex-wrap">
+              <span class="px-2.5 py-0.5 rounded-full text-[11px] font-black bg-amber-500/20 text-amber-900 dark:text-amber-300 border border-amber-500/30">
+                ⚠️ وضع العمل التاريخي والاستدراك
+              </span>
+              <span class="text-xs font-mono font-black text-amber-900 dark:text-amber-200 dir-ltr bg-amber-500/15 px-2.5 py-0.5 rounded-lg border border-amber-500/30 shadow-xs">
+                {{ formattedHistoricalDate }}
+              </span>
+            </div>
+            <p class="text-xs font-bold text-amber-800 dark:text-amber-200/90 leading-relaxed">
+              تنبيه: أنت تقوم بتصفح وتعديل البيانات بأثر رجعي لهذا اليوم. جميع الإجراءات المعتمدة ستُسجل وتُنسب لهذا التاريخ.
+            </p>
+          </div>
         </div>
-        <Link :href="route('consultant.visits.index')" class="px-3.5 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs transition-all shrink-0 text-center shadow-md">
-          العودة لليوم الحالي 📍
+
+        <Link
+          :href="route('consultant.visits.index')"
+          class="px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 active:scale-95 text-slate-950 font-black text-xs transition-all shrink-0 text-center shadow-lg shadow-amber-500/20 flex items-center justify-center gap-1.5 cursor-pointer"
+        >
+          <span>العودة لليوم الحالي 📍</span>
         </Link>
       </div>
 
@@ -313,6 +337,17 @@ const formatDateOnly = (dateStr) => {
   if (!dateStr) return '';
   return String(dateStr).split('T')[0];
 };
+
+const formattedHistoricalDate = computed(() => {
+  const dateVal = page.props.selectedDate;
+  if (!dateVal) return '';
+  const dateStr = String(dateVal).split('T')[0];
+  const parts = dateStr.split('-');
+  if (parts.length === 3) {
+    return `${parts[2]} - ${parts[1]} - ${parts[0]}`;
+  }
+  return dateStr;
+});
 
 const dailyCompletionPercentage = computed(() => {
   const record = page.props.dailyRecord || page.props.visit?.daily_record || page.props.activeVisit?.dailyRecord || page.props.visit?.dailyRecord;
