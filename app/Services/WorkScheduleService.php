@@ -124,12 +124,15 @@ class WorkScheduleService
         return DB::transaction(function () use ($data) {
             $leave = $this->leaveRepo->recordConsultantLeave($data);
 
-            // Update consultant status to 'vacation' automatically (BR-015)
+            // Update consultant status to 'vacation' automatically ONLY if leave is active today
+            $today = now()->toDateString();
             $consultant = $leave->consultant;
             if ($consultant) {
-                $consultant->update([
-                    'employment_status' => ConsultantStatus::VACATION,
-                ]);
+                if ($leave->start_date <= $today && $leave->end_date >= $today) {
+                    $consultant->update([
+                        'employment_status' => ConsultantStatus::VACATION,
+                    ]);
+                }
             }
 
             return $leave;

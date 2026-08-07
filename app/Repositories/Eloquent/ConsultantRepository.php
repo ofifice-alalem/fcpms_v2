@@ -16,10 +16,56 @@ class ConsultantRepository extends BaseRepository implements ConsultantRepositor
     }
 
     /**
+     * Synchronize consultant leave status automatically based on current date.
+     */
+    public function syncLeaveStatuses(): void
+    {
+        $today = now()->toDateString();
+
+        // 1. Revert consultants marked as 'vacation' whose leave expired or has not started
+        $vacationConsultants = $this->model->newQuery()
+            ->where('employment_status', \App\Enums\ConsultantStatus::VACATION)
+            ->get();
+
+        foreach ($vacationConsultants as $consultant) {
+            $hasActiveLeave = $consultant->leaves()
+                ->whereDate('start_date', '<=', $today)
+                ->whereDate('end_date', '>=', $today)
+                ->exists();
+
+            if (!$hasActiveLeave) {
+                $consultant->update([
+                    'employment_status' => \App\Enums\ConsultantStatus::ACTIVE,
+                ]);
+            }
+        }
+
+        // 2. Mark active consultants as 'vacation' if they have an active leave today
+        $activeConsultants = $this->model->newQuery()
+            ->where('employment_status', \App\Enums\ConsultantStatus::ACTIVE)
+            ->get();
+
+        foreach ($activeConsultants as $consultant) {
+            $hasActiveLeave = $consultant->leaves()
+                ->whereDate('start_date', '<=', $today)
+                ->whereDate('end_date', '>=', $today)
+                ->exists();
+
+            if ($hasActiveLeave) {
+                $consultant->update([
+                    'employment_status' => \App\Enums\ConsultantStatus::VACATION,
+                ]);
+            }
+        }
+    }
+
+    /**
      * Get paginated consultants with filters.
      */
     public function getFilteredConsultants(array $filters = [], int $perPage = 15): LengthAwarePaginator
     {
+        $this->syncLeaveStatuses();
+
         $query = $this->model->newQuery()
             ->with(['user', 'workScheduleTemplate.days', 'leaves']);
 

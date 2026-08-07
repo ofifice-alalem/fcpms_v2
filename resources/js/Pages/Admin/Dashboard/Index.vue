@@ -263,6 +263,8 @@
                 <th class="p-4">التخصص</th>
                 <th class="p-4 text-center">حالة الحضور</th>
                 <th class="p-4 text-center">وقت تسجيل الدخول</th>
+                <th class="p-4 text-center">المواقع المزارة</th>
+                <th class="p-4 text-center">المهام الإضافية</th>
                 <th class="p-4">نسبة الإنجاز اليومية</th>
                 <th class="p-4 text-center">الإجراءات</th>
               </tr>
@@ -294,11 +296,21 @@
                     ]"
                   >
                     <span :class="['w-2 h-2 rounded-full', c.status === 'checked_in' ? 'bg-emerald-500 animate-pulse' : (c.status === 'leave' ? 'bg-amber-500' : 'bg-rose-500')]"></span>
-                    <span>{{ c.status === 'checked_in' ? '🟢 حاضر' : (c.status === 'leave' ? '🟡 في إجازة' : '🔴 غائب') }}</span>
+                    <span>{{ c.status === 'checked_in' ? 'حاضر' : (c.status === 'leave' ? 'في إجازة' : 'غائب') }}</span>
                   </span>
                 </td>
                 <td class="p-4 text-center font-mono text-xs font-bold text-slate-700 dark:text-white/80 whitespace-nowrap">
                   {{ c.check_in_time ? `⏰ ${c.check_in_time}` : '--' }}
+                </td>
+                <td class="p-4 text-center whitespace-nowrap">
+                  <span class="inline-flex items-center gap-1 font-mono font-black text-xs px-2.5 py-1 rounded-xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20 shadow-2xs">
+                    📍 {{ c.visited_sites_count || 0 }}
+                  </span>
+                </td>
+                <td class="p-4 text-center whitespace-nowrap">
+                  <span class="inline-flex items-center gap-1 font-mono font-black text-xs px-2.5 py-1 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 shadow-2xs">
+                    ⚡ {{ c.on_demand_tasks_count || 0 }}
+                  </span>
                 </td>
                 <td class="p-4 w-44">
                   <div v-if="c.status === 'checked_in'" class="space-y-1">

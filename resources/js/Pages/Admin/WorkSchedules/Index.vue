@@ -135,7 +135,80 @@
             />
           </div>
 
-          <div v-if="tabSearch || templateFilterStatus" class="self-end pb-1">
+          <!-- Leaves-specific Filter Options -->
+          <div v-if="activeTab === 'leaves'" class="flex-1 flex flex-wrap items-center justify-between gap-3 w-full">
+            <!-- Status Buttons Toggle -->
+            <div class="flex items-center gap-1 p-1 rounded-xl bg-slate-100 dark:bg-white/5 border border-slate-200/60 dark:border-white/10 text-xs font-bold">
+              <button
+                type="button"
+                @click="leaveStatusFilter = 'all'"
+                :class="[
+                  'px-3 py-1.5 rounded-lg transition-all cursor-pointer select-none',
+                  leaveStatusFilter === 'all' ? 'bg-indigo-600 text-white shadow-xs font-black' : 'text-slate-500 dark:text-white/60 hover:text-slate-900 dark:hover:text-white'
+                ]"
+              >
+                الكل
+              </button>
+
+              <button
+                type="button"
+                @click="leaveStatusFilter = 'active'"
+                :class="[
+                  'px-3 py-1.5 rounded-lg transition-all cursor-pointer select-none',
+                  leaveStatusFilter === 'active' ? 'bg-emerald-600 text-white shadow-xs font-black' : 'text-slate-500 dark:text-white/60 hover:text-slate-900 dark:hover:text-white'
+                ]"
+              >
+                🟢 جارية الآن
+              </button>
+
+              <button
+                type="button"
+                @click="leaveStatusFilter = 'future'"
+                :class="[
+                  'px-3 py-1.5 rounded-lg transition-all cursor-pointer select-none',
+                  leaveStatusFilter === 'future' ? 'bg-blue-600 text-white shadow-xs font-black' : 'text-slate-500 dark:text-white/60 hover:text-slate-900 dark:hover:text-white'
+                ]"
+              >
+                📅 مستقبلية
+              </button>
+
+              <button
+                type="button"
+                @click="leaveStatusFilter = 'expired'"
+                :class="[
+                  'px-3 py-1.5 rounded-lg transition-all cursor-pointer select-none',
+                  leaveStatusFilter === 'expired' ? 'bg-slate-700 text-white shadow-xs font-black' : 'text-slate-500 dark:text-white/60 hover:text-slate-900 dark:hover:text-white'
+                ]"
+              >
+                ⚪ منتهية
+              </button>
+            </div>
+
+            <!-- Date Range Filters -->
+            <div class="flex items-center gap-2">
+              <div class="flex items-center gap-1.5 bg-slate-100 dark:bg-white/5 border border-slate-200/60 dark:border-white/10 rounded-xl px-2.5 py-1">
+                <span class="text-[11px] font-bold text-slate-400">من:</span>
+                <input
+                  type="date"
+                  v-model="leaveStartDateFilter"
+                  title="من تاريخ بداية الإجازة"
+                  class="bg-transparent text-xs font-mono font-bold text-slate-800 dark:text-white focus:outline-hidden"
+                />
+              </div>
+
+              <div class="flex items-center gap-1.5 bg-slate-100 dark:bg-white/5 border border-slate-200/60 dark:border-white/10 rounded-xl px-2.5 py-1">
+                <span class="text-[11px] font-bold text-slate-400">إلى:</span>
+                <input
+                  type="date"
+                  v-model="leaveEndDateFilter"
+                  title="إلى تاريخ نهاية الإجازة"
+                  class="bg-transparent text-xs font-mono font-bold text-slate-800 dark:text-white focus:outline-hidden"
+                />
+              </div>
+            </div>
+          </div>
+
+          <div v-if="tabSearch || templateFilterStatus || leaveStatusFilter !== 'all' || leaveStartDateFilter || leaveEndDateFilter" class="self-end pb-1">
             <button
               @click="clearTabFilters"
               class="px-3 py-2 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-600 dark:text-rose-400 font-bold text-xs border border-rose-500/20 transition-all cursor-pointer flex items-center gap-1.5"
@@ -293,8 +366,8 @@
                     <div v-if="leave.notes" class="text-[11px] text-slate-400 font-normal mt-0.5">{{ leave.notes }}</div>
                   </td>
                   <td class="p-4 text-center">
-                    <SpatialStatusPill type="pending" :pulse="true">
-                      في إجازة (Vacation)
+                    <SpatialStatusPill :type="getLeaveStatus(leave).type" :pulse="getLeaveStatus(leave).pulse">
+                      {{ getLeaveStatus(leave).label }}
                     </SpatialStatusPill>
                   </td>
                   <td class="p-4 text-center">
@@ -447,6 +520,9 @@ const activeTab = ref('templates');
 // Tab Filters State
 const tabSearch = ref('');
 const templateFilterStatus = ref('');
+const leaveStatusFilter = ref('all');
+const leaveStartDateFilter = ref('');
+const leaveEndDateFilter = ref('');
 
 const tabSearchPlaceholder = computed(() => {
   if (activeTab.value === 'templates') return 'البحث باسم القالب أو الوصف...';
@@ -457,6 +533,9 @@ const tabSearchPlaceholder = computed(() => {
 function clearTabFilters() {
   tabSearch.value = '';
   templateFilterStatus.value = '';
+  leaveStatusFilter.value = 'all';
+  leaveStartDateFilter.value = '';
+  leaveEndDateFilter.value = '';
 }
 
 // Filtered Lists
@@ -485,6 +564,8 @@ const filteredHolidays = computed(() => {
 
 const filteredLeaves = computed(() => {
   let result = props.consultantLeaves || [];
+
+  // Search Filter
   if (tabSearch.value.trim()) {
     const q = tabSearch.value.trim().toLowerCase();
     result = result.filter(l => 
@@ -494,6 +575,38 @@ const filteredLeaves = computed(() => {
       (l.notes && l.notes.toLowerCase().includes(q))
     );
   }
+
+  // Status Filter
+  if (leaveStatusFilter.value !== 'all') {
+    result = result.filter(leave => {
+      const status = getLeaveStatus(leave);
+      return status.key === leaveStatusFilter.value;
+    });
+  }
+
+  // Date Range Overlap Filters (shows any leave overlapping even by 1 day with the selected range)
+  if (leaveStartDateFilter.value && leaveEndDateFilter.value) {
+    const filterFrom = leaveStartDateFilter.value;
+    const filterTo = leaveEndDateFilter.value;
+    result = result.filter(l => {
+      const start = String(l.start_date).substring(0, 10);
+      const end = String(l.end_date).substring(0, 10);
+      return start <= filterTo && end >= filterFrom;
+    });
+  } else if (leaveStartDateFilter.value) {
+    const filterFrom = leaveStartDateFilter.value;
+    result = result.filter(l => {
+      const end = String(l.end_date).substring(0, 10);
+      return end >= filterFrom;
+    });
+  } else if (leaveEndDateFilter.value) {
+    const filterTo = leaveEndDateFilter.value;
+    result = result.filter(l => {
+      const start = String(l.start_date).substring(0, 10);
+      return start <= filterTo;
+    });
+  }
+
   return result;
 });
 
@@ -547,6 +660,23 @@ function getHolidayDurationDays(startStr, endStr) {
   const end = endStr ? new Date(endStr) : start;
   const diffTime = Math.abs(end - start);
   return Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+}
+
+function getLeaveStatus(leave) {
+  if (!leave || !leave.start_date || !leave.end_date) {
+    return { type: 'neutral', label: 'غير محدد', pulse: false, key: 'unknown' };
+  }
+  const today = new Date().toISOString().substring(0, 10);
+  const start = String(leave.start_date).substring(0, 10);
+  const end = String(leave.end_date).substring(0, 10);
+
+  if (today < start) {
+    return { type: 'info', label: 'مستقبلية 📅', pulse: false, key: 'future' };
+  } else if (today >= start && today <= end) {
+    return { type: 'completed', label: 'جارية الآن 🟢', pulse: true, key: 'active' };
+  } else {
+    return { type: 'neutral', label: 'منتهية ⚪', pulse: false, key: 'expired' };
+  }
 }
 
 // Template Actions

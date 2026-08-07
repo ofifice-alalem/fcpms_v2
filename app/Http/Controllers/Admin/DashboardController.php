@@ -118,6 +118,9 @@ class DashboardController extends Controller
                             'code' => $visit->site->code,
                         ] : null,
                         'task_responses' => $visit->taskResponses ? $visit->taskResponses->map(function ($r) {
+                            $typeRaw = $r->taskDefinition->task_type ?? null;
+                            $taskTypeStr = is_object($typeRaw) ? ($typeRaw->value ?? (string)$typeRaw) : (string)$typeRaw;
+
                             return [
                                 'id' => $r->id,
                                 'status' => $r->status,
@@ -125,7 +128,7 @@ class DashboardController extends Controller
                                 'task_definition' => $r->taskDefinition ? [
                                     'id' => $r->taskDefinition->id,
                                     'title' => $r->taskDefinition->title,
-                                    'task_type' => $r->taskDefinition->task_type,
+                                    'task_type' => $taskTypeStr,
                                 ] : null,
                                 'values' => $r->values ? $r->values->map(function ($v) {
                                     return [
@@ -150,6 +153,21 @@ class DashboardController extends Controller
                 })->values()->all();
             }
 
+            $onDemandTasksCount = 0;
+            if ($record && $record->siteVisits) {
+                foreach ($record->siteVisits as $v) {
+                    if ($v->taskResponses) {
+                        foreach ($v->taskResponses as $r) {
+                            $t = $r->taskDefinition->task_type ?? null;
+                            $tStr = is_object($t) ? ($t->value ?? (string)$t) : (string)$t;
+                            if ($tStr === 'on_demand') {
+                                $onDemandTasksCount++;
+                            }
+                        }
+                    }
+                }
+            }
+
             return [
                 'id' => $c->id,
                 'full_name' => $c->full_name,
@@ -161,6 +179,8 @@ class DashboardController extends Controller
                 'completed_daily_tasks' => $record ? $record->completed_daily_tasks : 0,
                 'required_daily_tasks' => $record ? $record->required_daily_tasks : 0,
                 'completion_percentage' => $record ? (float) $record->completion_percentage : 0,
+                'visited_sites_count' => count($siteVisitsList),
+                'on_demand_tasks_count' => $onDemandTasksCount,
                 'site_visits' => $siteVisitsList,
             ];
         });
