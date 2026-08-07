@@ -143,89 +143,136 @@
         </div>
       </div>
 
-      <!-- Enterprise KPI Highlight Cards Grid -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <!-- Global Total Visits Card -->
-        <SpatialCard padding="p-5" class="relative z-10">
-          <div class="flex items-center justify-between">
-            <span class="text-xs font-bold text-slate-500 dark:text-white/60">إجمالي الزيارات بالميدان</span>
-            <div class="w-9 h-9 rounded-2xl bg-primary/10 text-primary flex items-center justify-center font-black">
-              📍
-            </div>
-          </div>
-          <div class="mt-3 flex items-baseline gap-2">
-            <span class="text-3xl font-black font-mono text-slate-900 dark:text-white">
-              {{ metrics?.system_total_visits || 0 }}
+      <!-- Enterprise KPI Highlight Cards Grid (Spatial UI v3.0 Ultra-High Fidelity) -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        <!-- Card 1: Global Total Visits Card (Indigo Theme) -->
+        <SpatialCard
+          padding="p-6"
+          class="min-h-[260px] flex flex-col justify-between border-t-4 border-t-indigo-500 rounded-3xl relative overflow-hidden bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-200/80 dark:border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.06)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.36)] transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl space-y-4"
+        >
+          <!-- Ambient Glow -->
+          <div class="absolute -top-12 -right-12 w-40 h-40 rounded-full bg-indigo-500/20 blur-3xl pointer-events-none"></div>
+
+          <!-- Centered Header & Title -->
+          <div class="text-center relative z-10">
+            <span class="text-xs font-black uppercase tracking-wider text-slate-500 dark:text-white/60 block">
+              إجمالي الزيارات بالميدان
             </span>
-            <span class="text-xs font-bold text-slate-400">زيارة ميدانية</span>
           </div>
-          <div class="mt-2 text-[11px] font-bold text-slate-500 dark:text-white/50">
-            مكتملة: {{ metrics?.completed_visits || 0 }} | قيد التنفيذ: {{ metrics?.in_progress_visits || 0 }}
+
+          <!-- Main Metric Gauge -->
+          <div class="flex flex-col items-center justify-center relative z-10 py-1">
+            <div class="w-20 h-20 rounded-full border-2 border-indigo-500 bg-indigo-500/15 text-indigo-600 dark:text-indigo-400 font-stat-number font-black text-3xl flex items-center justify-center shadow-lg shadow-indigo-500/25 ring-4 ring-indigo-500/20 transition-transform hover:scale-105">
+              {{ metrics?.system_total_visits || 0 }}
+            </div>
+            <span class="text-xs font-bold text-slate-400 dark:text-white/50 mt-2">زيارة ميدانية موثقة</span>
+          </div>
+
+          <!-- Improved Footer Status Badges (Centered) -->
+          <div class="pt-3 border-t border-slate-100 dark:border-white/10 flex items-center justify-center gap-3 text-xs font-bold relative z-10">
+            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+              <span class="w-2 h-2 rounded-full bg-emerald-500"></span> مكتملة: {{ metrics?.completed_visits || 0 }}
+            </span>
+            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
+              <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span> جارِ: {{ metrics?.in_progress_visits || 0 }}
+            </span>
           </div>
         </SpatialCard>
 
-        <!-- Active Consultants Ratio Card -->
-        <SpatialCard padding="p-5" class="relative z-10">
-          <div class="flex items-center justify-between">
-            <span class="text-xs font-bold text-slate-500 dark:text-white/60">حضور الاستشاريين الميدانيين</span>
-            <div class="w-9 h-9 rounded-2xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-black">
-              👨‍💼
-            </div>
-          </div>
-          <div class="mt-3 flex items-baseline gap-2">
-            <span class="text-3xl font-black font-mono text-slate-900 dark:text-white dir-ltr">
-              {{ metrics?.present_consultants_count || 0 }} / {{ metrics?.active_consultants_count || 0 }}
+        <!-- Card 2: Active Consultants Ratio Card (Emerald Theme) -->
+        <SpatialCard
+          padding="p-6"
+          class="min-h-[260px] flex flex-col justify-between border-t-4 border-t-emerald-500 rounded-3xl relative overflow-hidden bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-200/80 dark:border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.06)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.36)] transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl space-y-4"
+        >
+          <!-- Ambient Glow -->
+          <div class="absolute -top-12 -right-12 w-40 h-40 rounded-full bg-emerald-500/20 blur-3xl pointer-events-none"></div>
+
+          <!-- Centered Header & Title -->
+          <div class="text-center relative z-10">
+            <span class="text-xs font-black uppercase tracking-wider text-slate-500 dark:text-white/60 block">
+              حضور الاستشاريين الميدانيين
             </span>
-            <span class="text-xs font-bold text-slate-400">استشاري مشارك</span>
           </div>
-          <div class="mt-2 text-[11px] font-bold text-emerald-600 dark:text-emerald-400">
+
+          <!-- Main Metric Gauge -->
+          <div class="flex flex-col items-center justify-center relative z-10 py-1">
+            <div class="w-20 h-20 rounded-full border-2 border-emerald-500 bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 font-stat-number font-black text-2xl flex items-center justify-center shadow-lg shadow-emerald-500/25 ring-4 ring-emerald-500/20 dir-ltr transition-transform hover:scale-105">
+              {{ metrics?.present_consultants_count || 0 }} / {{ metrics?.active_consultants_count || 0 }}
+            </div>
+            <span class="text-xs font-bold text-slate-400 dark:text-white/50 mt-2">استشاري متواجد بالجدول</span>
+          </div>
+
+          <!-- Footer Status Pill (Centered) -->
+          <div class="pt-3 border-t border-slate-100 dark:border-white/10 text-[11px] font-bold text-emerald-600 dark:text-emerald-400 text-center truncate relative z-10">
             {{ metrics?.present_consultants_count || 0 }} متواجدين بالتقرير من أصل {{ metrics?.active_consultants_count || 0 }} في النظام
           </div>
         </SpatialCard>
 
-        <!-- System Completion Rate Card -->
-        <SpatialCard padding="p-5" class="relative z-10">
-          <div class="flex items-center justify-between">
-            <span class="text-xs font-bold text-slate-500 dark:text-white/60">معدل الإلتزام والإكتمال</span>
-            <div class="w-9 h-9 rounded-2xl bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center font-black">
-              %
-            </div>
-          </div>
-          <div class="mt-3 flex items-baseline justify-between gap-1 flex-wrap">
-            <span class="text-3xl font-black font-mono text-slate-900 dark:text-white">
-              {{ metrics?.system_completion_rate || 0 }}%
-            </span>
-            <span class="text-xs font-black font-mono text-blue-600 dark:text-blue-400 dir-ltr bg-blue-500/10 px-2.5 py-1 rounded-xl border border-blue-500/20">
-              📌 {{ metrics?.completed_daily_tasks_count || 0 }} / {{ metrics?.total_required_daily_tasks || 0 }}
+        <!-- Card 3: System Completion Rate Card (Blue Theme with SpatialCircularProgress) -->
+        <SpatialCard
+          padding="p-6"
+          class="min-h-[260px] flex flex-col justify-between border-t-4 border-t-blue-500 rounded-3xl relative overflow-hidden bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-200/80 dark:border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.06)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.36)] transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl space-y-4"
+        >
+          <!-- Ambient Glow -->
+          <div class="absolute -top-12 -right-12 w-40 h-40 rounded-full bg-blue-500/20 blur-3xl pointer-events-none"></div>
+
+          <!-- Centered Header & Title -->
+          <div class="text-center relative z-10">
+            <span class="text-xs font-black uppercase tracking-wider text-slate-500 dark:text-white/60 block">
+              معدل الإلتزام والإكتمال
             </span>
           </div>
-          <div class="mt-2 text-[11px] font-bold text-blue-600 dark:text-blue-400">
-            {{ metrics?.completed_daily_tasks_count || 0 }} مهمة منجزة من أصل {{ metrics?.total_required_daily_tasks || 0 }} مهمة يومية
+
+          <!-- Main Metric Progress Circle -->
+          <div class="flex flex-col items-center justify-center relative z-10 py-0.5">
+            <SpatialCircularProgress
+              :value="metrics?.system_completion_rate || 0"
+              :size="88"
+              :stroke-width="8"
+              color="blue"
+            >
+              <div class="flex flex-col items-center justify-center">
+                <span class="text-xl font-black font-stat-number tracking-tight text-slate-900 dark:text-white leading-none">
+                  {{ Number(metrics?.system_completion_rate || 0).toFixed(0) }}%
+                </span>
+              </div>
+            </SpatialCircularProgress>
           </div>
-          <div class="w-full h-2 bg-slate-100 dark:bg-white/10 rounded-full mt-3 overflow-hidden">
-            <div
-              class="h-full bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full transition-all duration-500"
-              :style="{ width: (metrics?.system_completion_rate || 0) + '%' }"
-            ></div>
+
+          <!-- Footer Status Pill (Centered, Removed 📌 13/13 badge) -->
+          <div class="pt-3 border-t border-slate-100 dark:border-white/10 text-center text-xs font-bold relative z-10">
+            <span class="text-blue-600 dark:text-blue-400 text-xs font-black">
+              {{ metrics?.completed_daily_tasks_count || 0 }} من أصل {{ metrics?.total_required_daily_tasks || 0 }} مهمة يومية
+            </span>
           </div>
         </SpatialCard>
 
-        <!-- Total On-Demand Tasks Card -->
-        <SpatialCard padding="p-5" class="relative z-10">
-          <div class="flex items-center justify-between">
-            <span class="text-xs font-bold text-slate-500 dark:text-white/60">إجمالي المهام الإضافية</span>
-            <div class="w-9 h-9 rounded-2xl bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center font-black">
-              ⚡
-            </div>
-          </div>
-          <div class="mt-3 flex items-baseline gap-2">
-            <span class="text-3xl font-black font-mono text-slate-900 dark:text-white">
-              {{ metrics?.on_demand_tasks_count || 0 }}
+        <!-- Card 4: Total On-Demand Tasks Card (Amber Theme) -->
+        <SpatialCard
+          padding="p-6"
+          class="min-h-[260px] flex flex-col justify-between border-t-4 border-t-amber-500 rounded-3xl relative overflow-hidden bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-200/80 dark:border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.06)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.36)] transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl space-y-4"
+        >
+          <!-- Ambient Glow -->
+          <div class="absolute -top-12 -right-12 w-40 h-40 rounded-full bg-amber-500/20 blur-3xl pointer-events-none"></div>
+
+          <!-- Centered Header & Title -->
+          <div class="text-center relative z-10">
+            <span class="text-xs font-black uppercase tracking-wider text-slate-500 dark:text-white/60 block">
+              إجمالي المهام الإضافية
             </span>
-            <span class="text-xs font-bold text-slate-400">مهمة عند الحاجة</span>
           </div>
-          <div class="mt-2 text-[11px] font-bold text-amber-600 dark:text-amber-400">
-            تم افتتاحها وإنجازها طارئاً
+
+          <!-- Main Metric Gauge -->
+          <div class="flex flex-col items-center justify-center relative z-10 py-1">
+            <div class="w-20 h-20 rounded-full border-2 border-amber-500 bg-amber-500/15 text-amber-600 dark:text-amber-400 font-stat-number font-black text-3xl flex items-center justify-center shadow-lg shadow-amber-500/25 ring-4 ring-amber-500/20 transition-transform hover:scale-105">
+              {{ metrics?.on_demand_tasks_count || 0 }}
+            </div>
+            <span class="text-xs font-bold text-slate-400 dark:text-white/50 mt-2">مهمة عند الحاجة ⚡</span>
+          </div>
+
+          <!-- Footer Status Pill (Centered) -->
+          <div class="pt-3 border-t border-slate-100 dark:border-white/10 text-[11px] font-bold text-amber-600 dark:text-amber-400 text-center truncate relative z-10">
+            تم افتتاحها وإنجازها طارئاً بالزيارات
           </div>
         </SpatialCard>
       </div>
@@ -451,6 +498,7 @@ import SpatialStatusPill from '@/Components/Spatial/SpatialStatusPill.vue';
 import SpatialIconButton from '@/Components/Spatial/SpatialIconButton.vue';
 import SpatialEmptyState from '@/Components/Spatial/SpatialEmptyState.vue';
 import SpatialModal from '@/Components/Spatial/SpatialModal.vue';
+import SpatialCircularProgress from '@/Components/Spatial/SpatialCircularProgress.vue';
 import ReportVisitDetailModal from '@/Components/Reports/ReportVisitDetailModal.vue';
 
 const props = defineProps({
