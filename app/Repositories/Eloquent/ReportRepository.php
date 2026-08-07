@@ -327,16 +327,20 @@ class ReportRepository implements ReportRepositoryInterface
         }
 
         $visitQuery = SiteVisit::where('site_id', $siteId)
-            ->with(['dailyRecord.consultant', 'taskResponses.taskDefinition']);
+            ->with(['dailyRecord.consultant', 'taskResponses.taskDefinition', 'taskResponses.attachments', 'taskResponses.values']);
 
         if (!empty($filters['date_from'])) {
-            $visitQuery->whereHas('dailyRecord', function ($q) use ($filters) {
-                $q->whereDate('work_date', '>=', $filters['date_from']);
+            $visitQuery->where(function ($q) use ($filters) {
+                $q->whereHas('dailyRecord', fn ($dq) => $dq->whereDate('work_date', '>=', $filters['date_from']))
+                  ->orWhereDate('visit_started_at', '>=', $filters['date_from'])
+                  ->orWhereDate('created_at', '>=', $filters['date_from']);
             });
         }
         if (!empty($filters['date_to'])) {
-            $visitQuery->whereHas('dailyRecord', function ($q) use ($filters) {
-                $q->whereDate('work_date', '<=', $filters['date_to']);
+            $visitQuery->where(function ($q) use ($filters) {
+                $q->whereHas('dailyRecord', fn ($dq) => $dq->whereDate('work_date', '<=', $filters['date_to']))
+                  ->orWhereDate('visit_started_at', '<=', $filters['date_to'])
+                  ->orWhereDate('created_at', '<=', $filters['date_to']);
             });
         }
 
@@ -364,6 +368,7 @@ class ReportRepository implements ReportRepositoryInterface
                         'task_type'       => $typeStr === 'on_demand' ? 'إضافية' : 'يومية',
                         'execution_count' => 0,
                         'consultants'     => [],
+                        'images'          => [],
                     ];
                 }
 
@@ -378,6 +383,71 @@ class ReportRepository implements ReportRepositoryInterface
                         ];
                     }
                     $tasksMap[$taskDefId]['consultants'][$consultant->id]['count']++;
+                }
+
+                // Collect attachments/images (with URL deduplication)
+                foreach ($resp->attachments as $att) {
+                    $path = $att->file_path;
+                    if ($path) {
+                        $url = (str_starts_with($path, 'http://') || str_starts_with($path, 'https://') || str_starts_with($path, 'data:'))
+                            ? $path
+                            : (str_starts_with($path, '/storage/') ? $path : (str_starts_with($path, 'storage/') ? '/' . $path : '/storage/' . ltrim($path, '/')));
+
+                        $alreadyExists = false;
+                        foreach ($tasksMap[$taskDefId]['images'] as $imgItem) {
+                            if ($imgItem['url'] === $url) {
+                                $alreadyExists = true;
+                                break;
+                            }
+                        }
+
+                        if (!$alreadyExists) {
+                            $tasksMap[$taskDefId]['images'][] = [
+                                'id' => 'att_' . $att->id,
+                                'url' => $url,
+                                'file_name' => $att->file_name ?? 'صورة ميدانية',
+                                'consultant_name' => $consultant?->full_name ?? 'استشاري ميداني',
+                                'created_at' => $resp->submitted_at?->format('Y-m-d H:i') ?? $resp->created_at?->format('Y-m-d H:i') ?? '',
+                            ];
+                        }
+                    }
+                }
+
+                foreach ($resp->values as $valObj) {
+                    $val = trim($valObj->value ?? '');
+                    if ($val && (
+                        str_starts_with($val, '/storage/') ||
+                        str_starts_with($val, 'storage/') ||
+                        str_starts_with($val, '/uploads/') ||
+                        str_starts_with($val, 'uploads/') ||
+                        str_starts_with($val, 'task_attachments/') ||
+                        str_starts_with($val, '/task_attachments/') ||
+                        str_starts_with($val, 'http://') ||
+                        str_starts_with($val, 'https://') ||
+                        preg_match('/\.(jpg|jpeg|png|webp|gif|svg)$/i', $val)
+                    )) {
+                        $url = (str_starts_with($val, 'http://') || str_starts_with($val, 'https://') || str_starts_with($val, 'data:'))
+                            ? $val
+                            : (str_starts_with($val, '/storage/') ? $val : (str_starts_with($val, 'storage/') ? '/' . $val : '/storage/' . ltrim($val, '/')));
+
+                        $alreadyExists = false;
+                        foreach ($tasksMap[$taskDefId]['images'] as $imgItem) {
+                            if ($imgItem['url'] === $url) {
+                                $alreadyExists = true;
+                                break;
+                            }
+                        }
+
+                        if (!$alreadyExists) {
+                            $tasksMap[$taskDefId]['images'][] = [
+                                'id' => 'val_' . $valObj->id,
+                                'url' => $url,
+                                'file_name' => 'صورة مرفقة',
+                                'consultant_name' => $consultant?->full_name ?? 'استشاري ميداني',
+                                'created_at' => $resp->submitted_at?->format('Y-m-d H:i') ?? $resp->created_at?->format('Y-m-d H:i') ?? '',
+                            ];
+                        }
+                    }
                 }
             }
         }
@@ -394,6 +464,7 @@ class ReportRepository implements ReportRepositoryInterface
                 'execution_count'   => $item['execution_count'],
                 'consultants_count' => count($item['consultants']),
                 'consultants_list'  => $consultantsList,
+                'images'            => $item['images'],
             ];
         }
 

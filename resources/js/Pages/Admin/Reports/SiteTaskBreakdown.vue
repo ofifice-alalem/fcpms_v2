@@ -484,8 +484,100 @@
             لم يتم تسجيل أي استشاريين لهذه المهمة.
           </div>
         </div>
+
+        <!-- Task Field Images & Attachments Gallery Section -->
+        <div class="space-y-3 pt-3 border-t border-slate-200/80 dark:border-white/10">
+          <div class="flex items-center justify-between">
+            <h5 class="text-sm font-black text-slate-600 dark:text-white/70 uppercase tracking-wider flex items-center gap-2">
+              <span>🖼️ الصور والمرفقات الميدانية للمهمة</span>
+              <span class="px-2 py-0.5 rounded-full bg-primary/10 text-primary font-mono text-xs font-black">
+                {{ selectedTaskForDrawer.images?.length || 0 }}
+              </span>
+            </h5>
+          </div>
+
+          <div
+            v-if="selectedTaskForDrawer.images && selectedTaskForDrawer.images.length > 0"
+            class="grid grid-cols-2 gap-3"
+          >
+            <div
+              v-for="(img, imgIdx) in selectedTaskForDrawer.images"
+              :key="imgIdx"
+              @click="openImageModal(img)"
+              class="group relative overflow-hidden rounded-2xl border border-slate-200/80 dark:border-white/10 bg-slate-900/5 dark:bg-white/5 cursor-pointer transition-all hover:border-primary hover:shadow-lg space-y-1.5 p-2"
+            >
+              <div class="aspect-4/3 w-full overflow-hidden rounded-xl bg-slate-950/40 relative">
+                <img
+                  :src="img.url"
+                  :alt="img.file_name"
+                  class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                />
+                <div class="absolute inset-0 bg-slate-950/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                  <span class="px-3 py-1.5 rounded-xl bg-white/20 backdrop-blur-md text-white text-xs font-black shadow-md flex items-center gap-1.5">
+                    <span>👁️ معاينة مكبرة</span>
+                  </span>
+                </div>
+              </div>
+              <div class="px-1 text-right">
+                <div class="text-xs font-black text-slate-800 dark:text-white truncate">
+                  {{ img.consultant_name }}
+                </div>
+                <div v-if="img.created_at" class="text-[10px] font-mono font-bold text-slate-400 dark:text-white/40 dir-ltr text-right">
+                  {{ img.created_at }}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div v-else class="p-5 text-center text-xs font-bold text-slate-400 dark:text-white/40 border border-dashed border-slate-300 dark:border-white/10 rounded-2xl">
+            لا توجد صور أو مرفقات ميدانية مسجلة لهذه المهمة.
+          </div>
+        </div>
       </div>
     </SpatialDrawer>
+
+    <!-- Image Preview Lightbox Modal -->
+    <Teleport to="body">
+      <div
+        v-if="selectedImage"
+        class="fixed inset-0 z-[999999] bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-4 sm:p-8 animate-spatial-in dir-rtl"
+        @click="closeImageModal"
+      >
+        <div class="relative max-w-4xl w-full bg-slate-900 rounded-3xl p-4 sm:p-6 border border-white/10 shadow-2xl flex flex-col space-y-4 max-h-[90vh]" @click.stop>
+          <div class="flex items-center justify-between border-b border-white/10 pb-3">
+            <div class="space-y-0.5 truncate max-w-[70%] text-right">
+              <h4 class="text-sm sm:text-base font-black text-white truncate">
+                🖼️ {{ selectedImage.file_name || 'معاينة الصورة الميدانية' }}
+              </h4>
+              <p v-if="selectedImage.consultant_name" class="text-xs text-white/60 font-bold">
+                الاستشاري: {{ selectedImage.consultant_name }}
+              </p>
+            </div>
+            <div class="flex items-center gap-2">
+              <a
+                :href="selectedImage.url"
+                target="_blank"
+                download
+                class="px-3.5 py-2 rounded-xl bg-primary hover:bg-primary/90 text-white text-xs font-black flex items-center gap-1.5 transition-all shadow-md active:scale-95"
+              >
+                <span>تحميل الصورة ⬇️</span>
+              </a>
+              <button
+                type="button"
+                @click="closeImageModal"
+                class="px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-black transition-all active:scale-95 cursor-pointer"
+              >
+                ✕ إغلاق
+              </button>
+            </div>
+          </div>
+
+          <div class="flex-1 overflow-hidden flex items-center justify-center bg-black/40 rounded-2xl p-2 min-h-[300px]">
+            <img :src="selectedImage.url" class="max-w-full max-h-[70vh] object-contain rounded-xl shadow-2xl" />
+          </div>
+        </div>
+      </div>
+    </Teleport>
   </HRLayout>
 </template>
 
@@ -511,10 +603,19 @@ const props = defineProps({
 
 const isDrawerOpen = ref(false);
 const selectedTaskForDrawer = ref(null);
+const selectedImage = ref(null);
 
 function openConsultantsDrawer(task) {
   selectedTaskForDrawer.value = task;
   isDrawerOpen.value = true;
+}
+
+function openImageModal(img) {
+  selectedImage.value = img;
+}
+
+function closeImageModal() {
+  selectedImage.value = null;
 }
 
 const getConsultantName = (item) => {

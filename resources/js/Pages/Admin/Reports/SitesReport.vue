@@ -46,6 +46,109 @@
         </Link>
       </div>
 
+      <!-- Enterprise KPI Highlight Cards Grid (Spatial UI v3.0 Ultra-High Fidelity) -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        <!-- Card 1: Total Sites Card (Indigo Theme) -->
+        <SpatialCard
+          padding="p-6"
+          class="min-h-[260px] flex flex-col justify-between border-t-4 border-t-indigo-500 rounded-3xl relative overflow-hidden bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-200/80 dark:border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.06)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.36)] transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl space-y-4"
+        >
+          <div class="absolute -top-12 -right-12 w-40 h-40 rounded-full bg-indigo-500/20 blur-3xl pointer-events-none"></div>
+
+          <div class="text-center relative z-10">
+            <span class="text-xs font-black uppercase tracking-wider text-slate-500 dark:text-white/60 block">
+              إجمالي المواقع المزارة
+            </span>
+          </div>
+
+          <div class="flex flex-col items-center justify-center relative z-10 py-1">
+            <div class="w-20 h-20 rounded-full border-2 border-indigo-500 bg-indigo-500/15 text-indigo-600 dark:text-indigo-400 font-stat-number font-black text-3xl flex items-center justify-center shadow-lg shadow-indigo-500/25 ring-4 ring-indigo-500/20 transition-transform hover:scale-105">
+              {{ totalSites }}
+            </div>
+            <span class="text-xs font-bold text-slate-400 dark:text-white/50 mt-2">موقع ميداني</span>
+          </div>
+
+          <div class="pt-3 border-t border-slate-100 dark:border-white/10 text-xs font-bold text-indigo-600 dark:text-indigo-400 text-center truncate relative z-10">
+            موقع شملته الزيارات بالتقرير
+          </div>
+        </SpatialCard>
+
+        <!-- Card 2: Total Visits Card (Emerald Theme) -->
+        <SpatialCard
+          padding="p-6"
+          class="min-h-[260px] flex flex-col justify-between border-t-4 border-t-emerald-500 rounded-3xl relative overflow-hidden bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-200/80 dark:border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.06)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.36)] transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl space-y-4"
+        >
+          <div class="absolute -top-12 -right-12 w-40 h-40 rounded-full bg-emerald-500/20 blur-3xl pointer-events-none"></div>
+
+          <div class="text-center relative z-10">
+            <span class="text-xs font-black uppercase tracking-wider text-slate-500 dark:text-white/60 block">
+              إجمالي الزيارات للمواقع
+            </span>
+          </div>
+
+          <div class="flex flex-col items-center justify-center relative z-10 py-1">
+            <div class="w-20 h-20 rounded-full border-2 border-emerald-500 bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 font-stat-number font-black text-3xl flex items-center justify-center shadow-lg shadow-emerald-500/25 ring-4 ring-emerald-500/20 transition-transform hover:scale-105">
+              {{ totalVisits }}
+            </div>
+            <span class="text-xs font-bold text-slate-400 dark:text-white/50 mt-2">زيارة ميدانية</span>
+          </div>
+
+          <div class="pt-3 border-t border-slate-100 dark:border-white/10 text-xs font-bold text-emerald-600 dark:text-emerald-400 text-center truncate relative z-10">
+            موزعة على مختلف المواقع
+          </div>
+        </SpatialCard>
+
+        <!-- Card 3: Regular Tasks Card (Blue Theme) -->
+        <SpatialCard
+          padding="p-6"
+          class="min-h-[260px] flex flex-col justify-between border-t-4 border-t-blue-500 rounded-3xl relative overflow-hidden bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-200/80 dark:border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.06)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.36)] transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl space-y-4"
+        >
+          <div class="absolute -top-12 -right-12 w-40 h-40 rounded-full bg-blue-500/20 blur-3xl pointer-events-none"></div>
+
+          <div class="text-center relative z-10">
+            <span class="text-xs font-black uppercase tracking-wider text-slate-500 dark:text-white/60 block">
+              المهام اليومية المنفذة
+            </span>
+          </div>
+
+          <div class="flex flex-col items-center justify-center relative z-10 py-1">
+            <div class="w-20 h-20 rounded-full border-2 border-blue-500 bg-blue-500/15 text-blue-600 dark:text-blue-400 font-stat-number font-black text-3xl flex items-center justify-center shadow-lg shadow-blue-500/25 ring-4 ring-blue-500/20 transition-transform hover:scale-105">
+              {{ totalRegularTasks }}
+            </div>
+            <span class="text-xs font-bold text-slate-400 dark:text-white/50 mt-2">مهمة قياسية 📌</span>
+          </div>
+
+          <div class="pt-3 border-t border-slate-100 dark:border-white/10 text-xs font-bold text-blue-600 dark:text-blue-400 text-center truncate relative z-10">
+            تم استيفاؤها وإجابتها بالزيارات
+          </div>
+        </SpatialCard>
+
+        <!-- Card 4: On Demand Tasks Card (Amber Theme) -->
+        <SpatialCard
+          padding="p-6"
+          class="min-h-[260px] flex flex-col justify-between border-t-4 border-t-amber-500 rounded-3xl relative overflow-hidden bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-200/80 dark:border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.06)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.36)] transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl space-y-4"
+        >
+          <div class="absolute -top-12 -right-12 w-40 h-40 rounded-full bg-amber-500/20 blur-3xl pointer-events-none"></div>
+
+          <div class="text-center relative z-10">
+            <span class="text-xs font-black uppercase tracking-wider text-slate-500 dark:text-white/60 block">
+              المهام عند الحاجة بالمواقع
+            </span>
+          </div>
+
+          <div class="flex flex-col items-center justify-center relative z-10 py-1">
+            <div class="w-20 h-20 rounded-full border-2 border-amber-500 bg-amber-500/15 text-amber-600 dark:text-amber-400 font-stat-number font-black text-3xl flex items-center justify-center shadow-lg shadow-amber-500/25 ring-4 ring-amber-500/20 transition-transform hover:scale-105">
+              {{ totalOnDemandTasks }}
+            </div>
+            <span class="text-xs font-bold text-slate-400 dark:text-white/50 mt-2">مهمة إضافية ⚡</span>
+          </div>
+
+          <div class="pt-3 border-t border-slate-100 dark:border-white/10 text-xs font-bold text-amber-600 dark:text-amber-400 text-center truncate relative z-10">
+            افتتحت وإنجزت بالمواقع
+          </div>
+        </SpatialCard>
+      </div>
+
       <!-- Multi-Filter Bar -->
       <SpatialCard padding="p-5" class="relative z-30">
         <form @submit.prevent="applyFilters" class="space-y-4">
@@ -225,6 +328,11 @@ const props = defineProps({
 });
 
 const toastRef = ref(null);
+
+const totalSites = computed(() => (props.sitesReport || []).length);
+const totalVisits = computed(() => (props.sitesReport || []).reduce((acc, s) => acc + (Number(s.total_visits_count) || 0), 0));
+const totalRegularTasks = computed(() => (props.sitesReport || []).reduce((acc, s) => acc + (Number(s.regular_tasks_count) || 0), 0));
+const totalOnDemandTasks = computed(() => (props.sitesReport || []).reduce((acc, s) => acc + (Number(s.on_demand_tasks_count) || 0), 0));
 
 const filterForm = reactive({
   site_id: props.filters?.site_id || '',

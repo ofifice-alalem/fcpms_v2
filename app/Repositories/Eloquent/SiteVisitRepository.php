@@ -237,6 +237,26 @@ class SiteVisitRepository extends BaseRepository implements SiteVisitRepositoryI
                         $filesMap = is_array($files) ? $files : [$files];
                         foreach ($filesMap as $compIdKey => $file) {
                             if ($file && $file->isValid()) {
+                                // Delete old attachment & physical file if component image is being replaced
+                                if (is_numeric($compIdKey) && (int)$compIdKey > 0) {
+                                    $existingVal = TaskResponseValue::where('task_response_id', $taskResponse->id)
+                                        ->where('task_component_id', (int)$compIdKey)
+                                        ->first();
+
+                                    if ($existingVal && !empty($existingVal->value)) {
+                                        $oldUrl = $existingVal->value;
+                                        $oldAtt = TaskAttachment::where('task_response_id', $taskResponse->id)
+                                            ->where('file_path', $oldUrl)
+                                            ->first();
+
+                                        if ($oldAtt) {
+                                            $relativePath = str_replace('/storage/', '', $oldUrl);
+                                            Storage::disk('public')->delete($relativePath);
+                                            $oldAtt->delete();
+                                        }
+                                    }
+                                }
+
                                 $path = $file->store('task_attachments', 'public');
                                 $storedUrl = Storage::url($path);
 
