@@ -333,7 +333,7 @@ class ReportRepository implements ReportRepositoryInterface
                     $tasksMap[$taskDefId] = [
                         'task_id'         => $taskDefId,
                         'title'           => $title,
-                        'task_type'       => $typeStr === 'on_demand' ? 'إضافية (عند الحاجة)' : 'يومية قياسية',
+                        'task_type'       => $typeStr === 'on_demand' ? 'إضافية' : 'يومية',
                         'execution_count' => 0,
                         'consultants'     => [],
                     ];
@@ -342,20 +342,30 @@ class ReportRepository implements ReportRepositoryInterface
                 $tasksMap[$taskDefId]['execution_count']++;
 
                 if ($consultant) {
-                    $tasksMap[$taskDefId]['consultants'][$consultant->id] = $consultant->full_name;
+                    if (!isset($tasksMap[$taskDefId]['consultants'][$consultant->id])) {
+                        $tasksMap[$taskDefId]['consultants'][$consultant->id] = [
+                            'id' => $consultant->id,
+                            'name' => $consultant->full_name,
+                            'count' => 0,
+                        ];
+                    }
+                    $tasksMap[$taskDefId]['consultants'][$consultant->id]['count']++;
                 }
             }
         }
 
         $breakdown = [];
         foreach ($tasksMap as $item) {
+            $consultantsList = array_values($item['consultants']);
+            usort($consultantsList, fn($a, $b) => $b['count'] <=> $a['count']);
+
             $breakdown[] = [
                 'task_id'           => $item['task_id'],
                 'title'             => $item['title'],
                 'task_type'         => $item['task_type'],
                 'execution_count'   => $item['execution_count'],
                 'consultants_count' => count($item['consultants']),
-                'consultants_list'  => array_values($item['consultants']),
+                'consultants_list'  => $consultantsList,
             ];
         }
 
