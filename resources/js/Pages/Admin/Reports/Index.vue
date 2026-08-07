@@ -539,11 +539,18 @@ function handleExport(format) {
 
 async function openVisitModal(visitId) {
   try {
-    const response = await fetch(route('admin.reports.visit-detail', visitId));
+    const response = await fetch(route('admin.reports.visit-detail', visitId), {
+      headers: {
+        'Accept': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest',
+      },
+    });
     const json = await response.json();
     if (json.success) {
       activeVisitData.value = json.data;
       isModalOpen.value = true;
+    } else {
+      toastRef.value?.addToast('danger', json.message || 'تعذر جلب تفاصيل الزيارة الميدانية');
     }
   } catch (err) {
     toastRef.value?.addToast('danger', 'تعذر جلب تفاصيل الزيارة الميدانية');

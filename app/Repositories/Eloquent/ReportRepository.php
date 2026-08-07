@@ -175,7 +175,7 @@ class ReportRepository implements ReportRepositoryInterface
             'site',
             'dailyRecord.consultant',
             'taskResponses.taskDefinition.components',
-            'taskResponses.responseValues',
+            'taskResponses.values',
             'taskResponses.attachments',
         ])->find($visitId);
     }

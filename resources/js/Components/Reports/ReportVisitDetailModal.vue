@@ -84,27 +84,51 @@
                 </SpatialStatusPill>
               </div>
 
-              <!-- Response Values -->
-              <div class="space-y-2 text-xs font-bold">
-                <div v-for="val in resp.response_values" :key="val.id" class="flex justify-between bg-slate-50 dark:bg-white/5 p-2.5 rounded-xl border border-slate-100 dark:border-white/5">
+              <!-- Response Values (Text / Selections) -->
+              <div v-if="getNonImageValues(resp.values || resp.response_values).length > 0" class="space-y-2 text-xs font-bold">
+                <div v-for="val in getNonImageValues(resp.values || resp.response_values)" :key="val.id" class="flex justify-between bg-slate-50 dark:bg-white/5 p-2.5 rounded-xl border border-slate-100 dark:border-white/5">
                   <span class="text-slate-500 dark:text-white/60">حقل الإجابة:</span>
                   <span class="font-mono text-slate-900 dark:text-white font-black">{{ val.value }}</span>
                 </div>
               </div>
 
-              <!-- Attachments if any -->
-              <div v-if="resp.attachments && resp.attachments.length > 0" class="space-y-1 pt-1">
+              <!-- Attachments & Field Images -->
+              <div v-if="getTaskAttachments(resp).length > 0" class="space-y-2 pt-1">
                 <div class="text-[11px] font-black text-slate-400">المرفقات والصور الميدانية:</div>
-                <div class="flex flex-wrap gap-2">
-                  <a
-                    v-for="att in resp.attachments"
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div
+                    v-for="att in getTaskAttachments(resp)"
                     :key="att.id"
-                    :href="'/storage/' + att.file_path"
-                    target="_blank"
-                    class="px-3 py-1.5 rounded-xl bg-primary/10 hover:bg-primary/20 text-primary text-xs font-bold border border-primary/20 transition-all flex items-center gap-1"
+                    class="p-2 rounded-2xl bg-slate-50 dark:bg-white/5 border border-slate-200/60 dark:border-white/10 flex items-center justify-between gap-2"
                   >
-                    📎 <span>مشاهدة المرفق</span>
-                  </a>
+                    <div class="flex items-center gap-2 overflow-hidden">
+                      <img
+                        v-if="isImage(att.file_path)"
+                        :src="getImageUrl(att.file_path)"
+                        alt="مرفق"
+                        class="w-10 h-10 rounded-xl object-cover border border-slate-200 dark:border-white/10 shrink-0"
+                      />
+                      <div v-else class="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center text-sm font-bold shrink-0">
+                        📎
+                      </div>
+                      <div class="truncate">
+                        <div class="text-xs font-black text-slate-900 dark:text-white truncate">
+                          {{ att.file_name || 'مرفق ميداني' }}
+                        </div>
+                        <div class="text-[10px] text-slate-400 font-mono">
+                          {{ att.file_size ? (att.file_size / 1024).toFixed(1) + ' KB' : 'صورة مرفقة' }}
+                        </div>
+                      </div>
+                    </div>
+
+                    <a
+                      :href="getImageUrl(att.file_path)"
+                      target="_blank"
+                      class="px-3 py-1.5 rounded-xl bg-primary/10 hover:bg-primary/20 text-primary text-xs font-bold border border-primary/20 transition-all shrink-0 flex items-center gap-1"
+                    >
+                      <span>عرض</span> ↗️
+                    </a>
+                  </div>
                 </div>
               </div>
             </div>
@@ -136,5 +160,67 @@ defineEmits(['close']);
 function formatTime(timeStr) {
   if (!timeStr) return '--:--';
   return String(timeStr).substring(11, 16) || String(timeStr).substring(0, 5);
+}
+
+function isImage(path) {
+  if (!path) return false;
+  return /\.(jpg|jpeg|png|webp|gif|svg)$/i.test(String(path)) || String(path).includes('task_attachments');
+}
+
+function getImageUrl(path) {
+  if (!path || typeof path !== 'string') return '';
+  let str = path.trim();
+  if ((str.startsWith('"') && str.endsWith('"')) || (str.startsWith("'") && str.endsWith("'"))) {
+    str = str.slice(1, -1);
+  }
+  if (str.startsWith('http://') || str.startsWith('https://') || str.startsWith('data:image/')) {
+    return str;
+  }
+  if (str.startsWith('/storage/')) {
+    return str;
+  }
+  if (str.startsWith('storage/')) {
+    return '/' + str;
+  }
+  if (str.startsWith('/')) {
+    return str;
+  }
+  return '/storage/' + str;
+}
+
+function getNonImageValues(values) {
+  if (!values || !Array.isArray(values)) return [];
+  return values.filter((val) => {
+    if (!val || !val.value) return false;
+    const str = String(val.value).trim();
+    if (str.startsWith('/storage/') || str.startsWith('storage/') || isImage(str)) {
+      return false;
+    }
+    return true;
+  });
+}
+
+function getTaskAttachments(resp) {
+  const list = [];
+  if (resp.attachments && resp.attachments.length > 0) {
+    resp.attachments.forEach((att) => list.push(att));
+  }
+  const vals = resp.values || resp.response_values || [];
+  vals.forEach((val) => {
+    if (val && val.value) {
+      const str = String(val.value).trim();
+      if (str.startsWith('/storage/') || str.startsWith('storage/') || isImage(str)) {
+        const exists = list.some((a) => a.file_path && a.file_path.includes(str));
+        if (!exists) {
+          list.push({
+            id: 'val_' + val.id,
+            file_name: 'صورة المرفق الميداني',
+            file_path: str,
+          });
+        }
+      }
+    }
+  });
+  return list;
 }
 </script>
