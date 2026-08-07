@@ -75,6 +75,13 @@ Route::middleware('auth')->group(function () {
         Route::put('/task-builder/{task}', [\App\Http\Controllers\Admin\TaskBuilderController::class, 'update'])->name('tasks.update');
         Route::patch('/task-builder/{task}/toggle-active', [\App\Http\Controllers\Admin\TaskBuilderController::class, 'toggleActive'])->name('tasks.toggle-active');
         Route::delete('/task-builder/{task}', [\App\Http\Controllers\Admin\TaskBuilderController::class, 'destroy'])->name('tasks.destroy');
+
+        // Phase 06: Reports & Analytics (Admin / Enterprise View)
+        Route::get('/reports', [\App\Http\Controllers\Admin\AdminReportController::class, 'index'])->name('reports.index');
+        Route::get('/reports/sites', [\App\Http\Controllers\Admin\AdminReportController::class, 'sitesReport'])->name('reports.sites');
+        Route::get('/reports/sites/{site}', [\App\Http\Controllers\Admin\AdminReportController::class, 'siteTaskBreakdown'])->name('reports.site-breakdown');
+        Route::get('/reports/visit-detail/{visit}', [\App\Http\Controllers\Admin\AdminReportController::class, 'showVisitDetail'])->name('reports.visit-detail');
+        Route::get('/reports/export', [\App\Http\Controllers\Admin\AdminReportController::class, 'export'])->name('reports.export');
     });
 
     // Phase 05: Consultant Daily Visits Portal Routes
@@ -93,6 +100,11 @@ Route::middleware('auth')->group(function () {
         Route::post('/site-visits/{visit}/submit-all-drafts', [\App\Http\Controllers\Consultant\DailyVisitController::class, 'submitAllDrafts'])->name('site-visits.submit-all-drafts');
         Route::get('/site-visits/{visit}', [\App\Http\Controllers\Consultant\DailyVisitController::class, 'show'])->name('site-visits.show');
         Route::delete('/site-visits/{visit}', [\App\Http\Controllers\Consultant\DailyVisitController::class, 'destroy'])->name('site-visits.destroy');
+
+        // Phase 06: Consultant Personal Reports Routes
+        Route::get('/reports', [\App\Http\Controllers\Consultant\ConsultantReportController::class, 'index'])->name('reports.index');
+        Route::get('/reports/visit-detail/{visit}', [\App\Http\Controllers\Consultant\ConsultantReportController::class, 'showVisitDetail'])->name('reports.visit-detail');
+        Route::get('/reports/export', [\App\Http\Controllers\Consultant\ConsultantReportController::class, 'export'])->name('reports.export');
     });
 });
 

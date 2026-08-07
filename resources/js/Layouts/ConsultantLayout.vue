@@ -101,6 +101,17 @@
           </Link>
 
           <Link
+            :href="route('consultant.reports.index')"
+            :class="[
+              'flex items-center gap-3 px-4 py-3 rounded-[16px] font-bold text-sm transition-all cursor-pointer',
+              $page.component === 'Consultant/Reports/Index' ? 'bg-primary text-white shadow-md scale-102' : 'text-slate-600 dark:text-white/70 hover:bg-black/5 dark:hover:bg-white/5 hover:text-slate-900 dark:hover:text-white'
+            ]"
+          >
+            <svg class="w-5 h-5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+            <span>تقاريري وسجلاتي</span>
+          </Link>
+
+          <Link
             href="/design-system"
             class="flex items-center gap-3 px-4 py-3 rounded-[16px] font-bold text-sm text-slate-600 dark:text-white/70 hover:bg-black/5 dark:hover:bg-white/5 hover:text-slate-900 dark:hover:text-white transition-all cursor-pointer"
           >
@@ -198,6 +209,18 @@
             >
               <svg class="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
               <span>بدء زيارة موقع جديد</span>
+            </Link>
+
+            <Link
+              :href="route('consultant.reports.index')"
+              @click="isMobileDrawerOpen = false"
+              :class="[
+                'flex items-center gap-3 px-4 py-3.5 rounded-[16px] font-bold text-sm transition-all cursor-pointer',
+                $page.component === 'Consultant/Reports/Index' ? 'bg-primary text-white shadow-md' : 'text-slate-700 dark:text-white/80 hover:bg-black/5 dark:hover:bg-white/10'
+              ]"
+            >
+              <svg class="w-5 h-5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+              <span>تقاريري وسجلاتي</span>
             </Link>
 
             <Link
