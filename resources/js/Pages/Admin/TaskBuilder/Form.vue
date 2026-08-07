@@ -66,7 +66,7 @@
                   v-model="form.title"
                   label="عنوان المهمة الميدانية *"
                   placeholder="مثال: تفقد أجهزة السلامة ومطابقة المخزون"
-                  :error="errors.title"
+                  :error="form.errors.title"
                 />
               </div>
 
@@ -495,6 +495,7 @@
         </div>
       </div>
     </div>
+    <SpatialToast ref="toastRef" />
   </HRLayout>
 </template>
 
@@ -508,6 +509,9 @@ import SpatialInput from '@/Components/Spatial/SpatialInput.vue';
 import SpatialDropdown from '@/Components/Spatial/SpatialDropdown.vue';
 import SpatialCheckbox from '@/Components/Spatial/SpatialCheckbox.vue';
 import SpatialImageUpload from '@/Components/Spatial/SpatialImageUpload.vue';
+import SpatialToast from '@/Components/Spatial/SpatialToast.vue';
+
+const toastRef = ref(null);
 
 const props = defineProps({
   task: {
@@ -578,6 +582,7 @@ watch(
           conditional_value: c.conditional_value || null,
           options: c.options
             ? c.options.map((opt) => ({
+                id: opt.id,
                 label: opt.option_label || opt.label || '',
                 value: opt.option_value || opt.value || '',
               }))
@@ -697,9 +702,19 @@ const visibleComponents = computed(() => {
 
 function handleSubmit() {
   if (isEditing.value) {
-    form.put(route('admin.tasks.update', props.task.id));
+    form.put(route('admin.tasks.update', props.task.id), {
+      onError: (err) => {
+        const firstErr = Object.values(err)[0];
+        toastRef.value?.addToast('error', firstErr || 'حدث خطأ أثناء حفظ التعديلات');
+      },
+    });
   } else {
-    form.post(route('admin.tasks.store'));
+    form.post(route('admin.tasks.store'), {
+      onError: (err) => {
+        const firstErr = Object.values(err)[0];
+        toastRef.value?.addToast('error', firstErr || 'حدث خطأ أثناء حفظ المهمة');
+      },
+    });
   }
 }
 </script>

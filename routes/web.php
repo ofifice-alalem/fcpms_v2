@@ -109,6 +109,15 @@ Route::middleware('auth')->group(function () {
         Route::get('/reports/visit-detail/{visit}', [\App\Http\Controllers\Consultant\ConsultantReportController::class, 'showVisitDetail'])->name('reports.visit-detail');
         Route::get('/reports/export', [\App\Http\Controllers\Consultant\ConsultantReportController::class, 'export'])->name('reports.export');
     });
+
+    // Storage Media & Attachments Access Fallback Routes
+    Route::get('/storage/{folder}/{filename}', function ($folder, $filename) {
+        $path = storage_path('app/public/' . $folder . '/' . $filename);
+        if (!file_exists($path)) {
+            abort(404, 'الملف غير موجود');
+        }
+        return response()->file($path);
+    })->name('storage.file');
 });
 
 // Public Design System Catalog

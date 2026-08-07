@@ -234,18 +234,32 @@ class SiteVisitRepository extends BaseRepository implements SiteVisitRepositoryI
                         ->first();
 
                     if ($taskResponse) {
-                        $filesList = is_array($files) ? $files : [$files];
-                        foreach ($filesList as $file) {
+                        $filesMap = is_array($files) ? $files : [$files];
+                        foreach ($filesMap as $compIdKey => $file) {
                             if ($file && $file->isValid()) {
                                 $path = $file->store('task_attachments', 'public');
+                                $storedUrl = Storage::url($path);
+
                                 TaskAttachment::create([
                                     'task_response_id' => $taskResponse->id,
                                     'file_name' => $file->getClientOriginalName(),
-                                    'file_path' => Storage::url($path),
+                                    'file_path' => $storedUrl,
                                     'mime_type' => $file->getClientMimeType(),
                                     'file_size' => $file->getSize(),
                                     'uploaded_at' => $uploadTimestamp,
                                 ]);
+
+                                if (is_numeric($compIdKey) && (int)$compIdKey > 0) {
+                                    TaskResponseValue::updateOrCreate(
+                                        [
+                                            'task_response_id' => $taskResponse->id,
+                                            'task_component_id' => (int)$compIdKey,
+                                        ],
+                                        [
+                                            'value' => $storedUrl,
+                                        ]
+                                    );
+                                }
                             }
                         }
                     }
@@ -267,22 +281,24 @@ class SiteVisitRepository extends BaseRepository implements SiteVisitRepositoryI
 
             $isFullyDone = $dailyTasksTotal > 0 && $completedDailyTasks >= $dailyTasksTotal;
 
-            if (isset($responsesData['_complete_visit']) && $responsesData['_complete_visit']) {
-                $recordDate = Carbon::parse($siteVisit->dailyRecord->work_date);
-                $finishedAt = $recordDate->isToday() ? Carbon::now() : $recordDate->setTime(Carbon::now()->hour, Carbon::now()->minute, Carbon::now()->second);
+            $recordDate = Carbon::parse($siteVisit->dailyRecord->work_date);
+            $activityTimestamp = $recordDate->isToday() ? Carbon::now() : $recordDate->setTime(Carbon::now()->hour, Carbon::now()->minute, Carbon::now()->second);
 
+            $siteVisit->touch();
+
+            if (isset($responsesData['_complete_visit']) && $responsesData['_complete_visit']) {
                 $siteVisit->update([
                     'status' => $isFullyDone ? 'completed' : 'in_progress',
-                    'visit_finished_at' => $isFullyDone ? $finishedAt : null,
+                    'visit_finished_at' => $isFullyDone ? $activityTimestamp : ($siteVisit->visit_finished_at ?? $activityTimestamp),
                 ]);
             } else {
                 $siteVisit->update([
                     'status' => $isFullyDone ? 'completed' : 'in_progress',
-                    'visit_finished_at' => $isFullyDone ? ($siteVisit->visit_finished_at ?? Carbon::now()) : null,
+                    'visit_finished_at' => $isFullyDone ? ($siteVisit->visit_finished_at ?? $activityTimestamp) : null,
                 ]);
             }
 
-            // Update completion stats on daily record (counting ONLY filled standard daily tasks, excluding on-demand)
+            // Update completion stats & check_out_time on daily record
             $dailyRecord = $siteVisit->dailyRecord;
             if ($dailyRecord) {
                 $completedCount = TaskResponse::whereHas('siteVisit', fn ($q) => $q->where('daily_record_id', $dailyRecord->id))
@@ -299,6 +315,7 @@ class SiteVisitRepository extends BaseRepository implements SiteVisitRepositoryI
                 $dailyRecord->update([
                     'completed_daily_tasks' => $completedCount,
                     'completion_percentage' => $percentage,
+                    'check_out_time' => $activityTimestamp,
                 ]);
             }
 

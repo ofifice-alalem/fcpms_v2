@@ -24,6 +24,8 @@ class SiteVisit extends Model implements Auditable
 
     protected $appends = [
         'status_name',
+        'check_in_time',
+        'check_out_time',
     ];
 
     protected function casts(): array
@@ -38,6 +40,45 @@ class SiteVisit extends Model implements Auditable
     {
         $status = $this->status ?? ($this->visit_finished_at ? 'completed' : 'in_progress');
         return $status === 'completed' ? 'مكتملة' : 'قيد التنفيذ';
+    }
+
+    public function getCheckInTimeAttribute(): ?string
+    {
+        if ($this->visit_started_at) {
+            return $this->visit_started_at->toIso8601String();
+        }
+        if ($this->dailyRecord && $this->dailyRecord->check_in_time) {
+            return \Illuminate\Support\Carbon::parse($this->dailyRecord->check_in_time)->toIso8601String();
+        }
+        return $this->created_at ? $this->created_at->toIso8601String() : null;
+    }
+
+    public function getCheckOutTimeAttribute(): ?string
+    {
+        if ($this->visit_finished_at) {
+            return $this->visit_finished_at->toIso8601String();
+        }
+
+        if ($this->relationLoaded('taskResponses') && $this->taskResponses->isNotEmpty()) {
+            $latestTask = $this->taskResponses
+                ->map(fn($r) => $r->completed_at ?? $r->submitted_at ?? $r->updated_at)
+                ->filter()
+                ->max();
+
+            if ($latestTask) {
+                return \Illuminate\Support\Carbon::parse($latestTask)->toIso8601String();
+            }
+        }
+
+        if ($this->updated_at && $this->created_at && $this->updated_at->gt($this->created_at)) {
+            return $this->updated_at->toIso8601String();
+        }
+
+        if ($this->dailyRecord && $this->dailyRecord->check_out_time) {
+            return \Illuminate\Support\Carbon::parse($this->dailyRecord->check_out_time)->toIso8601String();
+        }
+
+        return null;
     }
 
     public function dailyRecord(): BelongsTo

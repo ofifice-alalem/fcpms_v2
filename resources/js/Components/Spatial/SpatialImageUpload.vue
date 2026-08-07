@@ -31,12 +31,41 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
+
+const props = defineProps({
+  modelValue: {
+    type: [String, Object, File],
+    default: null,
+  },
+  initialUrl: {
+    type: String,
+    default: null,
+  },
+});
 
 const fileInput = ref(null);
 const previewUrl = ref(null);
 
-const emit = defineEmits(['file-selected', 'file-removed']);
+const emit = defineEmits(['file-selected', 'file-removed', 'update:modelValue']);
+
+watch(
+  () => [props.modelValue, props.initialUrl],
+  () => {
+    if (props.modelValue instanceof File) {
+      previewUrl.value = URL.createObjectURL(props.modelValue);
+    } else if (typeof props.modelValue === 'string' && props.modelValue) {
+      const str = props.modelValue.trim();
+      previewUrl.value = str.startsWith('http') || str.startsWith('/') ? str : '/storage/' + str;
+    } else if (props.initialUrl) {
+      const str = props.initialUrl.trim();
+      previewUrl.value = str.startsWith('http') || str.startsWith('/') ? str : '/storage/' + str;
+    } else {
+      previewUrl.value = null;
+    }
+  },
+  { immediate: true }
+);
 
 function triggerFileInput() {
   fileInput.value?.click();
@@ -47,6 +76,7 @@ function onFileSelected(e) {
   if (file) {
     previewUrl.value = URL.createObjectURL(file);
     emit('file-selected', file);
+    emit('update:modelValue', file);
   }
 }
 
@@ -54,5 +84,6 @@ function removeFile() {
   previewUrl.value = null;
   if (fileInput.value) fileInput.value.value = '';
   emit('file-removed');
+  emit('update:modelValue', null);
 }
 </script>

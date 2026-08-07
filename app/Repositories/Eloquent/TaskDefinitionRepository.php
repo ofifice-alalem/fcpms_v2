@@ -126,29 +126,32 @@ class TaskDefinitionRepository extends BaseRepository implements TaskDefinitionR
             ]);
 
             $componentIdMap = [];
+            $createdComponents = [];
 
             if (!empty($data['components'])) {
+                // Pass 1: Create all components & options without parent links
                 foreach ($data['components'] as $index => $compData) {
-                    $parentId = null;
-                    if (!empty($compData['conditional_parent_temp_id']) && isset($componentIdMap[$compData['conditional_parent_temp_id']])) {
-                        $parentId = $componentIdMap[$compData['conditional_parent_temp_id']];
-                    } elseif (!empty($compData['conditional_parent_id'])) {
-                        $parentId = $compData['conditional_parent_id'];
-                    }
-
                     $component = $task->components()->create([
                         'label' => $compData['label'],
                         'component_type' => $compData['component_type'],
                         'placeholder' => $compData['placeholder'] ?? null,
                         'is_required' => $compData['is_required'] ?? false,
                         'display_order' => $compData['display_order'] ?? $index,
-                        'conditional_parent_id' => $parentId,
+                        'conditional_parent_id' => null,
                         'conditional_value' => $compData['conditional_value'] ?? null,
                     ]);
 
-                    if (isset($compData['temp_id'])) {
+                    if (!empty($compData['temp_id'])) {
                         $componentIdMap[$compData['temp_id']] = $component->id;
                     }
+                    if (!empty($compData['id'])) {
+                        $componentIdMap['comp_' . $compData['id']] = $component->id;
+                    }
+
+                    $createdComponents[] = [
+                        'model' => $component,
+                        'compData' => $compData,
+                    ];
 
                     if (in_array($compData['component_type'], ['select', 'checkbox', 'choice']) && !empty($compData['options'])) {
                         foreach ($compData['options'] as $optIndex => $opt) {
@@ -160,6 +163,23 @@ class TaskDefinitionRepository extends BaseRepository implements TaskDefinitionR
                                 'display_order' => $optIndex,
                             ]);
                         }
+                    }
+                }
+
+                // Pass 2: Connect parent IDs safely
+                foreach ($createdComponents as $item) {
+                    $component = $item['model'];
+                    $compData = $item['compData'];
+                    $parentId = null;
+
+                    if (!empty($compData['conditional_parent_temp_id']) && isset($componentIdMap[$compData['conditional_parent_temp_id']])) {
+                        $parentId = $componentIdMap[$compData['conditional_parent_temp_id']];
+                    } elseif (!empty($compData['conditional_parent_id']) && isset($componentIdMap['comp_' . $compData['conditional_parent_id']])) {
+                        $parentId = $componentIdMap['comp_' . $compData['conditional_parent_id']];
+                    }
+
+                    if ($parentId) {
+                        $component->update(['conditional_parent_id' => $parentId]);
                     }
                 }
             }
@@ -185,50 +205,113 @@ class TaskDefinitionRepository extends BaseRepository implements TaskDefinitionR
         return DB::transaction(function () use ($task, $data) {
             $task->update([
                 'title' => $data['title'] ?? $task->title,
-                'description' => $data['description'] ?? $task->description,
+                'description' => array_key_exists('description', $data) ? $data['description'] : $task->description,
                 'task_type' => $data['task_type'] ?? $task->task_type,
-                'is_active' => isset($data['is_active']) ? $data['is_active'] : $task->is_active,
+                'is_active' => isset($data['is_active']) ? (bool) $data['is_active'] : $task->is_active,
                 'display_order' => $data['display_order'] ?? $task->display_order,
             ]);
 
-            $hasResponses = $task->responses()->exists();
-
-            if (!$hasResponses && isset($data['components'])) {
-                $task->components()->delete();
+            if (isset($data['components']) && is_array($data['components'])) {
+                $existingComponents = $task->components()->with('options')->get()->keyBy('id');
+                $keepComponentIds = [];
                 $componentIdMap = [];
+                $pendingParentUpdates = [];
 
                 foreach ($data['components'] as $index => $compData) {
-                    $parentId = null;
-                    if (!empty($compData['conditional_parent_temp_id']) && isset($componentIdMap[$compData['conditional_parent_temp_id']])) {
-                        $parentId = $componentIdMap[$compData['conditional_parent_temp_id']];
-                    } elseif (!empty($compData['conditional_parent_id'])) {
-                        $parentId = $compData['conditional_parent_id'];
+                    $compId = $compData['id'] ?? null;
+
+                    if ($compId && $existingComponents->has($compId)) {
+                        $component = $existingComponents->get($compId);
+                        $component->update([
+                            'label' => $compData['label'],
+                            'component_type' => $compData['component_type'],
+                            'placeholder' => $compData['placeholder'] ?? null,
+                            'is_required' => $compData['is_required'] ?? false,
+                            'display_order' => $compData['display_order'] ?? $index,
+                            'conditional_value' => $compData['conditional_value'] ?? null,
+                        ]);
+                        $keepComponentIds[] = $component->id;
+                    } else {
+                        $component = $task->components()->create([
+                            'label' => $compData['label'],
+                            'component_type' => $compData['component_type'],
+                            'placeholder' => $compData['placeholder'] ?? null,
+                            'is_required' => $compData['is_required'] ?? false,
+                            'display_order' => $compData['display_order'] ?? $index,
+                            'conditional_parent_id' => null,
+                            'conditional_value' => $compData['conditional_value'] ?? null,
+                        ]);
+                        $keepComponentIds[] = $component->id;
                     }
 
-                    $component = $task->components()->create([
-                        'label' => $compData['label'],
-                        'component_type' => $compData['component_type'],
-                        'placeholder' => $compData['placeholder'] ?? null,
-                        'is_required' => $compData['is_required'] ?? false,
-                        'display_order' => $compData['display_order'] ?? $index,
-                        'conditional_parent_id' => $parentId,
-                        'conditional_value' => $compData['conditional_value'] ?? null,
-                    ]);
-
-                    if (isset($compData['temp_id'])) {
+                    if (!empty($compData['temp_id'])) {
                         $componentIdMap[$compData['temp_id']] = $component->id;
                     }
+                    if (!empty($compData['id'])) {
+                        $componentIdMap['comp_' . $compData['id']] = $component->id;
+                    }
+                    $componentIdMap['comp_' . $component->id] = $component->id;
 
+                    $pendingParentUpdates[] = [
+                        'model' => $component,
+                        'compData' => $compData,
+                    ];
+
+                    // Options Sync
                     if (in_array($compData['component_type'], ['select', 'checkbox', 'choice']) && !empty($compData['options'])) {
+                        $existingOptions = $component->options->keyBy('id');
+                        $keepOptionIds = [];
+
                         foreach ($compData['options'] as $optIndex => $opt) {
                             $label = is_array($opt) ? ($opt['option_label'] ?? $opt['label'] ?? '') : $opt;
                             $value = is_array($opt) ? ($opt['option_value'] ?? $opt['value'] ?? $label) : $opt;
-                            $component->options()->create([
-                                'option_label' => $label,
-                                'option_value' => $value,
-                                'display_order' => $optIndex,
-                            ]);
+                            $optId = is_array($opt) ? ($opt['id'] ?? null) : null;
+
+                            if ($optId && $existingOptions->has($optId)) {
+                                $optionModel = $existingOptions->get($optId);
+                                $optionModel->update([
+                                    'option_label' => $label,
+                                    'option_value' => $value,
+                                    'display_order' => $optIndex,
+                                ]);
+                                $keepOptionIds[] = $optionModel->id;
+                            } else {
+                                $newOpt = $component->options()->create([
+                                    'option_label' => $label,
+                                    'option_value' => $value,
+                                    'display_order' => $optIndex,
+                                ]);
+                                $keepOptionIds[] = $newOpt->id;
+                            }
                         }
+
+                        $component->options()->whereNotIn('id', $keepOptionIds)->delete();
+                    } else {
+                        $component->options()->delete();
+                    }
+                }
+
+                // Connect parent IDs for conditional components safely
+                foreach ($pendingParentUpdates as $item) {
+                    $component = $item['model'];
+                    $compData = $item['compData'];
+                    $parentId = null;
+
+                    if (!empty($compData['conditional_parent_temp_id']) && isset($componentIdMap[$compData['conditional_parent_temp_id']])) {
+                        $parentId = $componentIdMap[$compData['conditional_parent_temp_id']];
+                    } elseif (!empty($compData['conditional_parent_id']) && isset($componentIdMap['comp_' . $compData['conditional_parent_id']])) {
+                        $parentId = $componentIdMap['comp_' . $compData['conditional_parent_id']];
+                    }
+
+                    $component->update(['conditional_parent_id' => $parentId]);
+                }
+
+                // Clean up removed components safely
+                $removedComponents = $task->components()->whereNotIn('id', $keepComponentIds)->get();
+                foreach ($removedComponents as $remComp) {
+                    if (!$remComp->responseValues()->exists()) {
+                        $remComp->options()->delete();
+                        $remComp->delete();
                     }
                 }
             }

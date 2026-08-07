@@ -149,7 +149,47 @@
               <span class="font-black text-slate-800 dark:text-white/90 text-xs sm:text-sm">
                 {{ getComponentLabel(val) }}:
               </span>
+
+              <!-- IF VALUE HAS IMAGES OR IS IMAGE COMPONENT -->
+              <template v-if="hasImages(val)">
+                <div v-if="extractImageUrls(val).length > 0" class="flex items-center gap-2 flex-wrap">
+                  <div
+                    v-for="(imgUrl, idx) in extractImageUrls(val)"
+                    :key="idx"
+                    class="flex items-center gap-1.5"
+                  >
+                    <button
+                      type="button"
+                      @click="openImageModal(imgUrl, getComponentLabel(val))"
+                      class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-black bg-primary/10 hover:bg-primary/20 text-primary dark:text-blue-400 border border-primary/20 transition-all cursor-pointer shadow-xs active:scale-95"
+                    >
+                      <span>🖼️ فتح المعاينة</span>
+                      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                      </svg>
+                    </button>
+
+                    <a
+                      :href="imgUrl"
+                      target="_blank"
+                      class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-black bg-slate-200/80 dark:bg-white/10 text-slate-700 dark:text-white hover:bg-slate-300 transition-all"
+                    >
+                      <span>🔗 نافذة مستقلة</span>
+                    </a>
+                  </div>
+                </div>
+                <span
+                  v-else
+                  class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg font-black text-xs bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/20"
+                >
+                  📷 لم تُرفع صورة
+                </span>
+              </template>
+
+              <!-- NORMAL TEXT VALUE -->
               <span
+                v-else
                 :class="[
                   'inline-flex items-center px-3.5 py-1.5 rounded-lg font-black text-xs sm:text-sm border transition-all self-start sm:self-auto',
                   getValueBadgeClass(val.value)
@@ -166,20 +206,35 @@
           </div>
 
           <!-- Photo Attachments Gallery -->
-          <div v-if="resp.attachments && resp.attachments.length > 0" class="space-y-2.5 pt-3 border-t border-slate-100 dark:border-white/5">
+          <div v-if="getAttachments(resp).length > 0" class="space-y-2.5 pt-3 border-t border-slate-100 dark:border-white/5">
             <span class="text-xs font-black text-slate-700 dark:text-white/70 block">
-              📸 إثباتات الصور المرفوعة ({{ resp.attachments.length }}):
+              📸 إثباتات الصور المرفوعة ({{ getAttachments(resp).length }}):
             </span>
-            <div class="grid grid-cols-3 gap-3">
-              <a
-                v-for="att in resp.attachments"
+            <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+              <div
+                v-for="att in getAttachments(resp)"
                 :key="att.id"
-                :href="att.file_path"
-                target="_blank"
-                class="block rounded-xl overflow-hidden border border-slate-200 dark:border-white/10 hover:opacity-95 transition-all"
+                class="group relative rounded-2xl overflow-hidden border border-slate-200 dark:border-white/10 bg-slate-900 shadow-sm flex flex-col justify-end"
               >
-                <img :src="att.file_path" :alt="att.file_name" class="w-full h-22 object-cover" />
-              </a>
+                <img :src="getImageUrl(att.file_path || att.url)" :alt="att.file_name || 'إثبات'" class="w-full h-28 object-cover group-hover:scale-105 transition-transform duration-300" />
+                <div class="p-2 bg-slate-950/85 backdrop-blur-md flex items-center justify-between gap-1">
+                  <button
+                    type="button"
+                    @click="openImageModal(getImageUrl(att.file_path || att.url), att.file_name || 'صورة إثبات')"
+                    class="flex-1 px-2 py-1 rounded-lg bg-primary/20 hover:bg-primary text-primary hover:text-white text-[11px] font-black transition-all text-center flex items-center justify-center gap-1 cursor-pointer"
+                  >
+                    <span>🖼️ فتح</span>
+                  </button>
+                  <a
+                    :href="getImageUrl(att.file_path || att.url)"
+                    target="_blank"
+                    class="p-1 rounded-lg bg-white/10 hover:bg-white/20 text-white text-[11px] font-black transition-all"
+                    title="تحميل / فتح"
+                  >
+                    🔗
+                  </a>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -260,6 +315,44 @@
       </div>
     </template>
   </SpatialModal>
+
+  <!-- Image Preview Lightbox Modal -->
+  <Teleport to="body">
+    <div
+      v-if="selectedImage"
+      class="fixed inset-0 z-[999999] bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-4 sm:p-8 animate-spatial-in dir-rtl"
+      @click="closeImageModal"
+    >
+      <div class="relative max-w-4xl w-full bg-slate-900 rounded-3xl p-4 sm:p-6 border border-white/10 shadow-2xl flex flex-col space-y-4 max-h-[90vh]" @click.stop>
+        <div class="flex items-center justify-between border-b border-white/10 pb-3">
+          <h4 class="text-sm sm:text-base font-black text-white truncate max-w-[70%]">
+            🖼️ {{ selectedImage.title || 'معاينة الصورة الميدانية' }}
+          </h4>
+          <div class="flex items-center gap-2">
+            <a
+              :href="selectedImage.url"
+              target="_blank"
+              download
+              class="px-3.5 py-2 rounded-xl bg-primary hover:bg-primary/90 text-white text-xs font-black flex items-center gap-1.5 transition-all shadow-md active:scale-95"
+            >
+              <span>تحميل الصورة ⬇️</span>
+            </a>
+            <button
+              type="button"
+              @click="closeImageModal"
+              class="px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-black transition-all active:scale-95 cursor-pointer"
+            >
+              ✕ إغلاق
+            </button>
+          </div>
+        </div>
+
+        <div class="flex-1 overflow-hidden flex items-center justify-center bg-black/40 rounded-2xl p-2 min-h-[300px]">
+          <img :src="selectedImage.url" class="max-w-full max-h-[70vh] object-contain rounded-xl shadow-2xl" />
+        </div>
+      </div>
+    </div>
+  </Teleport>
 </template>
 
 <script setup>
@@ -381,5 +474,107 @@ const getValueBadgeClass = (valStr) => {
     return 'bg-rose-500/15 text-rose-800 dark:text-rose-300 border-rose-500/30';
   }
   return 'bg-blue-500/15 text-blue-800 dark:text-blue-300 border-blue-500/30';
+};
+
+const selectedImage = ref(null);
+
+const getAttachments = (resp) => {
+  return resp?.attachments || resp?.task_attachments || resp?.taskAttachments || [];
+};
+
+const isImageUrl = (valueStr) => {
+  if (!valueStr || typeof valueStr !== 'string') return false;
+  const str = valueStr.trim().toLowerCase();
+  if (
+    str.startsWith('/storage/') ||
+    str.startsWith('storage/') ||
+    str.startsWith('/uploads/') ||
+    str.startsWith('uploads/') ||
+    str.startsWith('task_attachments/') ||
+    str.startsWith('/task_attachments/') ||
+    str.startsWith('http://') ||
+    str.startsWith('https://') ||
+    str.startsWith('data:image/')
+  ) {
+    return true;
+  }
+  return /\.(jpg|jpeg|png|webp|gif|svg)$/i.test(str);
+};
+
+const getImageUrl = (valueStr) => {
+  if (!valueStr || typeof valueStr !== 'string') return '';
+  let str = valueStr.trim();
+  if ((str.startsWith('"') && str.endsWith('"')) || (str.startsWith("'") && str.endsWith("'"))) {
+    str = str.slice(1, -1);
+  }
+  if (str.startsWith('http://') || str.startsWith('https://') || str.startsWith('data:image/')) {
+    return str;
+  }
+  if (str.startsWith('/storage/')) {
+    return str;
+  }
+  if (str.startsWith('storage/')) {
+    return '/' + str;
+  }
+  if (str.startsWith('/')) {
+    return str;
+  }
+  return '/storage/' + str;
+};
+
+const extractImageUrls = (val) => {
+  const urls = [];
+  if (!val) return urls;
+
+  const rawVal = val.value;
+
+  if (rawVal) {
+    if (typeof rawVal === 'string') {
+      const trimmed = rawVal.trim();
+      if ((trimmed.startsWith('[') && trimmed.endsWith(']')) || (trimmed.startsWith('{') && trimmed.endsWith('}'))) {
+        try {
+          const parsed = JSON.parse(trimmed);
+          if (Array.isArray(parsed)) {
+            parsed.forEach((item) => {
+              if (typeof item === 'string' && isImageUrl(item)) {
+                urls.push(getImageUrl(item));
+              } else if (item && typeof item === 'object' && (item.file_path || item.url || item.path)) {
+                urls.push(getImageUrl(item.file_path || item.url || item.path));
+              }
+            });
+          } else if (parsed && typeof parsed === 'object') {
+            const pUrl = parsed.file_path || parsed.url || parsed.path;
+            if (pUrl) urls.push(getImageUrl(pUrl));
+          }
+        } catch {
+          if (isImageUrl(trimmed)) {
+            urls.push(getImageUrl(trimmed));
+          }
+        }
+      } else if (isImageUrl(trimmed)) {
+        urls.push(getImageUrl(trimmed));
+      }
+    } else if (Array.isArray(rawVal)) {
+      rawVal.forEach((item) => {
+        if (typeof item === 'string' && isImageUrl(item)) urls.push(getImageUrl(item));
+      });
+    }
+  }
+
+  return urls;
+};
+
+const hasImages = (val) => {
+  const compType = val?.component?.component_type || val?.task_component?.component_type || val?.taskComponent?.component_type;
+  return compType === 'image_upload' || compType === 'image' || extractImageUrls(val).length > 0;
+};
+
+const openImageModal = (url, title = '') => {
+  if (!url) return;
+  selectedImage.value = { url, title };
+};
+
+const closeImageModal = () => {
+  selectedImage.value = null;
 };
 </script>

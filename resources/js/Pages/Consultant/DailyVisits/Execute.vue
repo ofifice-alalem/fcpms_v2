@@ -174,7 +174,11 @@
                   </div>
 
                   <div v-else-if="comp.component_type === 'image_upload' || comp.component_type === 'image'">
-                    <SpatialImageUpload />
+                    <SpatialImageUpload
+                      :model-value="formValues[getTaskKey(resp.task_definition_id, comp.id)]"
+                      @file-selected="(file) => handleImageSelected(resp.task_definition_id, comp.id, file)"
+                      @file-removed="() => handleImageRemoved(resp.task_definition_id, comp.id)"
+                    />
                   </div>
                 </div>
               </div>
@@ -277,7 +281,11 @@
                     </div>
                   </div>
                   <div v-else-if="comp.component_type === 'image_upload' || comp.component_type === 'image'">
-                    <SpatialImageUpload />
+                    <SpatialImageUpload
+                      :model-value="formValues[getTaskKey(resp.task_definition_id, comp.id)]"
+                      @file-selected="(file) => handleImageSelected(resp.task_definition_id, comp.id, file)"
+                      @file-removed="() => handleImageRemoved(resp.task_definition_id, comp.id)"
+                    />
                   </div>
                 </div>
               </div>
@@ -664,19 +672,58 @@ const confirmRemoveOnDemand = () => {
   });
 };
 
+const imageFiles = ref({});
+
+const handleImageSelected = (taskId, compId, file) => {
+  const key = getTaskKey(taskId, compId);
+  imageFiles.value[key] = file;
+  formValues.value[key] = file;
+};
+
+const handleImageRemoved = (taskId, compId) => {
+  const key = getTaskKey(taskId, compId);
+  delete imageFiles.value[key];
+  delete formValues.value[key];
+};
+
+const prepareAttachmentsPayload = () => {
+  const attachmentsObj = {};
+  if (!props.visit || !props.visit.task_responses) return attachmentsObj;
+
+  props.visit.task_responses.forEach((resp) => {
+    const taskDef = getTaskDef(resp);
+    if (taskDef && taskDef.components) {
+      taskDef.components.forEach((comp) => {
+        const key = getTaskKey(resp.task_definition_id, comp.id);
+        const file = imageFiles.value[key] || formValues.value[key];
+        if (file instanceof File) {
+          if (!attachmentsObj[resp.task_definition_id]) {
+            attachmentsObj[resp.task_definition_id] = {};
+          }
+          attachmentsObj[resp.task_definition_id][comp.id] = file;
+        }
+      });
+    }
+  });
+
+  return attachmentsObj;
+};
+
 const handleSaveResponses = (completeVisit = false) => {
   if (!props.visit) return;
   isSubmitting.value = true;
   const responses = prepareResponsesPayload(completeVisit);
+  const attachments = prepareAttachmentsPayload();
 
   router.post(`/consultant/site-visits/${props.visit.id}/save-responses`, {
     responses,
+    attachments,
     complete_visit: completeVisit,
   }, {
     preserveScroll: true,
     onSuccess: () => {
       if (!completeVisit) {
-        toastRef.value?.addToast('success', 'تم حفظ الخيارات كمسودة بنجاح 💾');
+        toastRef.value?.addToast('success', 'تم حفظ الخيارات والمرفقات كمسودة بنجاح 💾');
       }
     },
     onFinish: () => (isSubmitting.value = false),
