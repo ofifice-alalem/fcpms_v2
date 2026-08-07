@@ -50,6 +50,13 @@ class SiteVisitRepository extends BaseRepository implements SiteVisitRepositoryI
             $recordDate = Carbon::parse($dailyRecord->work_date);
             $startedAt = $recordDate->isToday() ? Carbon::now() : $recordDate->setTime(Carbon::now()->hour, Carbon::now()->minute, Carbon::now()->second);
 
+            // Auto-check-in daily record if not already started
+            if (!$dailyRecord->check_in_time) {
+                $dailyRecord->update([
+                    'check_in_time' => $startedAt,
+                ]);
+            }
+
             $visit = SiteVisit::firstOrCreate([
                 'daily_record_id' => $dailyRecord->id,
                 'site_id' => $siteId,

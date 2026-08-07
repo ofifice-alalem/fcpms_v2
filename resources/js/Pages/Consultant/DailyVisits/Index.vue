@@ -8,50 +8,15 @@
       <!-- Page Header -->
       <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h1 class="text-2xl font-black text-slate-900 dark:text-white flex items-center gap-2">
+          <h1 class="text-xl sm:text-2xl font-black text-slate-900 dark:text-white flex items-center gap-2">
             📍 سجل الزيارات اليومية الميدانية
           </h1>
-          <p class="text-xs font-bold text-slate-500 dark:text-white/60 mt-1">
+          <p class="text-[11px] sm:text-xs font-bold text-slate-500 dark:text-white/60 mt-1">
             متابعة إنجاز مواقع العمل، توثيق النماذج، وإضافة المهام عند الحاجة
           </p>
         </div>
 
         <div class="flex items-center gap-3 flex-wrap">
-          <!-- View Mode Toggle (Grid vs Table) -->
-          <div class="flex items-center gap-1 p-1 rounded-xl bg-slate-100 dark:bg-white/5 border border-slate-200/60 dark:border-white/10">
-            <button
-              @click="viewMode = 'grid'"
-              :class="[
-                'p-2 rounded-lg transition-all cursor-pointer select-none flex items-center gap-1 text-xs font-bold',
-                viewMode === 'grid'
-                  ? 'bg-primary text-white shadow-sm'
-                  : 'text-slate-500 dark:text-white/60 hover:text-slate-900 dark:hover:text-white'
-              ]"
-              title="عرض كروت شبكية"
-            >
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/>
-              </svg>
-              <span>كروت</span>
-            </button>
-
-            <button
-              @click="viewMode = 'table'"
-              :class="[
-                'p-2 rounded-lg transition-all cursor-pointer select-none flex items-center gap-1 text-xs font-bold',
-                viewMode === 'table'
-                  ? 'bg-primary text-white shadow-sm'
-                  : 'text-slate-500 dark:text-white/60 hover:text-slate-900 dark:hover:text-white'
-              ]"
-              title="عرض جدول تفصيلي"
-            >
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/>
-              </svg>
-              <span>جدول</span>
-            </button>
-          </div>
-
           <!-- START DAY / NEW VISIT BUTTONS -->
           <SpatialButton
             v-if="!dailyRecord || !dailyRecord.check_in_time"
@@ -266,23 +231,25 @@
           ]"
         >
           <!-- Top Header: Site Name, Code Badge, & Status Pill -->
-          <div class="flex items-start justify-between gap-2 pb-3 border-b border-slate-100 dark:border-white/10">
-            <div class="space-y-1">
-              <h3 class="text-base font-black text-slate-900 dark:text-white leading-tight">
-                {{ visit.site ? visit.site.name : 'موقع ميداني' }}
-              </h3>
-              <span class="text-xs font-mono font-black text-slate-700 dark:text-slate-200 dir-ltr inline-block bg-slate-100 dark:bg-white/10 px-2.5 py-0.5 rounded-md border border-slate-200 dark:border-white/10">
-                كود: {{ visit.site ? visit.site.code : '' }}
-              </span>
-            </div>
+          <div class="pb-3 border-b border-slate-100 dark:border-white/10 space-y-2">
+            <h3 class="text-base font-black text-slate-900 dark:text-white leading-tight">
+              {{ visit.site ? visit.site.name : 'موقع ميداني' }}
+            </h3>
 
-            <SpatialStatusPill
-              :type="isVisitCompleted(visit) ? 'completed' : 'pending'"
-              :pulse="!isVisitCompleted(visit)"
-              class="shrink-0"
-            >
-              {{ isVisitCompleted(visit) ? 'مكتملة' : 'قيد التنفيذ' }}
-            </SpatialStatusPill>
+            <!-- Code & Status Pill in the same row -->
+            <div class="flex items-center justify-between gap-2">
+              <span class="text-xs font-mono font-black text-slate-700 dark:text-slate-200 dir-ltr inline-block bg-slate-100 dark:bg-white/10 px-2.5 py-0.5 rounded-md border border-slate-200 dark:border-white/10">
+                {{ visit.site ? visit.site.code : '' }}
+              </span>
+
+              <SpatialStatusPill
+                :type="isVisitCompleted(visit) ? 'completed' : 'pending'"
+                :pulse="!isVisitCompleted(visit)"
+                class="shrink-0"
+              >
+                {{ isVisitCompleted(visit) ? 'مكتملة' : 'قيد التنفيذ' }}
+              </SpatialStatusPill>
+            </div>
           </div>
 
           <!-- Center Body: Circular Progress Ring & Metrics -->

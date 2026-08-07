@@ -32,11 +32,6 @@
             كود الموقع: <span class="font-mono text-primary font-bold dir-ltr inline-block">{{ visit.site.code }}</span>
           </p>
         </div>
-
-        <div v-if="visit && visit.site" class="px-4 py-2 rounded-2xl bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 text-left">
-          <span class="text-[10px] text-slate-500 dark:text-white/50 block">الموقع الميداني</span>
-          <span class="text-sm font-black text-slate-900 dark:text-white">{{ visit.site.name }}</span>
-        </div>
       </div>
 
       <!-- MODE A: OPEN NEW SITE VISIT FORM -->
@@ -212,17 +207,19 @@
                     مهمة عند الحاجة
                   </SpatialStatusPill>
 
-                  <SpatialButton
-                    variant="danger-ghost"
-                    size="sm"
+                  <button
+                    type="button"
                     :disabled="isSubmitting"
                     @click="promptRemoveOnDemand(resp.id)"
+                    title="مسح المهمة"
+                    style="border-radius: 50%;"
+                    class="w-9 h-9 sm:w-auto sm:h-auto sm:px-3 sm:py-1.5 border border-red-500/40 text-red-600 dark:text-red-400 bg-red-500/10 hover:bg-red-600 hover:text-white flex items-center justify-center gap-1.5 transition-all text-xs font-bold shrink-0 disabled:opacity-50 sm:!rounded-xl"
                   >
-                    <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                     </svg>
-                    <span>مسح المهمة</span>
-                  </SpatialButton>
+                    <span class="hidden sm:inline">مسح المهمة</span>
+                  </button>
                 </div>
 
                 <h4 class="text-base font-black text-slate-900 dark:text-white block pt-1">
@@ -316,20 +313,20 @@
         </div>
 
         <!-- ACTION BAR (Natural flow at end of form) -->
-        <div class="p-4 sm:p-6 rounded-2xl bg-white dark:bg-slate-800/90 border border-slate-200 dark:border-white/10 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 shadow-lg mt-6">
-          <SpatialButton variant="ghost" class="w-full sm:w-auto justify-center" @click="goBack">
+        <div class="p-4 sm:p-6 rounded-2xl bg-white dark:bg-slate-800/90 border border-slate-200 dark:border-white/10 flex flex-col min-[471px]:flex-row items-stretch min-[471px]:items-center justify-between gap-3 shadow-lg mt-6">
+          <SpatialButton variant="ghost" class="w-full min-[471px]:w-auto justify-center" @click="goBack">
             العودة لسجل اليوم
           </SpatialButton>
 
-          <div class="flex items-center gap-2 sm:gap-3 w-full sm:w-auto">
-            <SpatialButton variant="secondary" class="flex-1 sm:flex-none justify-center" :disabled="isSubmitting" @click="handleSaveResponses(false)">
+          <div class="flex flex-col min-[471px]:flex-row items-stretch min-[471px]:items-center gap-2.5 sm:gap-3 w-full min-[471px]:w-auto">
+            <SpatialButton variant="secondary" class="w-full min-[471px]:w-auto justify-center" :disabled="isSubmitting" @click="handleSaveResponses(false)">
               <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
               </svg>
               <span>حفظ مسودة</span>
             </SpatialButton>
 
-            <SpatialButton variant="primary" size="lg" class="flex-1 sm:flex-none justify-center" :disabled="isSubmitting" @click="handleSaveResponses(true)">
+            <SpatialButton variant="primary" size="lg" class="w-full min-[471px]:w-auto justify-center" :disabled="isSubmitting" @click="handleSaveResponses(true)">
               <svg class="w-5 h-5 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
               </svg>
@@ -350,6 +347,51 @@
     />
 
     <SpatialToast ref="toastRef" />
+
+    <!-- Mobile Custom Execution Bottom Bar (Exact Native App Nav Bar Style) -->
+    <template #mobile-bottom-nav v-if="visit">
+      <!-- Item 1: Daily Tasks Progress Ring (Right in RTL) -->
+      <div class="relative flex-1 flex flex-col items-center justify-center py-0.5 text-slate-700 dark:text-white/80 active:scale-95 transition-all cursor-pointer">
+        <SpatialCircularProgress
+          :percentage="dailyCompletionPercentage"
+          :size="35"
+          :stroke-width="3"
+        >
+          <span class="text-[9px] font-black font-mono text-slate-900 dark:text-white leading-none">
+            {{ completedDailyTasksCount }}/{{ activeDailyTasks.length }}
+          </span>
+        </SpatialCircularProgress>
+        <span class="text-[10px] font-bold tracking-tight mt-1 leading-none">اليومية</span>
+      </div>
+
+      <!-- Item 2: Submit Button (CENTER in RTL) - Keeps Top Indicator Pill -->
+      <button
+        type="button"
+        :disabled="isSubmitting"
+        @click="handleSaveResponses(true)"
+        class="relative flex-1 flex flex-col items-center justify-center py-1 text-emerald-500 dark:text-emerald-400 font-black active:scale-90 transition-all duration-150 cursor-pointer select-none disabled:opacity-50"
+      >
+        <!-- Active Top Indicator Pill -->
+        <div class="absolute -top-1.5 w-7 h-1 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)]"></div>
+
+        <div class="relative">
+          <svg class="w-6 h-6 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
+          </svg>
+        </div>
+        <span class="text-[10px] font-black tracking-tight mt-1 leading-none">اعتماد</span>
+      </button>
+
+      <!-- Item 3: On-Demand Tasks Counter (Left in RTL) -->
+      <div class="relative flex-1 flex flex-col items-center justify-center py-0.5 text-amber-500 active:scale-95 transition-all cursor-pointer">
+        <div class="w-[35px] h-[35px] rounded-full border-2 border-amber-500/50 bg-amber-500/10 flex items-center justify-center shadow-2xs">
+          <span class="text-[10px] font-black font-mono text-amber-600 dark:text-amber-400 leading-none">
+            ⚡ {{ activeOnDemandTasks.length }}
+          </span>
+        </div>
+        <span class="text-[10px] font-bold tracking-tight mt-1 leading-none text-amber-600 dark:text-amber-400">الإضافية</span>
+      </div>
+    </template>
   </ConsultantLayout>
 </template>
 
@@ -365,6 +407,7 @@ import SpatialCheckbox from '@/Components/Spatial/SpatialCheckbox.vue';
 import SpatialImageUpload from '@/Components/Spatial/SpatialImageUpload.vue';
 import SpatialStatusPill from '@/Components/Spatial/SpatialStatusPill.vue';
 import SpatialToast from '@/Components/Spatial/SpatialToast.vue';
+import SpatialCircularProgress from '@/Components/Spatial/SpatialCircularProgress.vue';
 import DeleteOnDemandTaskModal from '@/Components/Consultant/DeleteOnDemandTaskModal.vue';
 
 const props = defineProps({
@@ -429,6 +472,25 @@ const activeOnDemandTasks = computed(() => {
   return props.visit.task_responses.filter(
     (r) => getTaskDef(r)?.task_type === 'on_demand'
   );
+});
+
+const completedDailyTasksCount = computed(() => {
+  if (!activeDailyTasks.value) return 0;
+  return activeDailyTasks.value.filter((resp) => {
+    const taskDef = getTaskDef(resp);
+    if (!taskDef || !taskDef.components) return false;
+    return taskDef.components.some((comp) => {
+      const key = getTaskKey(resp.task_definition_id, comp.id);
+      const val = formValues.value[key];
+      if (Array.isArray(val)) return val.length > 0;
+      return val !== undefined && val !== null && val !== '';
+    });
+  }).length;
+});
+
+const dailyCompletionPercentage = computed(() => {
+  if (!activeDailyTasks.value || activeDailyTasks.value.length === 0) return 0;
+  return Math.min(100, Math.max(0, Math.round((completedDailyTasksCount.value / activeDailyTasks.value.length) * 100)));
 });
 
 watch(

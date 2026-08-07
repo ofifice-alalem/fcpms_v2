@@ -191,6 +191,12 @@ class DailyVisitController extends Controller
         $targetDate = $request->input('date');
         $dailyRecord = $targetDate ? $this->visitService->getRecordForDate($consultant, $targetDate) : $this->visitService->getTodayRecord($consultant);
 
+        if (!$dailyRecord->check_in_time) {
+            $dailyRecord->update([
+                'check_in_time' => \Carbon\Carbon::now(),
+            ]);
+        }
+
         $visit = $this->visitService->openSiteVisit(
             $dailyRecord,
             $request->input('site_id'),

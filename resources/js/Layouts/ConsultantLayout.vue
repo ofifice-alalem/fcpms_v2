@@ -278,6 +278,7 @@
 
     <!-- Mobile Native App Bottom Navigation Bar -->
     <SpatialMobileBottomNav>
+      <slot name="mobile-bottom-nav">
       <!-- Item 1: Start New Visit (Right in RTL) -->
       <Link
         :href="$page.props.isHistorical && $page.props.selectedDate ? route('consultant.site-visits.create', { date: formatDateOnly($page.props.selectedDate) }) : route('consultant.site-visits.create')"
@@ -340,6 +341,7 @@
         </div>
         <span class="text-[10px] font-bold tracking-tight mt-1 leading-none">الأيام السابقة</span>
       </Link>
+      </slot>
     </SpatialMobileBottomNav>
 
   </div>
