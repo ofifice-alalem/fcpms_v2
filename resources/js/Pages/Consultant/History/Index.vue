@@ -156,8 +156,12 @@
 
                 <!-- Action Button -->
                 <td class="py-4 px-4 text-center">
+                  <span v-if="day.status === 'before_hire'" class="text-xs font-bold text-slate-400 dark:text-white/40">
+                    قبل التعيين ⚪
+                  </span>
+
                   <SpatialButton
-                    v-if="day.is_today"
+                    v-else-if="day.is_today"
                     variant="primary"
                     size="sm"
                     @click="openDateRecord(day.date)"
@@ -278,8 +282,12 @@
 
             <!-- Action Button -->
             <div class="pt-1">
+              <div v-if="day.status === 'before_hire'" class="text-center text-xs font-bold text-slate-400 dark:text-white/40 py-2">
+                خارج فترة الخدمة (قبل التعيين) ⚪
+              </div>
+
               <SpatialButton
-                v-if="day.is_today"
+                v-else-if="day.is_today"
                 variant="primary"
                 size="md"
                 class="w-full justify-center shadow-md"
@@ -362,6 +370,8 @@ const getStatusClass = (type) => {
       return 'bg-rose-500/15 text-rose-700 dark:text-rose-300 border-rose-500/30 animate-pulse';
     case 'weekend':
       return 'bg-slate-200/80 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-slate-300 dark:border-slate-700';
+    case 'neutral':
+      return 'bg-slate-100 dark:bg-white/10 text-slate-500 dark:text-white/60 border-slate-300 dark:border-white/20';
     default:
       return 'bg-slate-100 dark:bg-white/5 text-slate-400 dark:text-white/40 border-slate-200 dark:border-white/10';
   }

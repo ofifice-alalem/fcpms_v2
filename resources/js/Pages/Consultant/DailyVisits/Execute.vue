@@ -440,10 +440,16 @@ const formattedSiteOptions = computed(() => {
 });
 
 const formattedOnDemandOptions = computed(() => {
-  return props.availableOnDemandTasks.map((t) => ({
-    label: `${t.title}`,
-    value: t.id,
-  }));
+  const existingTaskDefIds = (props.visit?.task_responses || [])
+    .map(r => r.task_definition_id)
+    .filter(Boolean);
+
+  return (props.availableOnDemandTasks || [])
+    .filter(t => !existingTaskDefIds.includes(t.id))
+    .map((t) => ({
+      label: `${t.title}`,
+      value: t.id,
+    }));
 });
 
 const getTaskKey = (taskId, compId) => `t_${taskId}_c_${compId}`;
@@ -497,26 +503,55 @@ watch(
   () => props.visit,
   (newVisit) => {
     if (!newVisit || !newVisit.task_responses) {
-      formValues.value = {};
       return;
     }
-    const initial = {};
+    const merged = { ...formValues.value };
     newVisit.task_responses.forEach((resp) => {
       if (resp.values) {
         resp.values.forEach((v) => {
           const key = getTaskKey(resp.task_definition_id, v.task_component_id);
-          try {
-            initial[key] = JSON.parse(v.value);
-          } catch {
-            initial[key] = v.value;
+          if (merged[key] === undefined || merged[key] === null || merged[key] === '') {
+            try {
+              merged[key] = JSON.parse(v.value);
+            } catch {
+              merged[key] = v.value;
+            }
           }
         });
       }
     });
-    formValues.value = initial;
+    formValues.value = merged;
   },
   { immediate: true }
 );
+
+const prepareResponsesPayload = (completeVisit = false) => {
+  if (!props.visit) return [];
+  return (props.visit.task_responses || []).map((resp) => {
+    const valuesObj = {};
+    const taskDef = getTaskDef(resp);
+    let hasTaskValues = false;
+    if (taskDef && taskDef.components) {
+      taskDef.components.forEach((comp) => {
+        const key = getTaskKey(resp.task_definition_id, comp.id);
+        const val = formValues.value[key];
+        if (val !== undefined && val !== null && val !== '') {
+          if (Array.isArray(val) && val.length === 0) {
+            // empty array
+          } else {
+            valuesObj[comp.id] = val;
+            hasTaskValues = true;
+          }
+        }
+      });
+    }
+    return {
+      task_definition_id: resp.task_definition_id,
+      values: valuesObj,
+      is_completed: completeVisit && hasTaskValues,
+    };
+  });
+};
 
 const getVisibleComponentsForTask = (resp) => {
   const taskDef = getTaskDef(resp);
@@ -578,21 +613,35 @@ const handleOpenSiteVisit = () => {
 const handleTriggerOnDemand = () => {
   if (!selectedOnDemandTaskId.value || !props.visit) return;
   isSubmitting.value = true;
-  router.post(`/consultant/site-visits/${props.visit.id}/trigger-on-demand`, {
-    task_definition_id: selectedOnDemandTaskId.value,
+
+  // Auto-save existing filled daily tasks responses as draft first
+  const responses = prepareResponsesPayload(false);
+
+  router.post(`/consultant/site-visits/${props.visit.id}/save-responses`, {
+    responses,
+    complete_visit: false,
   }, {
     preserveScroll: true,
     onSuccess: () => {
-      selectedOnDemandTaskId.value = null;
-      toastRef.value?.addToast('success', 'تمت إضافة المهمة الإضافية بنجاح ⚡');
-      nextTick(() => {
-        const el = document.getElementById('on-demand-tasks-section');
-        if (el) {
-          el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-        }
+      // Trigger the on-demand task after saving draft
+      router.post(`/consultant/site-visits/${props.visit.id}/trigger-on-demand`, {
+        task_definition_id: selectedOnDemandTaskId.value,
+      }, {
+        preserveScroll: true,
+        onSuccess: () => {
+          selectedOnDemandTaskId.value = null;
+          toastRef.value?.addToast('success', 'تمت إضافة المهمة الإضافية وحفظ الخيارات السابقة بنجاح ⚡');
+          nextTick(() => {
+            const el = document.getElementById('on-demand-tasks-section');
+            if (el) {
+              el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+          });
+        },
+        onFinish: () => (isSubmitting.value = false),
       });
     },
-    onFinish: () => (isSubmitting.value = false),
+    onError: () => (isSubmitting.value = false),
   });
 };
 
@@ -618,30 +667,7 @@ const confirmRemoveOnDemand = () => {
 const handleSaveResponses = (completeVisit = false) => {
   if (!props.visit) return;
   isSubmitting.value = true;
-  const responses = (props.visit.task_responses || []).map((resp) => {
-    const valuesObj = {};
-    const taskDef = getTaskDef(resp);
-    let hasTaskValues = false;
-    if (taskDef && taskDef.components) {
-      taskDef.components.forEach((comp) => {
-        const key = getTaskKey(resp.task_definition_id, comp.id);
-        const val = formValues.value[key];
-        if (val !== undefined && val !== null && val !== '') {
-          if (Array.isArray(val) && val.length === 0) {
-            // empty array
-          } else {
-            valuesObj[comp.id] = val;
-            hasTaskValues = true;
-          }
-        }
-      });
-    }
-    return {
-      task_definition_id: resp.task_definition_id,
-      values: valuesObj,
-      is_completed: completeVisit && hasTaskValues,
-    };
-  });
+  const responses = prepareResponsesPayload(completeVisit);
 
   router.post(`/consultant/site-visits/${props.visit.id}/save-responses`, {
     responses,

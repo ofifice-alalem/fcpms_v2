@@ -53,9 +53,9 @@ class ConsultantVisitService
         return $query->select('id', 'name', 'code', 'address')->get();
     }
 
-    public function getAvailableOnDemandTasks(int $siteId, Consultant $consultant): Collection
+    public function getAvailableOnDemandTasks(int $siteId, Consultant $consultant, ?SiteVisit $siteVisit = null): Collection
     {
-        return TaskDefinition::where('is_active', true)
+        $query = TaskDefinition::where('is_active', true)
             ->where('task_type', 'on_demand')
             ->where(function ($query) use ($siteId, $consultant) {
                 $query->whereHas('siteAssignments', fn ($sq) => $sq->where('site_id', $siteId))
@@ -63,8 +63,20 @@ class ConsultantVisitService
                     ->orWhere(function ($gq) {
                         $gq->doesntHave('siteAssignments')->doesntHave('consultantAssignments');
                     });
-            })
-            ->get();
+            });
+
+        if ($siteVisit) {
+            $alreadyAddedIds = \App\Models\TaskResponse::where('site_visit_id', $siteVisit->id)
+                ->pluck('task_definition_id')
+                ->filter()
+                ->toArray();
+
+            if (!empty($alreadyAddedIds)) {
+                $query->whereNotIn('id', $alreadyAddedIds);
+            }
+        }
+
+        return $query->get();
     }
 
     public function openSiteVisit(DailyRecord $dailyRecord, int $siteId, ?string $notes = null): SiteVisit

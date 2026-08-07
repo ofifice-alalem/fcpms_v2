@@ -43,10 +43,15 @@ class ConsultantHistoryController extends Controller
                 return Carbon::parse($item->work_date)->toDateString();
             });
 
+        $hireDate = $consultant->hire_date 
+            ? Carbon::parse($consultant->hire_date)->startOfDay() 
+            : ($consultant->created_at ? Carbon::parse($consultant->created_at)->startOfDay() : null);
+
         $days = [];
         $attendedCount = 0;
         $absentCount = 0;
         $weekendCount = 0;
+        $beforeHireCount = 0;
         $totalProgressSum = 0;
 
         $current = $startOfMonth->copy();
@@ -62,12 +67,18 @@ class ConsultantHistoryController extends Controller
             }
 
             $record = $existingRecords->get($dateStr);
+            $isBeforeHire = $hireDate ? $current->lt($hireDate) : false;
 
             $status = 'absent';
-            $statusLabel = 'غائب';
+            $statusLabel = 'غائب 🔴';
             $statusType = 'danger';
 
-            if ($isWeekend) {
+            if ($isBeforeHire && !$record) {
+                $status = 'before_hire';
+                $statusLabel = 'قبل التعيين ⚪';
+                $statusType = 'neutral';
+                $beforeHireCount++;
+            } elseif ($isWeekend) {
                 $status = 'weekend';
                 $statusLabel = 'عطلة أسبوعية';
                 $statusType = 'weekend';
@@ -110,6 +121,7 @@ class ConsultantHistoryController extends Controller
                 'is_today' => $current->isToday(),
                 'is_weekend' => $isWeekend,
                 'is_future' => false,
+                'is_before_hire' => $isBeforeHire,
                 'status' => $status,
                 'status_label' => $statusLabel,
                 'status_type' => $statusType,
@@ -127,7 +139,7 @@ class ConsultantHistoryController extends Controller
             $current->addDay();
         }
 
-        $totalWorkingDays = count($days) - $weekendCount;
+        $totalWorkingDays = count($days) - $weekendCount - $beforeHireCount;
         $avgProgress = $attendedCount > 0 ? round($totalProgressSum / $attendedCount, 1) : 0;
 
         return Inertia::render('Consultant/History/Index', [

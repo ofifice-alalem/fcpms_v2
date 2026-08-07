@@ -33,10 +33,23 @@ class DailyVisitController extends Controller
         abort(403, 'عذراً، هذا الحساب لا يملك ملف استشاري ميداني لفتح هذه البوابة.');
     }
 
-    public function index(Request $request): Response|JsonResponse
+    public function index(Request $request): Response|JsonResponse|RedirectResponse
     {
         $consultant = $this->getConsultant();
         $targetDate = $request->query('date');
+
+        if ($targetDate) {
+            $hireDate = $consultant->hire_date 
+                ? \Carbon\Carbon::parse($consultant->hire_date)->startOfDay() 
+                : ($consultant->created_at ? \Carbon\Carbon::parse($consultant->created_at)->startOfDay() : null);
+
+            $reqDate = \Carbon\Carbon::parse($targetDate)->startOfDay();
+            if ($hireDate && $reqDate->lt($hireDate)) {
+                return redirect()->route('consultant.history.index')
+                    ->with('error', 'عذراً، لا يمكن توثيق زيارات لتاريخ سابق لتاريخ تعيينك المتفق عليه (' . $hireDate->format('Y-m-d') . ').');
+            }
+        }
+
         $dailyRecord = $targetDate 
             ? $this->visitService->getRecordForDate($consultant, $targetDate) 
             : $this->visitService->getTodayRecord($consultant);
@@ -77,7 +90,7 @@ class DailyVisitController extends Controller
 
         $availableOnDemandTasks = [];
         if ($activeVisit) {
-            $availableOnDemandTasks = $this->visitService->getAvailableOnDemandTasks($activeVisit->site_id, $consultant);
+            $availableOnDemandTasks = $this->visitService->getAvailableOnDemandTasks($activeVisit->site_id, $consultant, $activeVisit);
         }
 
         $dailyRecord->load([
@@ -168,7 +181,7 @@ class DailyVisitController extends Controller
         $dailyRecord = $visit->dailyRecord;
         $visitDetails = $this->visitService->getVisitDetails($visit->id);
         $availableSites = $this->visitService->getAvailableSites($dailyRecord);
-        $availableOnDemandTasks = $this->visitService->getAvailableOnDemandTasks($visit->site_id, $consultant);
+        $availableOnDemandTasks = $this->visitService->getAvailableOnDemandTasks($visit->site_id, $consultant, $visitDetails);
 
         $recordDate = \Carbon\Carbon::parse($dailyRecord->work_date)->toDateString();
         $todayDate = \Carbon\Carbon::today()->toDateString();
