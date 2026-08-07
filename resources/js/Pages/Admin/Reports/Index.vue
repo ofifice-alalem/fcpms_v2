@@ -164,22 +164,22 @@
           </div>
         </SpatialCard>
 
-        <!-- Active Consultants Count Card -->
+        <!-- Active Consultants Ratio Card -->
         <SpatialCard padding="p-5" class="relative z-10">
           <div class="flex items-center justify-between">
-            <span class="text-xs font-bold text-slate-500 dark:text-white/60">الاستشاريين النشطين</span>
+            <span class="text-xs font-bold text-slate-500 dark:text-white/60">حضور الاستشاريين الميدانيين</span>
             <div class="w-9 h-9 rounded-2xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-black">
               👨‍💼
             </div>
           </div>
           <div class="mt-3 flex items-baseline gap-2">
-            <span class="text-3xl font-black font-mono text-slate-900 dark:text-white">
-              {{ metrics?.active_consultants_count || 0 }}
+            <span class="text-3xl font-black font-mono text-slate-900 dark:text-white dir-ltr">
+              {{ metrics?.present_consultants_count || 0 }} / {{ metrics?.active_consultants_count || 0 }}
             </span>
-            <span class="text-xs font-bold text-slate-400">استشاري فعال</span>
+            <span class="text-xs font-bold text-slate-400">استشاري مشارك</span>
           </div>
           <div class="mt-2 text-[11px] font-bold text-emerald-600 dark:text-emerald-400">
-            حالة نشطة ومتاحة في الميدان
+            {{ metrics?.present_consultants_count || 0 }} متواجدين بالتقرير من أصل {{ metrics?.active_consultants_count || 0 }} في النظام
           </div>
         </SpatialCard>
 
@@ -191,11 +191,16 @@
               %
             </div>
           </div>
-          <div class="mt-3 flex items-baseline gap-2">
+          <div class="mt-3 flex items-baseline justify-between gap-1 flex-wrap">
             <span class="text-3xl font-black font-mono text-slate-900 dark:text-white">
               {{ metrics?.system_completion_rate || 0 }}%
             </span>
-            <span class="text-xs font-bold text-blue-600 dark:text-blue-400">نسبة التزام كلي</span>
+            <span class="text-xs font-black font-mono text-blue-600 dark:text-blue-400 dir-ltr bg-blue-500/10 px-2.5 py-1 rounded-xl border border-blue-500/20">
+              📌 {{ metrics?.completed_daily_tasks_count || 0 }} / {{ metrics?.total_required_daily_tasks || 0 }}
+            </span>
+          </div>
+          <div class="mt-2 text-[11px] font-bold text-blue-600 dark:text-blue-400">
+            {{ metrics?.completed_daily_tasks_count || 0 }} مهمة منجزة من أصل {{ metrics?.total_required_daily_tasks || 0 }} مهمة يومية
           </div>
           <div class="w-full h-2 bg-slate-100 dark:bg-white/10 rounded-full mt-3 overflow-hidden">
             <div
@@ -305,6 +310,7 @@
                 <th class="p-4">موقع العمل</th>
                 <th class="p-4">المدينة</th>
                 <th class="p-4">وقت الدخول / الخروج</th>
+                <th class="p-4 text-center">المهام (يومية / إضافية)</th>
                 <th class="p-4 text-center">حالة الزيارة</th>
                 <th class="p-4 text-center w-28">الإجراءات</th>
               </tr>
@@ -336,6 +342,17 @@
                   {{ formatTime(visit.check_in_time) }} ⬅️ {{ formatTime(visit.check_out_time) }}
                 </td>
                 <td class="p-4 text-center">
+                  <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-slate-100 dark:bg-white/5 border border-slate-200/80 dark:border-white/10 font-mono text-xs font-black">
+                    <span class="text-emerald-600 dark:text-emerald-400" title="عدد المهام اليومية">
+                      📌 {{ visit.daily_tasks_count || 0 }}
+                    </span>
+                    <span class="text-slate-300 dark:text-white/20">|</span>
+                    <span class="text-amber-600 dark:text-amber-400" title="عدد المهام الإضافية (عند الحاجة)">
+                      ⚡ {{ visit.on_demand_tasks_count || 0 }}
+                    </span>
+                  </div>
+                </td>
+                <td class="p-4 text-center">
                   <SpatialStatusPill :type="visit.status === 'completed' ? 'completed' : 'pending'">
                     {{ visit.status === 'completed' ? 'مكتملة 🟢' : 'قيد التنفيذ 🟡' }}
                   </SpatialStatusPill>
@@ -355,7 +372,7 @@
               </tr>
 
               <tr v-if="!metrics?.visits_log || metrics.visits_log.length === 0">
-                <td colspan="7" class="p-12 text-center">
+                <td colspan="8" class="p-12 text-center">
                   <SpatialEmptyState
                     title="لا يوجد زيارات ميدانية مطابقة"
                     description="لم نجد أي زيارة ميدانية تتطابق مع معايير التصفية والخيارات المحددة."

@@ -26,6 +26,9 @@ class SiteVisit extends Model implements Auditable
         'status_name',
         'check_in_time',
         'check_out_time',
+        'daily_tasks_count',
+        'total_daily_tasks_count',
+        'on_demand_tasks_count',
     ];
 
     protected function casts(): array
@@ -79,6 +82,52 @@ class SiteVisit extends Model implements Auditable
         }
 
         return null;
+    }
+
+    public function getDailyTasksCountAttribute(): int
+    {
+        if ($this->relationLoaded('taskResponses')) {
+            return $this->taskResponses->filter(function ($resp) {
+                $taskDef = $resp->taskDefinition ?? $resp->task_definition ?? null;
+                if (!$taskDef) {
+                    return false;
+                }
+                $type = is_object($taskDef->task_type) ? $taskDef->task_type->value : (string) $taskDef->task_type;
+                $hasValues = $resp->values && $resp->values->count() > 0;
+                return $type === 'daily' && ($resp->status === 'submitted' || $hasValues);
+            })->count();
+        }
+        return $this->taskResponses()->whereHas('taskDefinition', fn($q) => $q->where('task_type', 'daily'))->count();
+    }
+
+    public function getTotalDailyTasksCountAttribute(): int
+    {
+        if ($this->relationLoaded('taskResponses')) {
+            return $this->taskResponses->filter(function ($resp) {
+                $taskDef = $resp->taskDefinition ?? $resp->task_definition ?? null;
+                if (!$taskDef) {
+                    return false;
+                }
+                $type = is_object($taskDef->task_type) ? $taskDef->task_type->value : (string) $taskDef->task_type;
+                return $type === 'daily';
+            })->count();
+        }
+        return $this->taskResponses()->whereHas('taskDefinition', fn($q) => $q->where('task_type', 'daily'))->count();
+    }
+
+    public function getOnDemandTasksCountAttribute(): int
+    {
+        if ($this->relationLoaded('taskResponses')) {
+            return $this->taskResponses->filter(function ($resp) {
+                $taskDef = $resp->taskDefinition ?? $resp->task_definition ?? null;
+                if (!$taskDef) {
+                    return false;
+                }
+                $type = is_object($taskDef->task_type) ? $taskDef->task_type->value : (string) $taskDef->task_type;
+                return $type === 'on_demand';
+            })->count();
+        }
+        return $this->taskResponses()->whereHas('taskDefinition', fn($q) => $q->where('task_type', 'on_demand'))->count();
     }
 
     public function dailyRecord(): BelongsTo

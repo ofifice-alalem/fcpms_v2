@@ -114,15 +114,14 @@ class ReportRepository implements ReportRepositoryInterface
         $completedVisits = $allVisits->where('status', 'completed')->count();
         $inProgressVisits = $allVisits->where('status', 'in_progress')->count();
 
-        $systemCompletionRate = $totalVisits > 0 ? round(($completedVisits / $totalVisits) * 100, 1) : 0;
-
         $activeConsultantsCount = Consultant::where('employment_status', 'active')->count();
 
         // On-demand tasks
         $onDemandCount = 0;
         foreach ($allVisits as $visit) {
             foreach ($visit->taskResponses as $resp) {
-                $typeStr = is_object($resp->task_type) ? $resp->task_type->value : (string) $resp->task_type;
+                $taskDef = $resp->taskDefinition;
+                $typeStr = $taskDef ? (is_object($taskDef->task_type) ? $taskDef->task_type->value : (string) $taskDef->task_type) : null;
                 if ($typeStr === 'on_demand') {
                     $onDemandCount++;
                 }
@@ -154,15 +153,34 @@ class ReportRepository implements ReportRepositoryInterface
         $rankings = array_values($consultantStats);
         usort($rankings, fn($a, $b) => $b['total_visits'] <=> $a['total_visits']);
 
+        $activeConsultantsCount = Consultant::where('employment_status', 'active')->count();
+
+        $completedDailyTasks = 0;
+        $totalRequiredDailyTasks = 0;
+        foreach ($allVisits as $visit) {
+            $completedDailyTasks += $visit->daily_tasks_count;
+            $reqTasks = $visit->total_daily_tasks_count > 0 
+                ? $visit->total_daily_tasks_count 
+                : ($visit->dailyRecord && (int)$visit->dailyRecord->required_daily_tasks > 0 
+                    ? (int)$visit->dailyRecord->required_daily_tasks 
+                    : max(1, $visit->daily_tasks_count));
+            $totalRequiredDailyTasks += $reqTasks;
+        }
+
+        $systemCompletionRate = $totalRequiredDailyTasks > 0 ? round(($completedDailyTasks / $totalRequiredDailyTasks) * 100, 1) : 0;
+
         return [
-            'system_total_visits'      => $totalVisits,
-            'completed_visits'         => $completedVisits,
-            'in_progress_visits'       => $inProgressVisits,
-            'active_consultants_count' => $activeConsultantsCount,
-            'system_completion_rate'   => $systemCompletionRate,
-            'on_demand_tasks_count'    => $onDemandCount,
-            'consultant_rankings'      => $rankings,
-            'visits_log'               => $allVisits,
+            'system_total_visits'          => $totalVisits,
+            'completed_visits'             => $completedVisits,
+            'in_progress_visits'           => $inProgressVisits,
+            'active_consultants_count'     => $activeConsultantsCount,
+            'present_consultants_count'    => count($consultantStats),
+            'system_completion_rate'       => $systemCompletionRate,
+            'completed_daily_tasks_count'  => $completedDailyTasks,
+            'total_required_daily_tasks'   => $totalRequiredDailyTasks,
+            'on_demand_tasks_count'        => $onDemandCount,
+            'consultant_rankings'          => $rankings,
+            'visits_log'                   => $allVisits,
         ];
     }
 

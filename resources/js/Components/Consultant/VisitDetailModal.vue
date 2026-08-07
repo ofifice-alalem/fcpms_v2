@@ -268,7 +268,7 @@
 
             <!-- Convert Single Draft to Completed -->
             <button
-              v-if="resp.status === 'draft' && resp.values && resp.values.length > 0"
+              v-if="!readOnly && resp.status === 'draft' && resp.values && resp.values.length > 0"
               type="button"
               :disabled="isSubmitting"
               @click="submitSingleTask(resp.id)"
@@ -283,7 +283,7 @@
         </div>
 
         <!-- Convert All Drafts Action Button -->
-        <div v-if="activeTab === 'draft_tasks' && draftTasks.length > 0" class="pt-4 flex justify-center">
+        <div v-if="!readOnly && activeTab === 'draft_tasks' && draftTasks.length > 0" class="pt-4 flex justify-center">
           <button
             type="button"
             :disabled="isSubmitting"
@@ -370,6 +370,10 @@ const props = defineProps({
   visit: {
     type: Object,
     default: null,
+  },
+  readOnly: {
+    type: Boolean,
+    default: false,
   },
 });
 
