@@ -126,4 +126,37 @@ class ReportGenerationTest extends TestCase
 
         $exportResponse->assertStatus(200);
     }
+
+    public function test_admin_can_view_sites_performance_report_and_task_breakdown()
+    {
+        $admin = User::factory()->create();
+        $admin->assignRole('admin');
+
+        $site = Site::create([
+            'code'                 => 'SITE-MISRATA-01',
+            'name'                 => 'موقع مصراتة',
+            'city'                 => 'مصراتة',
+            'location_coordinates' => '32.3754,15.0925',
+            'status'               => 'active',
+        ]);
+
+        $sitesReportResponse = $this->actingAs($admin)->get(route('admin.reports.sites'));
+
+        $sitesReportResponse->assertStatus(200);
+        $sitesReportResponse->assertInertia(fn ($page) => $page
+            ->component('Admin/Reports/SitesReport')
+            ->has('sitesReport')
+            ->has('sites')
+            ->has('cities')
+        );
+
+        $siteBreakdownResponse = $this->actingAs($admin)->get(route('admin.reports.site-breakdown', $site->id));
+
+        $siteBreakdownResponse->assertStatus(200);
+        $siteBreakdownResponse->assertInertia(fn ($page) => $page
+            ->component('Admin/Reports/SiteTaskBreakdown')
+            ->has('siteData')
+            ->has('taskBreakdown')
+        );
+    }
 }

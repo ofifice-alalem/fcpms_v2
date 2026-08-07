@@ -48,20 +48,78 @@
         </div>
       </SpatialCard>
 
-      <!-- Reports Navigation Tabs -->
-      <div class="flex items-center gap-2 p-1.5 bg-slate-100 dark:bg-white/5 rounded-2xl border border-slate-200/80 dark:border-white/10">
-        <Link
-          :href="route('admin.reports.index')"
-          class="flex items-center gap-2 px-4 py-2.5 rounded-xl font-black text-xs transition-all bg-primary text-white shadow-sm"
-        >
-          <span>📊 التقرير الشامل العام</span>
-        </Link>
-        <Link
-          :href="route('admin.reports.sites')"
-          class="flex items-center gap-2 px-4 py-2.5 rounded-xl font-black text-xs text-slate-600 dark:text-white/70 hover:text-slate-900 dark:hover:text-white transition-all"
-        >
-          <span>🏢 تقارير إحصائيات المواقع والأماكن</span>
-        </Link>
+      <!-- Report Type Selector Hub (مركز اختيار نوع التقرير) -->
+      <div class="space-y-3">
+        <div class="flex items-center justify-between">
+          <h2 class="text-base font-black text-slate-900 dark:text-white flex items-center gap-2">
+            <span>📑 اختر نوع التقرير المطلوب</span>
+            <span class="text-xs font-bold text-slate-400 dark:text-white/50">(حدد التقرير للانتقال للتفاصيل والتحليلات المخصصة)</span>
+          </h2>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <!-- Report 1: Executive Overview -->
+          <div
+            class="p-5 rounded-2xl border-2 transition-all cursor-pointer bg-primary/10 border-primary shadow-md relative overflow-hidden group"
+          >
+            <div class="flex items-start justify-between">
+              <div class="w-10 h-10 rounded-xl bg-primary text-white flex items-center justify-center font-black text-lg">
+                📊
+              </div>
+              <span class="px-2.5 py-1 rounded-full bg-primary/20 text-primary font-black text-[11px]">
+                التقرير النشط حالياً ⚡
+              </span>
+            </div>
+            <h3 class="mt-4 font-black text-slate-900 dark:text-white text-base">
+              1. التقرير التنفيذي الشامل للزيارات
+            </h3>
+            <p class="mt-1 text-xs font-bold text-slate-600 dark:text-white/70 leading-relaxed">
+              عرض المؤشرات العامة، إجمالي الزيارات الميدانية، ومتابعة سجلات كل استشاري وموقع مع التصدير.
+            </p>
+          </div>
+
+          <!-- Report 2: Sites Performance Report -->
+          <Link
+            :href="route('admin.reports.sites')"
+            class="p-5 rounded-2xl border border-slate-200/80 dark:border-white/10 transition-all cursor-pointer bg-white/60 dark:bg-white/5 hover:border-indigo-500/50 hover:shadow-lg relative overflow-hidden group"
+          >
+            <div class="flex items-start justify-between">
+              <div class="w-10 h-10 rounded-xl bg-indigo-500/10 text-indigo-500 flex items-center justify-center font-black text-lg">
+                🏢
+              </div>
+              <span class="px-2.5 py-1 rounded-full bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 font-black text-[11px] group-hover:bg-indigo-500 group-hover:text-white transition-all">
+                فتح التقرير ⬅️
+              </span>
+            </div>
+            <h3 class="mt-4 font-black text-slate-900 dark:text-white text-base group-hover:text-indigo-500 transition-colors">
+              2. تقرير الأماكن والمواقع الميدانية
+            </h3>
+            <p class="mt-1 text-xs font-bold text-slate-500 dark:text-white/60 leading-relaxed">
+              عرض قائمة المواقع خلال فترة زمنية، عدد الاستشاريين الزائرين لكل مكان، والمهام اليومية والإضافية.
+            </p>
+          </Link>
+
+          <!-- Report 3: Specific Site Task Breakdown Report -->
+          <div
+            @click="openSiteSelectorModal"
+            class="p-5 rounded-2xl border border-slate-200/80 dark:border-white/10 transition-all cursor-pointer bg-white/60 dark:bg-white/5 hover:border-amber-500/50 hover:shadow-lg relative overflow-hidden group"
+          >
+            <div class="flex items-start justify-between">
+              <div class="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-500 flex items-center justify-center font-black text-lg">
+                🔍
+              </div>
+              <span class="px-2.5 py-1 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 font-black text-[11px] group-hover:bg-amber-500 group-hover:text-white transition-all">
+                اختر موقعاً ⬅️
+              </span>
+            </div>
+            <h3 class="mt-4 font-black text-slate-900 dark:text-white text-base group-hover:text-amber-500 transition-colors">
+              3. تقرير تكرار المهام لموقع معين
+            </h3>
+            <p class="mt-1 text-xs font-bold text-slate-500 dark:text-white/60 leading-relaxed">
+              تحديد مكان محدد لعرض المهام المنفذة عليه، كم مرة تكررت كل مهمة وعدد وأسماء الاستشاريين المنفذين.
+            </p>
+          </div>
+        </div>
       </div>
 
       <!-- Enterprise KPI Highlight Cards Grid -->
@@ -297,6 +355,48 @@
       :visit-data="activeVisitData"
       @close="isModalOpen = false"
     />
+
+    <!-- Site Selector Modal for Report 3 -->
+    <SpatialModal
+      :is-open="isSiteSelectorOpen"
+      title="اختيار موقع لعرض تقرير تكرار المهام"
+      max-width="md"
+      @close="isSiteSelectorOpen = false"
+    >
+      <div class="space-y-4 py-2">
+        <p class="text-xs font-bold text-slate-600 dark:text-white/70">
+          حدد موقع العمل الميداني لعرض قائمة المهام المنفذة عليه، كم مرة تكررت كل مهمة وأسماء الاستشاريين الذين نفذوها:
+        </p>
+
+        <SpatialDropdown
+          v-model="selectedSiteId"
+          label="موقع العمل الميداني"
+          placeholder="اختر الموقع..."
+          :options="modalSiteOptions"
+        />
+      </div>
+
+      <template #footer>
+        <div class="flex items-center justify-end gap-2 w-full">
+          <SpatialButton
+            variant="secondary"
+            size="sm"
+            @click="isSiteSelectorOpen = false"
+          >
+            إلغاء
+          </SpatialButton>
+
+          <SpatialButton
+            variant="primary"
+            size="sm"
+            :disabled="!selectedSiteId"
+            @click="goToSiteBreakdown"
+          >
+            فتح التقرير التفصيلي 🚀
+          </SpatialButton>
+        </div>
+      </template>
+    </SpatialModal>
   </HRLayout>
 </template>
 
@@ -312,6 +412,7 @@ import SpatialDropdown from '@/Components/Spatial/SpatialDropdown.vue';
 import SpatialStatusPill from '@/Components/Spatial/SpatialStatusPill.vue';
 import SpatialIconButton from '@/Components/Spatial/SpatialIconButton.vue';
 import SpatialEmptyState from '@/Components/Spatial/SpatialEmptyState.vue';
+import SpatialModal from '@/Components/Spatial/SpatialModal.vue';
 import ReportVisitDetailModal from '@/Components/Reports/ReportVisitDetailModal.vue';
 
 const props = defineProps({
@@ -325,6 +426,28 @@ const props = defineProps({
 const toastRef = ref(null);
 const isModalOpen = ref(false);
 const activeVisitData = ref(null);
+
+const isSiteSelectorOpen = ref(false);
+const selectedSiteId = ref('');
+
+const modalSiteOptions = computed(() => {
+  const opts = [];
+  (props.sites || []).forEach((s) => {
+    opts.push({ label: `${s.name} - ${s.city}`, value: s.id });
+  });
+  return opts;
+});
+
+function openSiteSelectorModal() {
+  selectedSiteId.value = props.filters?.site_id || '';
+  isSiteSelectorOpen.value = true;
+}
+
+function goToSiteBreakdown() {
+  if (!selectedSiteId.value) return;
+  isSiteSelectorOpen.value = false;
+  router.get(route('admin.reports.site-breakdown', selectedSiteId.value));
+}
 
 const filterForm = reactive({
   consultant_id: props.filters?.consultant_id || '',
