@@ -237,7 +237,7 @@ class ReportRepository implements ReportRepositoryInterface
 
         foreach ($sites as $site) {
             $visitQuery = SiteVisit::where('site_id', $site->id)
-                ->with(['dailyRecord.consultant', 'taskResponses']);
+                ->with(['dailyRecord.consultant', 'taskResponses.taskDefinition']);
 
             if (!empty($filters['date_from'])) {
                 $visitQuery->whereHas('dailyRecord', function ($q) use ($filters) {
@@ -262,7 +262,10 @@ class ReportRepository implements ReportRepositoryInterface
                 }
 
                 foreach ($v->taskResponses as $resp) {
-                    $typeStr = is_object($resp->task_type) ? $resp->task_type->value : (string) $resp->task_type;
+                    $taskDef = $resp->taskDefinition;
+                    $taskTypeVal = $taskDef?->task_type;
+                    $typeStr = is_object($taskTypeVal) ? $taskTypeVal->value : (string) $taskTypeVal;
+
                     if ($typeStr === 'on_demand') {
                         $onDemandTasksCount++;
                     } else {
@@ -321,8 +324,10 @@ class ReportRepository implements ReportRepositoryInterface
 
             foreach ($visit->taskResponses as $resp) {
                 $taskDefId = $resp->task_definition_id ?? ('custom_' . $resp->id);
-                $title = $resp->taskDefinition->title ?? $resp->notes ?? 'مهمة ميدانية';
-                $typeStr = is_object($resp->task_type) ? $resp->task_type->value : (string) $resp->task_type;
+                $taskDef = $resp->taskDefinition;
+                $title = $taskDef->title ?? $resp->notes ?? 'مهمة ميدانية';
+                $taskTypeVal = $taskDef?->task_type;
+                $typeStr = is_object($taskTypeVal) ? $taskTypeVal->value : (string) $taskTypeVal;
 
                 if (!isset($tasksMap[$taskDefId])) {
                     $tasksMap[$taskDefId] = [

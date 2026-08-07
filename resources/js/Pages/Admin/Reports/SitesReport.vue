@@ -145,7 +145,7 @@
                   ✅ {{ site.regular_tasks_count }} مهمة
                 </td>
                 <td class="p-4 text-center font-mono text-sm text-amber-600 dark:text-amber-400">
-                  ⚡ {{ site.on_demand_tasks_count }} مهمة طارئة
+                  {{ site.on_demand_tasks_count }} مهمة
                 </td>
                 <td class="p-4 text-center">
                   <Link
