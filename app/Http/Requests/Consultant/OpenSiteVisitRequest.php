@@ -15,6 +15,7 @@ class OpenSiteVisitRequest extends FormRequest
     {
         return [
             'site_id' => ['required', 'integer', 'exists:sites,id'],
+            'date' => ['nullable', 'date'],
             'notes' => ['nullable', 'string', 'max:500'],
         ];
     }

@@ -201,7 +201,19 @@ class DailyVisitController extends Controller
     public function storeVisit(OpenSiteVisitRequest $request): RedirectResponse|JsonResponse
     {
         $consultant = $this->getConsultant();
-        $targetDate = $request->input('date');
+        $targetDate = $request->input('date') ?: $request->query('date');
+
+        if (!$targetDate && $request->header('referer')) {
+            $referer = $request->header('referer');
+            $parsedUrl = parse_url($referer);
+            if (isset($parsedUrl['query'])) {
+                parse_str($parsedUrl['query'], $queryParams);
+                if (!empty($queryParams['date'])) {
+                    $targetDate = $queryParams['date'];
+                }
+            }
+        }
+
         $dailyRecord = $targetDate ? $this->visitService->getRecordForDate($consultant, $targetDate) : $this->visitService->getTodayRecord($consultant);
 
         if (!$dailyRecord->check_in_time) {
@@ -233,13 +245,11 @@ class DailyVisitController extends Controller
         }
 
         $recordDate = \Carbon\Carbon::parse($dailyRecord->work_date)->toDateString();
-        $todayDate = \Carbon\Carbon::today()->toDateString();
 
-        if ($recordDate !== $todayDate || $targetDate) {
-            return redirect()->route('consultant.site-visits.execute', ['visit' => $visit->id, 'date' => $recordDate])->with('success', 'تم فتح زيارة الموقع بنجاح');
-        }
-
-        return redirect()->route('consultant.site-visits.execute', $visit->id)->with('success', 'تم فتح زيارة الموقع بنجاح');
+        return redirect()->route('consultant.site-visits.execute', [
+            'visit' => $visit->id,
+            'date' => $recordDate,
+        ])->with('success', 'تم فتح زيارة الموقع بنجاح');
     }
 
     public function triggerOnDemand(Request $request, SiteVisit $visit): JsonResponse|RedirectResponse

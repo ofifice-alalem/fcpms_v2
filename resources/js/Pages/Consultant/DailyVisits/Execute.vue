@@ -605,7 +605,16 @@ const goBack = () => {
 const handleOpenSiteVisit = () => {
   if (!selectedSiteId.value) return;
   isSubmitting.value = true;
-  const targetDate = (props.isHistorical && props.selectedDate) ? props.selectedDate : null;
+
+  let targetDate = props.selectedDate;
+  if (!targetDate && props.dailyRecord?.work_date) {
+    targetDate = String(props.dailyRecord.work_date).split('T')[0];
+  }
+  if (!targetDate && typeof window !== 'undefined') {
+    const urlParams = new URLSearchParams(window.location.search);
+    targetDate = urlParams.get('date');
+  }
+
   const payload = {
     site_id: selectedSiteId.value,
     notes: notes.value,
@@ -613,6 +622,7 @@ const handleOpenSiteVisit = () => {
   if (targetDate) {
     payload.date = String(targetDate).split('T')[0];
   }
+
   router.post('/consultant/site-visits', payload, {
     onFinish: () => (isSubmitting.value = false),
   });
