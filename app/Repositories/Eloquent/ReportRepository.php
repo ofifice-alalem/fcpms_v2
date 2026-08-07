@@ -82,16 +82,20 @@ class ReportRepository implements ReportRepositoryInterface
      */
     public function getEnterpriseMetrics(array $filters = []): array
     {
-        $visitQuery = SiteVisit::with(['dailyRecord.consultant', 'site', 'taskResponses.taskDefinition']);
+        $visitQuery = SiteVisit::with(['dailyRecord.consultant', 'site', 'taskResponses.taskDefinition', 'taskResponses.values']);
 
         if (!empty($filters['date_from'])) {
-            $visitQuery->whereHas('dailyRecord', function ($q) use ($filters) {
-                $q->whereDate('work_date', '>=', $filters['date_from']);
+            $visitQuery->where(function ($q) use ($filters) {
+                $q->whereHas('dailyRecord', fn ($dq) => $dq->whereDate('work_date', '>=', $filters['date_from']))
+                  ->orWhereDate('visit_started_at', '>=', $filters['date_from'])
+                  ->orWhereDate('created_at', '>=', $filters['date_from']);
             });
         }
         if (!empty($filters['date_to'])) {
-            $visitQuery->whereHas('dailyRecord', function ($q) use ($filters) {
-                $q->whereDate('work_date', '<=', $filters['date_to']);
+            $visitQuery->where(function ($q) use ($filters) {
+                $q->whereHas('dailyRecord', fn ($dq) => $dq->whereDate('work_date', '<=', $filters['date_to']))
+                  ->orWhereDate('visit_started_at', '<=', $filters['date_to'])
+                  ->orWhereDate('created_at', '<=', $filters['date_to']);
             });
         }
         if (!empty($filters['consultant_id'])) {
@@ -159,12 +163,7 @@ class ReportRepository implements ReportRepositoryInterface
         $totalRequiredDailyTasks = 0;
         foreach ($allVisits as $visit) {
             $completedDailyTasks += $visit->daily_tasks_count;
-            $reqTasks = $visit->total_daily_tasks_count > 0 
-                ? $visit->total_daily_tasks_count 
-                : ($visit->dailyRecord && (int)$visit->dailyRecord->required_daily_tasks > 0 
-                    ? (int)$visit->dailyRecord->required_daily_tasks 
-                    : max(1, $visit->daily_tasks_count));
-            $totalRequiredDailyTasks += $reqTasks;
+            $totalRequiredDailyTasks += $visit->total_daily_tasks_count;
         }
 
         $systemCompletionRate = $totalRequiredDailyTasks > 0 ? round(($completedDailyTasks / $totalRequiredDailyTasks) * 100, 1) : 0;
@@ -210,13 +209,17 @@ class ReportRepository implements ReportRepositoryInterface
         $query = SiteVisit::with(['dailyRecord.consultant', 'site', 'taskResponses.taskDefinition']);
 
         if (!empty($filters['date_from'])) {
-            $query->whereHas('dailyRecord', function ($q) use ($filters) {
-                $q->whereDate('work_date', '>=', $filters['date_from']);
+            $query->where(function ($q) use ($filters) {
+                $q->whereHas('dailyRecord', fn ($dq) => $dq->whereDate('work_date', '>=', $filters['date_from']))
+                  ->orWhereDate('visit_started_at', '>=', $filters['date_from'])
+                  ->orWhereDate('created_at', '>=', $filters['date_from']);
             });
         }
         if (!empty($filters['date_to'])) {
-            $query->whereHas('dailyRecord', function ($q) use ($filters) {
-                $q->whereDate('work_date', '<=', $filters['date_to']);
+            $query->where(function ($q) use ($filters) {
+                $q->whereHas('dailyRecord', fn ($dq) => $dq->whereDate('work_date', '<=', $filters['date_to']))
+                  ->orWhereDate('visit_started_at', '<=', $filters['date_to'])
+                  ->orWhereDate('created_at', '<=', $filters['date_to']);
             });
         }
         if (!empty($filters['consultant_id'])) {

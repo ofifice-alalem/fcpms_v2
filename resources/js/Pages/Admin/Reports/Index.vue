@@ -390,8 +390,8 @@
                 </td>
                 <td class="p-4 text-center">
                   <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-slate-100 dark:bg-white/5 border border-slate-200/80 dark:border-white/10 font-mono text-xs font-black">
-                    <span class="text-emerald-600 dark:text-emerald-400" title="عدد المهام اليومية">
-                      📌 {{ visit.daily_tasks_count || 0 }}
+                    <span class="text-emerald-600 dark:text-emerald-400" title="عدد المهام اليومية (المنجزة / المطلوبة)">
+                      📌 {{ visit.daily_tasks_count || 0 }} / {{ visit.total_daily_tasks_count || 0 }}
                     </span>
                     <span class="text-slate-300 dark:text-white/20">|</span>
                     <span class="text-amber-600 dark:text-amber-400" title="عدد المهام الإضافية (عند الحاجة)">
