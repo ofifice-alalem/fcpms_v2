@@ -262,6 +262,9 @@ class ReportRepository implements ReportRepositoryInterface
                 }
 
                 foreach ($v->taskResponses as $resp) {
+                    if ($resp->status !== 'submitted' && is_null($resp->completed_at)) {
+                        continue;
+                    }
                     $taskDef = $resp->taskDefinition;
                     $taskTypeVal = $taskDef?->task_type;
                     $typeStr = is_object($taskTypeVal) ? $taskTypeVal->value : (string) $taskTypeVal;
@@ -323,6 +326,10 @@ class ReportRepository implements ReportRepositoryInterface
             $consultant = $visit->dailyRecord->consultant ?? null;
 
             foreach ($visit->taskResponses as $resp) {
+                // Count ONLY tasks that were actually performed & submitted/completed by consultants
+                if ($resp->status !== 'submitted' && is_null($resp->completed_at)) {
+                    continue;
+                }
                 $taskDefId = $resp->task_definition_id ?? ('custom_' . $resp->id);
                 $taskDef = $resp->taskDefinition;
                 $title = $taskDef->title ?? $resp->notes ?? 'مهمة ميدانية';
@@ -371,12 +378,41 @@ class ReportRepository implements ReportRepositoryInterface
 
         usort($breakdown, fn($a, $b) => $b['execution_count'] <=> $a['execution_count']);
 
+        $dailyTasksCount = 0;
+        $dailyTasksExecutions = 0;
+        $onDemandTasksCount = 0;
+        $onDemandTasksExecutions = 0;
+
+        foreach ($breakdown as $item) {
+            if ($item['task_type'] === 'إضافية') {
+                $onDemandTasksCount++;
+                $onDemandTasksExecutions += $item['execution_count'];
+            } else {
+                $dailyTasksCount++;
+                $dailyTasksExecutions += $item['execution_count'];
+            }
+        }
+
+        $uniqueConsultantsCount = $visits
+            ->pluck('dailyRecord.consultant_id')
+            ->filter()
+            ->unique()
+            ->count();
+
         return [
             'site'            => [
                 'id'   => $site->id,
                 'name' => $site->name,
                 'code' => $site->code,
                 'city' => $site->city,
+            ],
+            'summary'         => [
+                'total_visits'              => $visits->count(),
+                'unique_consultants'        => $uniqueConsultantsCount,
+                'daily_tasks_count'         => $dailyTasksCount,
+                'daily_tasks_executions'    => $dailyTasksExecutions,
+                'on_demand_tasks_count'     => $onDemandTasksCount,
+                'on_demand_tasks_executions'=> $onDemandTasksExecutions,
             ],
             'tasks_breakdown' => $breakdown,
         ];

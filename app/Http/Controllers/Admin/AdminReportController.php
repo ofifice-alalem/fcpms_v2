@@ -133,6 +133,7 @@ class AdminReportController extends Controller
 
         return Inertia::render('Admin/Reports/SiteTaskBreakdown', [
             'siteData'      => $breakdownData['site'],
+            'summary'       => $breakdownData['summary'] ?? null,
             'taskBreakdown' => $breakdownData['tasks_breakdown'],
             'filters'       => $filters,
             'sites'         => $sitesList,
