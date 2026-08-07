@@ -35,4 +35,19 @@ interface ReportRepositoryInterface
      * Get task breakdown report for a specific site (frequency of tasks & distinct consultants count).
      */
     public function getSpecificSiteTaskBreakdown(int $siteId, array $filters = []): array;
+
+    /**
+     * Get consultants performance aggregated report (visited sites count, daily tasks, on-demand tasks).
+     */
+    public function getConsultantsPerformanceReport(array $filters = []): array;
+
+    /**
+     * Get site breakdown for a specific consultant (sites visited, visit count, task counts).
+     */
+    public function getConsultantSitesBreakdown(int $consultantId, array $filters = []): array;
+
+    /**
+     * Get task execution breakdown for a specific consultant (tasks executed and frequency per site).
+     */
+    public function getConsultantTasksBreakdown(int $consultantId, array $filters = []): array;
 }

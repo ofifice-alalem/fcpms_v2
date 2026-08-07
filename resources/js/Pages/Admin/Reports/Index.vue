@@ -57,7 +57,7 @@
           </h2>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
           <!-- Report 1: Executive Overview -->
           <div
             class="p-5 rounded-2xl border-2 transition-all cursor-pointer bg-primary/10 border-primary shadow-md relative overflow-hidden group"
@@ -67,14 +67,14 @@
                 📊
               </div>
               <span class="px-2.5 py-1 rounded-full bg-primary/20 text-primary font-black text-[11px]">
-                التقرير النشط حالياً ⚡
+                التقرير النشط ⚡
               </span>
             </div>
             <h3 class="mt-4 font-black text-slate-900 dark:text-white text-base">
-              1. التقرير التنفيذي الشامل للزيارات
+              1. التقرير الشامل العام
             </h3>
             <p class="mt-1 text-xs font-bold text-slate-600 dark:text-white/70 leading-relaxed">
-              عرض المؤشرات العامة، إجمالي الزيارات الميدانية، ومتابعة سجلات كل استشاري وموقع مع التصدير.
+              عرض المؤشرات العامة، إجمالي الزيارات، ومتابعة سجلات كل استشاري وموقع.
             </p>
           </div>
 
@@ -88,18 +88,39 @@
                 🏢
               </div>
               <span class="px-2.5 py-1 rounded-full bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 font-black text-[11px] group-hover:bg-indigo-500 group-hover:text-white transition-all">
-                فتح التقرير ⬅️
+                فتح ⬅️
               </span>
             </div>
             <h3 class="mt-4 font-black text-slate-900 dark:text-white text-base group-hover:text-indigo-500 transition-colors">
-              2. تقرير الأماكن والمواقع الميدانية
+              2. تقرير المواقع الميدانية
             </h3>
             <p class="mt-1 text-xs font-bold text-slate-500 dark:text-white/60 leading-relaxed">
-              عرض قائمة المواقع خلال فترة زمنية، عدد الاستشاريين الزائرين لكل مكان، والمهام اليومية والإضافية.
+              عرض المواقع المزارة، الاستشاريين الزائرين، والمهام المنفذة.
             </p>
           </Link>
 
-          <!-- Report 3: Specific Site Task Breakdown Report -->
+          <!-- Report 3: Consultants Performance Report -->
+          <Link
+            :href="route('admin.reports.consultants')"
+            class="p-5 rounded-2xl border border-slate-200/80 dark:border-white/10 transition-all cursor-pointer bg-white/60 dark:bg-white/5 hover:border-emerald-500/50 hover:shadow-lg relative overflow-hidden group"
+          >
+            <div class="flex items-start justify-between">
+              <div class="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center font-black text-lg">
+                👨‍💼
+              </div>
+              <span class="px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-black text-[11px] group-hover:bg-emerald-500 group-hover:text-white transition-all">
+                فتح ⬅️
+              </span>
+            </div>
+            <h3 class="mt-4 font-black text-slate-900 dark:text-white text-base group-hover:text-emerald-500 transition-colors">
+              3. تقرير الاستشاريين والتحليل
+            </h3>
+            <p class="mt-1 text-xs font-bold text-slate-500 dark:text-white/60 leading-relaxed">
+              أداء الاستشاريين، المواقع المزارة، والتحليل المخصص حسب الموقع أو المهمة.
+            </p>
+          </Link>
+
+          <!-- Report 4: Specific Site Task Breakdown Report -->
           <div
             @click="openSiteSelectorModal"
             class="p-5 rounded-2xl border border-slate-200/80 dark:border-white/10 transition-all cursor-pointer bg-white/60 dark:bg-white/5 hover:border-amber-500/50 hover:shadow-lg relative overflow-hidden group"
@@ -109,14 +130,14 @@
                 🔍
               </div>
               <span class="px-2.5 py-1 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 font-black text-[11px] group-hover:bg-amber-500 group-hover:text-white transition-all">
-                اختر موقعاً ⬅️
+                اختر ⬅️
               </span>
             </div>
             <h3 class="mt-4 font-black text-slate-900 dark:text-white text-base group-hover:text-amber-500 transition-colors">
-              3. تقرير تكرار المهام لموقع معين
+              4. تكرار المهام لموقع معين
             </h3>
             <p class="mt-1 text-xs font-bold text-slate-500 dark:text-white/60 leading-relaxed">
-              تحديد مكان محدد لعرض المهام المنفذة عليه، كم مرة تكررت كل مهمة وعدد وأسماء الاستشاريين المنفذين.
+              مكان محدد لعرض تكرار كل مهمة وعدد وأسماء الاستشاريين.
             </p>
           </div>
         </div>

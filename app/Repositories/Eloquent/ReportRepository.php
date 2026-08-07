@@ -417,4 +417,314 @@ class ReportRepository implements ReportRepositoryInterface
             'tasks_breakdown' => $breakdown,
         ];
     }
+
+    /**
+     * Get consultants performance aggregated report.
+     */
+    public function getConsultantsPerformanceReport(array $filters = []): array
+    {
+        $consultantsQuery = Consultant::query();
+
+        if (!empty($filters['consultant_id'])) {
+            $consultantsQuery->where('id', $filters['consultant_id']);
+        }
+
+        $consultants = $consultantsQuery->get();
+        $results = [];
+
+        foreach ($consultants as $c) {
+            $visitQuery = SiteVisit::whereHas('dailyRecord', function ($q) use ($c) {
+                $q->where('consultant_id', $c->id);
+            })->with(['site', 'taskResponses.taskDefinition']);
+
+            if (!empty($filters['date_from'])) {
+                $visitQuery->whereHas('dailyRecord', function ($q) use ($filters) {
+                    $q->whereDate('work_date', '>=', $filters['date_from']);
+                });
+            }
+            if (!empty($filters['date_to'])) {
+                $visitQuery->whereHas('dailyRecord', function ($q) use ($filters) {
+                    $q->whereDate('work_date', '<=', $filters['date_to']);
+                });
+            }
+
+            $visits = $visitQuery->get();
+
+            $sitesSet = [];
+            $dailyTasksExecutions = 0;
+            $onDemandTasksExecutions = 0;
+
+            foreach ($visits as $v) {
+                if ($v->site_id) {
+                    $sitesSet[$v->site_id] = true;
+                }
+
+                foreach ($v->taskResponses as $resp) {
+                    if ($resp->status !== 'submitted' && is_null($resp->completed_at)) {
+                        continue;
+                    }
+                    $taskDef = $resp->taskDefinition;
+                    $taskTypeVal = $taskDef?->task_type;
+                    $typeStr = is_object($taskTypeVal) ? $taskTypeVal->value : (string) $taskTypeVal;
+
+                    if ($typeStr === 'on_demand') {
+                        $onDemandTasksExecutions++;
+                    } else {
+                        $dailyTasksExecutions++;
+                    }
+                }
+            }
+
+            $results[] = [
+                'consultant_id'              => $c->id,
+                'consultant_name'            => $c->full_name,
+                'employee_number'            => $c->employee_number,
+                'specialization'             => $c->specialization ?? 'استشاري ميداني',
+                'phone'                      => $c->phone,
+                'visited_sites_count'        => count($sitesSet),
+                'total_visits_count'         => $visits->count(),
+                'daily_tasks_executions'     => $dailyTasksExecutions,
+                'on_demand_tasks_executions' => $onDemandTasksExecutions,
+            ];
+        }
+
+        return $results;
+    }
+
+    /**
+     * Get site breakdown for a specific consultant.
+     */
+    public function getConsultantSitesBreakdown(int $consultantId, array $filters = []): array
+    {
+        $consultant = Consultant::find($consultantId);
+        if (!$consultant) {
+            return [
+                'consultant' => null,
+                'summary'    => null,
+                'sites'      => [],
+            ];
+        }
+
+        $visitQuery = SiteVisit::whereHas('dailyRecord', function ($q) use ($consultantId) {
+            $q->where('consultant_id', $consultantId);
+        })->with(['site', 'taskResponses.taskDefinition']);
+
+        if (!empty($filters['date_from'])) {
+            $visitQuery->whereHas('dailyRecord', function ($q) use ($filters) {
+                $q->whereDate('work_date', '>=', $filters['date_from']);
+            });
+        }
+        if (!empty($filters['date_to'])) {
+            $visitQuery->whereHas('dailyRecord', function ($q) use ($filters) {
+                $q->whereDate('work_date', '<=', $filters['date_to']);
+            });
+        }
+
+        $visits = $visitQuery->get();
+
+        $sitesMap = [];
+        $totalDailyTasksExecutions = 0;
+        $totalOnDemandTasksExecutions = 0;
+
+        foreach ($visits as $v) {
+            $site = $v->site;
+            if (!$site) continue;
+
+            $workDate = $v->dailyRecord->work_date ?? null;
+            if ($workDate) {
+                $workDate = \Carbon\Carbon::parse($workDate)->format('Y-m-d');
+            }
+
+            $siteId = $site->id;
+            if (!isset($sitesMap[$siteId])) {
+                $sitesMap[$siteId] = [
+                    'site_id'                    => $siteId,
+                    'site_name'                  => $site->name,
+                    'site_code'                  => $site->code,
+                    'site_city'                  => $site->city,
+                    'visits_count'               => 0,
+                    'daily_tasks_executions'     => 0,
+                    'on_demand_tasks_executions' => 0,
+                    'total_tasks_count'          => 0,
+                    'tasks_map'                  => [],
+                ];
+            }
+
+            $sitesMap[$siteId]['visits_count']++;
+
+            foreach ($v->taskResponses as $resp) {
+                if ($resp->status !== 'submitted' && is_null($resp->completed_at)) {
+                    continue;
+                }
+
+                $taskDefId = $resp->task_definition_id ?? ('custom_' . $resp->id);
+                $taskDef = $resp->taskDefinition;
+                $title = $taskDef->title ?? $resp->notes ?? 'مهمة ميدانية';
+                $taskTypeVal = $taskDef?->task_type;
+                $typeStr = is_object($taskTypeVal) ? $taskTypeVal->value : (string) $taskTypeVal;
+                $isOndemand = ($typeStr === 'on_demand');
+
+                if ($isOndemand) {
+                    $sitesMap[$siteId]['on_demand_tasks_executions']++;
+                    $totalOnDemandTasksExecutions++;
+                } else {
+                    $sitesMap[$siteId]['daily_tasks_executions']++;
+                    $totalDailyTasksExecutions++;
+                }
+                $sitesMap[$siteId]['total_tasks_count']++;
+
+                if (!isset($sitesMap[$siteId]['tasks_map'][$taskDefId])) {
+                    $sitesMap[$siteId]['tasks_map'][$taskDefId] = [
+                        'task_id'          => (string) $taskDefId,
+                        'title'            => $title,
+                        'task_type'        => $isOndemand ? 'إضافية' : 'يومية',
+                        'execution_count'  => 0,
+                        'last_executed_at' => $workDate,
+                    ];
+                }
+
+                $sitesMap[$siteId]['tasks_map'][$taskDefId]['execution_count']++;
+                if ($workDate && (!$sitesMap[$siteId]['tasks_map'][$taskDefId]['last_executed_at'] || $workDate > $sitesMap[$siteId]['tasks_map'][$taskDefId]['last_executed_at'])) {
+                    $sitesMap[$siteId]['tasks_map'][$taskDefId]['last_executed_at'] = $workDate;
+                }
+            }
+        }
+
+        $sitesList = [];
+        foreach ($sitesMap as $siteItem) {
+            $siteItem['tasks_breakdown'] = array_values($siteItem['tasks_map']);
+            unset($siteItem['tasks_map']);
+            $sitesList[] = $siteItem;
+        }
+
+        return [
+            'consultant' => [
+                'id'              => $consultant->id,
+                'full_name'       => $consultant->full_name,
+                'employee_number' => $consultant->employee_number,
+                'specialization'  => $consultant->specialization ?? 'استشاري ميداني',
+                'phone'           => $consultant->phone,
+            ],
+            'summary'    => [
+                'total_sites'                => count($sitesMap),
+                'total_visits'               => $visits->count(),
+                'daily_tasks_executions'     => $totalDailyTasksExecutions,
+                'on_demand_tasks_executions' => $totalOnDemandTasksExecutions,
+            ],
+            'sites'      => $sitesList,
+        ];
+    }
+
+    /**
+     * Get task execution breakdown for a specific consultant across sites.
+     */
+    public function getConsultantTasksBreakdown(int $consultantId, array $filters = []): array
+    {
+        $consultant = Consultant::find($consultantId);
+        if (!$consultant) {
+            return [
+                'consultant'      => null,
+                'executed_tasks'  => [],
+                'tasks_breakdown' => [],
+            ];
+        }
+
+        $visitQuery = SiteVisit::whereHas('dailyRecord', function ($q) use ($consultantId) {
+            $q->where('consultant_id', $consultantId);
+        })->with(['site', 'dailyRecord', 'taskResponses.taskDefinition']);
+
+        if (!empty($filters['date_from'])) {
+            $visitQuery->whereHas('dailyRecord', function ($q) use ($filters) {
+                $q->whereDate('work_date', '>=', $filters['date_from']);
+            });
+        }
+        if (!empty($filters['date_to'])) {
+            $visitQuery->whereHas('dailyRecord', function ($q) use ($filters) {
+                $q->whereDate('work_date', '<=', $filters['date_to']);
+            });
+        }
+
+        $visits = $visitQuery->get();
+
+        $tasksMap = [];
+        $executedTasksDropdown = [];
+
+        foreach ($visits as $visit) {
+            $site = $visit->site;
+            if (!$site) continue;
+
+            $workDate = $visit->dailyRecord->work_date ?? null;
+            if ($workDate) {
+                $workDate = \Carbon\Carbon::parse($workDate)->format('Y-m-d');
+            }
+
+            foreach ($visit->taskResponses as $resp) {
+                if ($resp->status !== 'submitted' && is_null($resp->completed_at)) {
+                    continue;
+                }
+
+                $taskDefId = $resp->task_definition_id ?? ('custom_' . $resp->id);
+                $taskDef = $resp->taskDefinition;
+                $title = $taskDef->title ?? $resp->notes ?? 'مهمة ميدانية';
+                $taskTypeVal = $taskDef?->task_type;
+                $typeStr = is_object($taskTypeVal) ? $taskTypeVal->value : (string) $taskTypeVal;
+                $isOndemand = ($typeStr === 'on_demand');
+
+                if (!isset($executedTasksDropdown[$taskDefId])) {
+                    $executedTasksDropdown[$taskDefId] = [
+                        'id'        => (string) $taskDefId,
+                        'title'     => $title,
+                        'task_type' => $isOndemand ? 'إضافية' : 'يومية',
+                    ];
+                }
+
+                if (!isset($tasksMap[$taskDefId])) {
+                    $tasksMap[$taskDefId] = [
+                        'task_id'          => (string) $taskDefId,
+                        'title'            => $title,
+                        'task_type'        => $isOndemand ? 'إضافية' : 'يومية',
+                        'total_executions' => 0,
+                        'sites'            => [],
+                    ];
+                }
+
+                $tasksMap[$taskDefId]['total_executions']++;
+
+                $siteId = $site->id;
+                if (!isset($tasksMap[$taskDefId]['sites'][$siteId])) {
+                    $tasksMap[$taskDefId]['sites'][$siteId] = [
+                        'site_id'         => $siteId,
+                        'site_name'       => $site->name,
+                        'site_code'       => $site->code,
+                        'site_city'       => $site->city,
+                        'execution_count' => 0,
+                        'last_executed'   => $workDate,
+                    ];
+                }
+
+                $tasksMap[$taskDefId]['sites'][$siteId]['execution_count']++;
+                if ($workDate && (!$tasksMap[$taskDefId]['sites'][$siteId]['last_executed'] || $workDate > $tasksMap[$taskDefId]['sites'][$siteId]['last_executed'])) {
+                    $tasksMap[$taskDefId]['sites'][$siteId]['last_executed'] = $workDate;
+                }
+            }
+        }
+
+        $breakdownList = [];
+        foreach ($tasksMap as $taskItem) {
+            $taskItem['sites'] = array_values($taskItem['sites']);
+            $breakdownList[] = $taskItem;
+        }
+
+        return [
+            'consultant'      => [
+                'id'              => $consultant->id,
+                'full_name'       => $consultant->full_name,
+                'employee_number' => $consultant->employee_number,
+                'specialization'  => $consultant->specialization ?? 'استشاري ميداني',
+                'phone'           => $consultant->phone,
+            ],
+            'executed_tasks'  => array_values($executedTasksDropdown),
+            'tasks_breakdown' => $breakdownList,
+        ];
+    }
 }

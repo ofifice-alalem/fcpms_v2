@@ -25,18 +25,24 @@
       </SpatialCard>
 
       <!-- Reports Navigation Tabs -->
-      <div class="flex items-center gap-2 p-1.5 bg-slate-100 dark:bg-white/5 rounded-2xl border border-slate-200/80 dark:border-white/10">
+      <div class="flex items-center gap-2 p-1.5 bg-slate-100 dark:bg-white/5 rounded-2xl border border-slate-200/80 dark:border-white/10 overflow-x-auto">
         <Link
           :href="route('admin.reports.index')"
-          class="flex items-center gap-2 px-4 py-2.5 rounded-xl font-black text-xs text-slate-600 dark:text-white/70 hover:text-slate-900 dark:hover:text-white transition-all"
+          class="flex items-center gap-2 px-4 py-2.5 rounded-xl font-black text-xs text-slate-600 dark:text-white/70 hover:text-slate-900 dark:hover:text-white transition-all shrink-0"
         >
           <span>📊 التقرير الشامل العام</span>
         </Link>
         <Link
           :href="route('admin.reports.sites')"
-          class="flex items-center gap-2 px-4 py-2.5 rounded-xl font-black text-xs transition-all bg-primary text-white shadow-sm"
+          class="flex items-center gap-2 px-4 py-2.5 rounded-xl font-black text-xs transition-all bg-primary text-white shadow-sm shrink-0"
         >
           <span>🏢 تقارير إحصائيات المواقع والأماكن</span>
+        </Link>
+        <Link
+          :href="route('admin.reports.consultants')"
+          class="flex items-center gap-2 px-4 py-2.5 rounded-xl font-black text-xs text-slate-600 dark:text-white/70 hover:text-slate-900 dark:hover:text-white transition-all shrink-0"
+        >
+          <span>👨‍💼 تقارير إحصائيات الاستشاريين</span>
         </Link>
       </div>
 

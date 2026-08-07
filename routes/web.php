@@ -80,6 +80,9 @@ Route::middleware('auth')->group(function () {
         Route::get('/reports', [\App\Http\Controllers\Admin\AdminReportController::class, 'index'])->name('reports.index');
         Route::get('/reports/sites', [\App\Http\Controllers\Admin\AdminReportController::class, 'sitesReport'])->name('reports.sites');
         Route::get('/reports/sites/{site}', [\App\Http\Controllers\Admin\AdminReportController::class, 'siteTaskBreakdown'])->name('reports.site-breakdown');
+        Route::get('/reports/consultants', [\App\Http\Controllers\Admin\AdminReportController::class, 'consultantsReport'])->name('reports.consultants');
+        Route::get('/reports/consultants/{consultant}/sites', [\App\Http\Controllers\Admin\AdminReportController::class, 'consultantSitesBreakdown'])->name('reports.consultant-sites');
+        Route::get('/reports/consultants/{consultant}/tasks', [\App\Http\Controllers\Admin\AdminReportController::class, 'consultantTasksBreakdown'])->name('reports.consultant-tasks');
         Route::get('/reports/visit-detail/{visit}', [\App\Http\Controllers\Admin\AdminReportController::class, 'showVisitDetail'])->name('reports.visit-detail');
         Route::get('/reports/export', [\App\Http\Controllers\Admin\AdminReportController::class, 'export'])->name('reports.export');
     });

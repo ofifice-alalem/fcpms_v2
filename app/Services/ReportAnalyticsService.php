@@ -83,4 +83,28 @@ class ReportAnalyticsService
     {
         return $this->reportRepo->getSpecificSiteTaskBreakdown($siteId, $filters);
     }
+
+    /**
+     * Get consultants performance aggregated report.
+     */
+    public function getConsultantsPerformanceData(array $filters = []): array
+    {
+        return $this->reportRepo->getConsultantsPerformanceReport($filters);
+    }
+
+    /**
+     * Get site breakdown for a specific consultant.
+     */
+    public function getConsultantSitesData(int $consultantId, array $filters = []): array
+    {
+        return $this->reportRepo->getConsultantSitesBreakdown($consultantId, $filters);
+    }
+
+    /**
+     * Get task execution breakdown for a specific consultant across sites.
+     */
+    public function getConsultantTasksData(int $consultantId, array $filters = []): array
+    {
+        return $this->reportRepo->getConsultantTasksBreakdown($consultantId, $filters);
+    }
 }

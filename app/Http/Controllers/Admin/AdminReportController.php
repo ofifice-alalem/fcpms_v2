@@ -139,4 +139,58 @@ class AdminReportController extends Controller
             'sites'         => $sitesList,
         ]);
     }
+
+    /**
+     * Display Consultants aggregated performance report.
+     */
+    public function consultantsReport(GenerateReportRequest $request): InertiaResponse
+    {
+        $filters = $request->validated();
+        $consultantsReport = $this->reportService->getConsultantsPerformanceData($filters);
+
+        $consultantsList = $this->consultantRepo->all(['id', 'full_name', 'employee_number'])
+            ->map(fn($c) => [
+                'id'              => $c->id,
+                'full_name'       => $c->full_name,
+                'employee_number' => $c->employee_number,
+            ]);
+
+        return Inertia::render('Admin/Reports/ConsultantsReport', [
+            'consultantsReport' => $consultantsReport,
+            'filters'           => $filters,
+            'consultants'       => $consultantsList,
+        ]);
+    }
+
+    /**
+     * Display performance breakdown per site for a specific consultant.
+     */
+    public function consultantSitesBreakdown(int $consultant, GenerateReportRequest $request): InertiaResponse
+    {
+        $filters = $request->validated();
+        $breakdownData = $this->reportService->getConsultantSitesData($consultant, $filters);
+
+        return Inertia::render('Admin/Reports/ConsultantSitesBreakdown', [
+            'consultant' => $breakdownData['consultant'],
+            'summary'    => $breakdownData['summary'],
+            'sites'      => $breakdownData['sites'],
+            'filters'    => $filters,
+        ]);
+    }
+
+    /**
+     * Display task execution breakdown across sites for a specific consultant.
+     */
+    public function consultantTasksBreakdown(int $consultant, GenerateReportRequest $request): InertiaResponse
+    {
+        $filters = $request->validated();
+        $breakdownData = $this->reportService->getConsultantTasksData($consultant, $filters);
+
+        return Inertia::render('Admin/Reports/ConsultantTasksBreakdown', [
+            'consultant'     => $breakdownData['consultant'],
+            'executedTasks'  => $breakdownData['executed_tasks'],
+            'tasksBreakdown' => $breakdownData['tasks_breakdown'],
+            'filters'        => $filters,
+        ]);
+    }
 }
