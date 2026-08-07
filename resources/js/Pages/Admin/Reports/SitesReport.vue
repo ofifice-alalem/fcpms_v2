@@ -111,9 +111,9 @@
                 <th class="p-4">المدينة</th>
                 <th class="p-4 text-center">عدد الاستشاريين الزائرين</th>
                 <th class="p-4 text-center">إجمالي الزيارات</th>
-                <th class="p-4 text-center">المهام القياسية المنفذة</th>
+                <th class="p-4 text-center">المهام اليومية المنفذة</th>
                 <th class="p-4 text-center">المهام الإضافية (عند الحاجة)</th>
-                <th class="p-4 text-center w-36">تقرير تفاصيل الموقع</th>
+                <th class="p-4 text-center w-44">تقرير تفاصيل الموقع</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-slate-100 dark:divide-white/5 text-sm font-bold">
@@ -134,25 +134,50 @@
                   {{ site.site_city }}
                 </td>
                 <td class="p-4 text-center">
-                  <span class="px-3 py-1 rounded-xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 font-mono text-sm font-black">
-                    👨‍💼 {{ site.consultants_count }} استشاري
+                  <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-mono text-xs font-black border border-emerald-500/20">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                    </svg>
+                    <span>{{ site.consultants_count }} استشاري</span>
                   </span>
                 </td>
-                <td class="p-4 text-center font-mono text-sm font-black text-slate-900 dark:text-white">
-                  📍 {{ site.total_visits_count }} زيارة
+                <td class="p-4 text-center">
+                  <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 font-mono text-xs font-black border border-indigo-500/20">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                    <span>{{ site.total_visits_count }} زيارة</span>
+                  </span>
                 </td>
-                <td class="p-4 text-center font-mono text-sm text-emerald-600 dark:text-emerald-400">
-                  ✅ {{ site.regular_tasks_count }} مهمة
+                <td class="p-4 text-center">
+                  <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400 font-mono text-xs font-black border border-blue-500/20">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                    </svg>
+                    <span>{{ site.regular_tasks_count }} مهمة</span>
+                  </span>
                 </td>
-                <td class="p-4 text-center font-mono text-sm text-amber-600 dark:text-amber-400">
-                  {{ site.on_demand_tasks_count }} مهمة
+                <td class="p-4 text-center">
+                  <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 font-mono text-xs font-black border border-amber-500/20">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                    <span>{{ site.on_demand_tasks_count }} مهمة</span>
+                  </span>
                 </td>
                 <td class="p-4 text-center">
                   <Link
                     :href="route('admin.reports.site-breakdown', site.site_id)"
-                    class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-primary/10 hover:bg-primary hover:text-white text-primary text-xs font-black transition-all"
+                    class="inline-flex items-center justify-center gap-2 px-3.5 py-2 rounded-xl bg-gradient-to-r from-primary/15 to-indigo-500/15 hover:from-primary hover:to-indigo-600 text-primary hover:text-white border border-primary/20 hover:border-transparent text-xs font-black transition-all shadow-2xs hover:shadow-md group"
                   >
-                    <span>تحليل المهام والتكرار 🔍</span>
+                    <svg class="w-4 h-4 text-primary group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 002 2h2a2 2 0 002-2z" />
+                    </svg>
+                    <span>تحليل المهام والتكرار</span>
+                    <svg class="w-3.5 h-3.5 text-primary group-hover:text-white transform group-hover:-translate-x-0.5 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                    </svg>
                   </Link>
                 </td>
               </tr>

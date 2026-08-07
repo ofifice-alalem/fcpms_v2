@@ -29,9 +29,12 @@
 
           <Link
             :href="route('admin.reports.sites')"
-            class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-100 dark:bg-white/10 text-slate-700 dark:text-white hover:bg-slate-200 transition-all font-black text-xs"
+            class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-100 dark:bg-white/10 text-slate-700 dark:text-white hover:bg-slate-200 dark:hover:bg-white/20 transition-all font-black text-xs group"
           >
-            <span>⬅️ العودة لتقارير الأماكن والمواقع</span>
+            <svg class="w-4 h-4 text-slate-500 group-hover:text-slate-700 dark:text-white/60 dark:group-hover:text-white transform group-hover:translate-x-0.5 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+            </svg>
+            <span>العودة لتقارير الأماكن والمواقع</span>
           </Link>
         </div>
       </SpatialCard>
@@ -317,12 +320,20 @@
                   </span>
                 </td>
                 <td class="p-4 text-center">
-                  <span class="px-3.5 py-1 rounded-xl bg-primary/10 text-primary font-mono text-base font-black">
-                    🔄 {{ task.execution_count }} مرة
+                  <span class="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 font-mono text-sm font-black border border-indigo-500/20">
+                    <svg class="w-4 h-4 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
+                    <span>{{ task.execution_count }} مرة</span>
                   </span>
                 </td>
-                <td class="p-4 text-center font-mono text-sm font-black text-slate-700 dark:text-white/90">
-                  👥 {{ task.consultants_count }} استشاري
+                <td class="p-4 text-center">
+                  <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-mono text-xs font-black border border-emerald-500/20">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                    </svg>
+                    <span>{{ task.consultants_count }} استشاري</span>
+                  </span>
                 </td>
                 <td class="p-4 text-center">
                   <div class="flex items-center justify-center">
@@ -330,13 +341,13 @@
                       type="button"
                       @click="openConsultantsDrawer(task)"
                       title="عرض قائمة الاستشاريين"
-                      style="border-radius: 50%;"
-                      class="w-9 h-9 border border-indigo-500/40 text-indigo-600 dark:text-indigo-400 bg-indigo-500/10 hover:bg-indigo-600 hover:text-white flex items-center justify-center transition-all cursor-pointer shadow-xs"
+                      class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-indigo-500/10 hover:bg-indigo-600 text-indigo-600 hover:text-white border border-indigo-500/30 text-xs font-black transition-all cursor-pointer shadow-2xs hover:shadow-md group"
                     >
-                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg class="w-4 h-4 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
                       </svg>
+                      <span>عرض التفاصيل</span>
                     </button>
                   </div>
                 </td>
