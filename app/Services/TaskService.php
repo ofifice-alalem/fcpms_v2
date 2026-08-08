@@ -26,6 +26,7 @@ class TaskService
     public function createTask(array $data): TaskDefinition
     {
         $task = $this->taskRepo->createFullTask($data);
+        $task->load(['components.options', 'siteAssignments.site', 'consultantAssignments.consultant']);
 
         ActivityLogger::log(
             'create_task',
@@ -41,10 +42,10 @@ class TaskService
 
     public function updateTask(TaskDefinition $task, array $data): TaskDefinition
     {
-        $task->load(['components.options', 'siteAssignments', 'consultantAssignments']);
+        $task->load(['components.options', 'siteAssignments.site', 'consultantAssignments.consultant']);
         $oldValues = $task->toArray();
         $updatedTask = $this->taskRepo->updateFullTask($task, $data);
-        $updatedTask->load(['components.options', 'siteAssignments', 'consultantAssignments']);
+        $updatedTask->load(['components.options', 'siteAssignments.site', 'consultantAssignments.consultant']);
 
         ActivityLogger::log(
             'update_task',

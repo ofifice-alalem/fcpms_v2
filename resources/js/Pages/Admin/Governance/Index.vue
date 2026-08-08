@@ -437,7 +437,7 @@
                           <span>❌</span>
                           <span>القيمة القديمة (السابقة):</span>
                         </span>
-                        <span class="font-mono font-bold text-slate-900 dark:text-white block break-words leading-relaxed">
+                        <span class="font-['Tajawal',sans-serif] font-bold text-slate-900 dark:text-white block break-words leading-relaxed whitespace-pre-line">
                           {{ formatValue(item.oldVal) }}
                         </span>
                       </div>
@@ -448,7 +448,7 @@
                           <span>✅</span>
                           <span>القيمة الجديدة (المحدثة):</span>
                         </span>
-                        <span class="font-mono font-bold text-slate-900 dark:text-white block break-words leading-relaxed">
+                        <span class="font-['Tajawal',sans-serif] font-bold text-slate-900 dark:text-white block break-words leading-relaxed whitespace-pre-line">
                           {{ formatValue(item.newVal) }}
                         </span>
                       </div>
@@ -783,6 +783,9 @@ const keyTranslations = {
   department: 'القسم / الإدارة',
   consultant_id: 'رقم الاستشاري الميداني',
   consultant: '👷 الاستشاري الميداني',
+  components: '🧩 حقول عناصر المهمة',
+  site_assignments: '📍 المواقع الميدانية المسندة',
+  consultant_assignments: '👷 الاستشاريين المسندين',
   ip: 'عنوان IP',
   name: 'الاسم',
   name_ar: 'الاسم بالعربية',
@@ -855,6 +858,25 @@ function formatValue(val) {
   if (Array.isArray(parsed) && parsed.length > 0 && parsed[0] && parsed[0].day_of_week !== undefined) {
     const formattedDays = formatDaysSchedule(parsed);
     if (formattedDays) return formattedDays;
+  }
+
+  // Format arrays of objects (e.g. task components, site assignments)
+  if (Array.isArray(parsed)) {
+    if (parsed.length === 0) return 'لا يوجد (فارغ)';
+    if (parsed[0] && parsed[0].label) {
+      return parsed.map(item => `• ${item.label}`).join('\n');
+    }
+    if (parsed[0] && typeof parsed[0] === 'object') {
+      const names = parsed.map(item => {
+        if (item.site && item.site.name) return `• ${item.site.name}`;
+        if (item.consultant && item.consultant.full_name) return `• ${item.consultant.full_name}`;
+        const nameVal = item.name || item.full_name || item.name_ar || item.title;
+        if (nameVal) return `• ${nameVal}`;
+        if (item.site_id) return `• موقع رقم #${item.site_id}`;
+        return null;
+      }).filter(Boolean);
+      if (names.length > 0) return names.join('\n');
+    }
   }
 
   // Format model objects cleanly

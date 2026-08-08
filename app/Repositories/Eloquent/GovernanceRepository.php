@@ -209,6 +209,31 @@ class GovernanceRepository implements GovernanceRepositoryInterface
             }
         }
 
+        if (($entityType === 'TaskDefinition' || str_contains($log->action, 'task')) && $entityId) {
+            if (!empty($newValues['site_assignments']) && is_array($newValues['site_assignments'])) {
+                $newValues['site_assignments'] = collect($newValues['site_assignments'])->map(function ($item) {
+                    if (is_array($item) && isset($item['site_id']) && !isset($item['site'])) {
+                        $site = \App\Models\Site::find($item['site_id']);
+                        if ($site) {
+                            $item['site'] = ['name' => $site->name];
+                        }
+                    }
+                    return $item;
+                })->toArray();
+            }
+            if (!empty($oldValues['site_assignments']) && is_array($oldValues['site_assignments'])) {
+                $oldValues['site_assignments'] = collect($oldValues['site_assignments'])->map(function ($item) {
+                    if (is_array($item) && isset($item['site_id']) && !isset($item['site'])) {
+                        $site = \App\Models\Site::find($item['site_id']);
+                        if ($site) {
+                            $item['site'] = ['name' => $site->name];
+                        }
+                    }
+                    return $item;
+                })->toArray();
+            }
+        }
+
         return [
             'id' => $log->id,
             'user_id' => $log->user_id,
