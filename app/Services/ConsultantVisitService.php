@@ -101,14 +101,22 @@ class ConsultantVisitService
         }
 
         $visit = $this->siteVisitRepo->openVisit($dailyRecord, $siteId, $notes);
+        $site = \App\Models\Site::find($siteId);
+        $siteName = $site ? $site->name : "موقع #{$siteId}";
 
         \App\Helpers\ActivityLogger::log(
             'open_site_visit',
             'SiteVisit',
             $visit->id,
-            "تم فتح زيارة ميدانية جديدة في موقع: " . ($visit->site ? $visit->site->name : $siteId),
-            null,
-            ['site_visit_id' => $visit->id, 'site_id' => $siteId]
+            "تم فتح زيارة ميدانية جديدة في موقع: {$siteName}",
+            ['status' => 'pending', 'site_name' => $siteName],
+            [
+                'site_visit_id' => $visit->id,
+                'site_id' => $siteId,
+                'site_name' => $siteName,
+                'status' => $visit->status ?? 'in_progress',
+                'notes' => $notes
+            ]
         );
 
         return $visit;
@@ -126,15 +134,56 @@ class ConsultantVisitService
 
     public function saveTaskResponses(SiteVisit $siteVisit, array $responsesData, array $attachmentsData = []): SiteVisit
     {
+        $siteName = $siteVisit->site ? $siteVisit->site->name : "موقع #{$siteVisit->site_id}";
+        $oldStatus = $siteVisit->getOriginal('status') ?? 'in_progress';
+        $oldResponsesCount = \App\Models\TaskResponse::where('site_visit_id', $siteVisit->id)->count();
+        $oldResponsesSummary = \App\Models\TaskResponse::where('site_visit_id', $siteVisit->id)
+            ->with(['taskDefinition', 'values.component'])
+            ->get()
+            ->map(function ($r) {
+                $taskTitle = $r->taskDefinition ? $r->taskDefinition->title : 'مهمة ميدانية';
+                if ($r->values && $r->values->isNotEmpty()) {
+                    $vals = $r->values->map(fn($v) => ($v->component ? $v->component->label : 'إدخال') . ': ' . ($v->value ?? '—'))->implode('، ');
+                    return "{$taskTitle} ({$vals})";
+                }
+                return "{$taskTitle}: تم الإنجاز والتنفيذ";
+            })
+            ->implode(' | ');
+
         $visit = $this->siteVisitRepo->saveTaskResponses($siteVisit, $responsesData, $attachmentsData);
+
+        $newResponsesSummary = \App\Models\TaskResponse::where('site_visit_id', $visit->id)
+            ->with(['taskDefinition', 'values.component'])
+            ->get()
+            ->map(function ($r) {
+                $taskTitle = $r->taskDefinition ? $r->taskDefinition->title : 'مهمة ميدانية';
+                if ($r->values && $r->values->isNotEmpty()) {
+                    $vals = $r->values->map(fn($v) => ($v->component ? $v->component->label : 'إدخال') . ': ' . ($v->value ?? '—'))->implode('، ');
+                    return "{$taskTitle} ({$vals})";
+                }
+                return "{$taskTitle}: تم الإنجاز والتنفيذ";
+            })
+            ->implode(' | ');
 
         \App\Helpers\ActivityLogger::log(
             'execute_site_visit',
             'SiteVisit',
             $visit->id,
-            "تم تنفيذ واستكمال الزيارة الميدانية بحالة: {$visit->status}",
-            null,
-            ['site_visit_id' => $visit->id, 'status' => $visit->status, 'responses_count' => count($responsesData)]
+            "تم تنفيذ واستكمال الزيارة الميدانية في موقع: {$siteName} (حالة: {$visit->status})",
+            [
+                'site_id' => $visit->site_id,
+                'site_name' => $siteName,
+                'status' => $oldStatus,
+                'previous_responses_count' => $oldResponsesCount,
+                'previous_tasks_details' => $oldResponsesSummary ?: '// لا توجد مهام منفذة سابقة'
+            ],
+            [
+                'site_id' => $visit->site_id,
+                'site_name' => $siteName,
+                'status' => $visit->status,
+                'submitted_responses_count' => count($responsesData),
+                'tasks_details' => $newResponsesSummary ?: 'تم تسجيل الاستجابات والمرفقات بنجاح'
+            ]
         );
 
         return $visit;

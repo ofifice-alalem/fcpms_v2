@@ -209,11 +209,11 @@
                 <tr class="bg-slate-100 dark:bg-white/5 border-b border-black/10 dark:border-white/10 text-slate-700 dark:text-white/80 font-black">
                   <th class="p-4">#</th>
                   <th class="p-4">المستخدم المنفذ</th>
-                  <th class="p-4">الإجراء</th>
-                  <th class="p-4">الكيان المستهدف</th>
+                  <th class="p-4">نوع الإجراء الإداري</th>
+                  <th class="p-4">الكيان/العنصر المستهدف</th>
                   <th class="p-4">عنوان IP</th>
                   <th class="p-4">التاريخ والوقت</th>
-                  <th class="p-4 text-center">التفاصيل</th>
+                  <th class="p-4 text-center">التفاصيل والبيانات</th>
                 </tr>
               </thead>
               <tbody class="divide-y divide-black/5 dark:divide-white/5">
@@ -224,25 +224,33 @@
                 >
                   <td class="p-4 font-mono font-bold text-slate-400">#{{ String(index + 1).padStart(2, '0') }}</td>
                   <td class="p-4">
-                    <div class="font-black text-slate-900 dark:text-white">{{ log.user_name }}</div>
-                    <div class="text-[10px] text-slate-400 font-mono">{{ log.user_email || 'نظام' }}</div>
+                    <div class="font-black text-slate-900 dark:text-white flex items-center gap-1.5">
+                      <span>👤</span>
+                      <span>{{ log.user_name }}</span>
+                    </div>
+                    <div class="text-[10px] text-slate-400 font-mono pr-5">{{ log.user_email || 'نظام آلي' }}</div>
                   </td>
                   <td class="p-4">
-                    <span class="px-2.5 py-1 rounded-lg text-[10px] font-black uppercase bg-primary/10 text-primary border border-primary/20">
-                      {{ log.action }}
-                    </span>
+                    <div class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-black" :class="getActionBadgeClass(log.action)">
+                      <span>{{ formatAction(log.action).icon }}</span>
+                      <span>{{ formatAction(log.action).label }}</span>
+                    </div>
                   </td>
-                  <td class="p-4 font-bold text-slate-700 dark:text-white/80">
-                    {{ log.entity_type }} <span v-if="log.entity_id" class="font-mono text-slate-400">({{ log.entity_id }})</span>
+                  <td class="p-4">
+                    <div class="font-bold text-slate-800 dark:text-white flex items-center gap-1.5 text-xs">
+                      <span>{{ formatEntity(log.entity_type).icon }}</span>
+                      <span>{{ formatEntity(log.entity_type).label }}</span>
+                      <span v-if="log.entity_id" class="px-2 py-0.5 rounded-lg bg-slate-200/80 dark:bg-white/10 font-mono font-black text-[11px] text-slate-700 dark:text-white/90">#{{ log.entity_id }}</span>
+                    </div>
                   </td>
-                  <td class="p-4 font-mono text-slate-500 dark:text-white/60 dir-ltr text-right">{{ log.ip_address || '—' }}</td>
-                  <td class="p-4 font-mono text-slate-500 dark:text-white/60">{{ log.created_at }}</td>
+                  <td class="p-4 font-mono text-slate-500 dark:text-white/60 dir-ltr text-right text-[11px]">{{ log.ip_address || '—' }}</td>
+                  <td class="p-4 font-mono text-slate-500 dark:text-white/60 text-[11px]">{{ log.created_at }}</td>
                   <td class="p-4 text-center">
                     <button
                       @click="viewAuditLogDetails(log)"
-                      class="px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-white/10 hover:bg-primary hover:text-white text-slate-800 dark:text-white font-bold text-xs transition-all cursor-pointer border border-black/5 dark:border-white/10 flex items-center gap-1 mx-auto"
+                      class="px-3.5 py-1.5 rounded-xl bg-slate-100 dark:bg-white/10 hover:bg-primary hover:text-white text-slate-800 dark:text-white font-bold text-xs transition-all cursor-pointer border border-black/5 dark:border-white/10 flex items-center gap-1.5 mx-auto shadow-2xs"
                     >
-                      <span>استكشاف الحركة</span>
+                      <span>تفاصيل الحركة</span>
                       <span>👁️</span>
                     </button>
                   </td>
@@ -326,42 +334,138 @@
       <!-- MODAL: AUDIT LOG DETAIL VIEW -->
       <SpatialModal
         v-model:is-open="isAuditModalOpen"
-        title="تفاصيل حركة التدقيق والمقارنة البرمجية"
+        title="تفاصيل حركة التدقيق الأمني والبيانات"
         max-width="2xl"
       >
-        <div v-if="selectedAuditLog" class="space-y-5 dir-rtl py-2">
+        <div v-if="selectedAuditLog" class="space-y-6 dir-rtl py-2">
+          <!-- Action Summary Banner -->
+          <div class="flex items-center justify-between p-4 rounded-2xl bg-slate-50 dark:bg-white/5 border border-black/5 dark:border-white/10">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-xl shrink-0">
+                {{ formatAction(selectedAuditLog.action).icon }}
+              </div>
+              <div>
+                <h4 class="font-black text-sm text-slate-900 dark:text-white">
+                  {{ formatAction(selectedAuditLog.action).label }}
+                </h4>
+                <span class="text-xs text-slate-500 dark:text-white/60 font-bold flex items-center gap-1.5 mt-0.5">
+                  <span>العنصر المستهدف:</span>
+                  <span class="font-black text-slate-900 dark:text-white">{{ formatEntity(selectedAuditLog.entity_type).label }}</span>
+                  <span v-if="selectedAuditLog.entity_id" class="px-1.5 py-0.5 rounded bg-primary/10 font-mono text-primary text-[10px] font-black">#{{ selectedAuditLog.entity_id }}</span>
+                </span>
+              </div>
+            </div>
+
+            <span class="text-xs font-mono font-bold text-slate-500 dir-ltr bg-slate-200/60 dark:bg-white/10 px-3 py-1 rounded-full">
+              {{ selectedAuditLog.created_at }}
+            </span>
+          </div>
+
           <!-- Metadata grid -->
           <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 p-4 rounded-2xl bg-slate-100 dark:bg-white/5 border border-black/5 dark:border-white/10 text-xs">
             <div>
-              <span class="text-slate-400 font-bold block text-[10px]">المستخدم:</span>
-              <span class="font-black text-slate-900 dark:text-white">{{ selectedAuditLog.user_name }}</span>
+              <span class="text-slate-400 font-bold block text-[10px]">المستخدم المنفذ:</span>
+              <span class="font-black text-slate-900 dark:text-white flex items-center gap-1 mt-1">
+                <span>👤</span>
+                <span>{{ selectedAuditLog.user_name }}</span>
+              </span>
             </div>
             <div>
               <span class="text-slate-400 font-bold block text-[10px]">نوع الإجراء:</span>
-              <span class="font-mono font-black text-primary">{{ selectedAuditLog.action }}</span>
+              <span class="font-bold text-primary flex items-center gap-1 mt-1">
+                <span>{{ formatAction(selectedAuditLog.action).icon }}</span>
+                <span>{{ formatAction(selectedAuditLog.action).label }}</span>
+              </span>
             </div>
             <div>
               <span class="text-slate-400 font-bold block text-[10px]">عنوان IP:</span>
-              <span class="font-mono text-slate-700 dark:text-white/80 dir-ltr">{{ selectedAuditLog.ip_address || 'غير مسجل' }}</span>
+              <span class="font-mono text-slate-700 dark:text-white/80 dir-ltr block mt-1">{{ selectedAuditLog.ip_address || 'غير مسجل' }}</span>
             </div>
           </div>
 
           <!-- Description if exists -->
-          <div v-if="selectedAuditLog.description" class="p-3 rounded-xl bg-primary/10 border border-primary/20 text-xs font-bold text-primary">
-            ℹ️ {{ selectedAuditLog.description }}
+          <div v-if="selectedAuditLog.description" class="p-3.5 rounded-2xl bg-purple-500/10 border border-purple-500/20 text-xs font-bold text-purple-700 dark:text-purple-300 flex items-start gap-2">
+            <span class="text-base shrink-0">ℹ️</span>
+            <span class="leading-relaxed">{{ selectedAuditLog.description }}</span>
           </div>
 
-          <!-- JSON Diff Comparison -->
-          <div class="space-y-3">
-            <h4 class="font-black text-xs text-slate-900 dark:text-white">مقارنة التغييرات البرمجية (JSON Diff):</h4>
+          <!-- Human Readable Comparison vs JSON Diff -->
+          <div class="space-y-4">
+            <div class="flex items-center justify-between border-b border-black/5 dark:border-white/10 pb-2">
+              <h4 class="font-black text-xs text-slate-900 dark:text-white">مقارنة البيانات والتغييرات المسجلة:</h4>
+              <button
+                type="button"
+                @click="showRawJson = !showRawJson"
+                class="text-[11px] font-black text-primary hover:underline cursor-pointer flex items-center gap-1.5"
+              >
+                <span>{{ showRawJson ? 'عرض جدول البيانات الواضح' : 'عرض كود JSON البرمجي' }}</span>
+                <span>{{ showRawJson ? '📊' : '💻' }}</span>
+              </button>
+            </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- Unified Visual Comparison List -->
+            <div v-if="!showRawJson" class="space-y-3.5 dir-rtl">
+              <div
+                v-for="(item, idx) in getMergedDiffList(selectedAuditLog)"
+                :key="idx"
+                class="rounded-2xl border p-4 transition-all"
+                :class="item.isHeader ? 'bg-primary/10 border-primary/20 text-slate-900 dark:text-white' : 'bg-slate-50 dark:bg-white/5 border-black/5 dark:border-white/10'"
+              >
+                <!-- Site Name Header Card -->
+                <template v-if="item.isHeader">
+                  <div class="flex items-center gap-2.5 font-black text-sm text-primary">
+                    <span class="text-lg">📍</span>
+                    <span>اسم الموقع الميداني:</span>
+                    <span class="text-slate-900 dark:text-white font-extrabold text-base">{{ item.value }}</span>
+                  </div>
+                </template>
+
+                <!-- Unified Task or Field Comparison Card -->
+                <template v-else>
+                  <div class="space-y-2.5">
+                    <div class="flex items-center justify-between border-b border-black/5 dark:border-white/10 pb-1.5">
+                      <h5 class="font-black text-xs text-slate-900 dark:text-white flex items-center gap-2">
+                        <span class="w-2.5 h-2.5 rounded-full bg-primary shrink-0"></span>
+                        <span>{{ item.label }}</span>
+                      </h5>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                      <!-- Right Side: Old Value (القيم القديمة ❌) -->
+                      <div class="p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-xs space-y-1">
+                        <span class="text-[10px] font-black text-red-600 dark:text-red-400 flex items-center gap-1">
+                          <span>❌</span>
+                          <span>القيمة القديمة (السابقة):</span>
+                        </span>
+                        <span class="font-mono font-bold text-slate-900 dark:text-white block break-words leading-relaxed">
+                          {{ formatValue(item.oldVal) }}
+                        </span>
+                      </div>
+
+                      <!-- Left Side: New Value (القيم الجديدة ✅) -->
+                      <div class="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-xs space-y-1">
+                        <span class="text-[10px] font-black text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
+                          <span>✅</span>
+                          <span>القيمة الجديدة (المحدثة):</span>
+                        </span>
+                        <span class="font-mono font-bold text-slate-900 dark:text-white block break-words leading-relaxed">
+                          {{ formatValue(item.newVal) }}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </template>
+              </div>
+            </div>
+
+            <!-- Raw JSON View -->
+            <div v-else class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <!-- Old values -->
               <div class="space-y-1">
                 <span class="text-[11px] font-black text-red-500 flex items-center gap-1">
                   <span>❌ القيم القديمة (Old Values)</span>
                 </span>
-                <pre class="p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-[11px] font-mono text-slate-900 dark:text-white overflow-x-auto max-h-56 custom-scroll dir-ltr">{{ selectedAuditLog.old_values ? JSON.stringify(selectedAuditLog.old_values, null, 2) : '// لا تتوفر قيم قديمة' }}</pre>
+                <pre class="p-3.5 rounded-xl bg-red-500/10 border border-red-500/20 text-[11px] font-mono text-slate-900 dark:text-white overflow-x-auto max-h-56 custom-scroll dir-ltr">{{ selectedAuditLog.old_values ? JSON.stringify(selectedAuditLog.old_values, null, 2) : '// لا تتوفر قيم قديمة' }}</pre>
               </div>
 
               <!-- New values -->
@@ -369,7 +473,7 @@
                 <span class="text-[11px] font-black text-emerald-500 flex items-center gap-1">
                   <span>✅ القيم الجديدة (New Values)</span>
                 </span>
-                <pre class="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-[11px] font-mono text-slate-900 dark:text-white overflow-x-auto max-h-56 custom-scroll dir-ltr">{{ selectedAuditLog.new_values ? JSON.stringify(selectedAuditLog.new_values, null, 2) : '// لا تتوفر قيم جديدة' }}</pre>
+                <pre class="p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-[11px] font-mono text-slate-900 dark:text-white overflow-x-auto max-h-56 custom-scroll dir-ltr">{{ selectedAuditLog.new_values ? JSON.stringify(selectedAuditLog.new_values, null, 2) : '// لا تتوفر قيم جديدة' }}</pre>
               </div>
             </div>
           </div>
@@ -572,9 +676,321 @@ function saveSettings() {
 // Audit Log Modal Detail
 const isAuditModalOpen = ref(false);
 const selectedAuditLog = ref(null);
+const showRawJson = ref(false);
 
 function viewAuditLogDetails(log) {
   selectedAuditLog.value = log;
+  showRawJson.value = false;
   isAuditModalOpen.value = true;
+}
+
+const actionTranslations = {
+  login: { label: 'تسجيل دخول', icon: '🔑', badge: 'bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20' },
+  logout: { label: 'تسجيل خروج', icon: '🚪', badge: 'bg-slate-500/10 text-slate-600 dark:text-slate-400 border border-slate-500/20' },
+  create_site: { label: 'إضافة موقع ميداني', icon: '📍', badge: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20' },
+  update_site: { label: 'تعديل بيانات موقع', icon: '✏️', badge: 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20' },
+  toggle_site_status: { label: 'تغيير حالة موقع', icon: '🔄', badge: 'bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20' },
+  delete_site: { label: 'حذف موقع ميداني', icon: '🗑️', badge: 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20' },
+  create_consultant: { label: 'إضافة استشاري', icon: '👷', badge: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20' },
+  update_consultant: { label: 'تعديل ملف استشاري', icon: '✏️', badge: 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20' },
+  toggle_consultant_status: { label: 'تغيير حالة استشاري', icon: '🔄', badge: 'bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20' },
+  delete_consultant: { label: 'حذف استشاري', icon: '🗑️', badge: 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20' },
+  execute_site_visit: { label: 'تنفيذ زيارة ميدانية', icon: '⚡', badge: 'bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20' },
+  open_site_visit: { label: 'فتح زيارة ميدانية', icon: '🚀', badge: 'bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border border-cyan-500/20' },
+  start_daily_visit: { label: 'بدء دوام ميداني', icon: '🚀', badge: 'bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20' },
+  create_backup: { label: 'إنشاء نسخة احتياطية', icon: '💾', badge: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20' },
+  restore_backup: { label: 'استعادة نسخة احتياطية', icon: '🔄', badge: 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20' },
+  delete_backup: { label: 'حذف نسخة احتياطية', icon: '🗑️', badge: 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20' },
+  create_role: { label: 'إنشاء دور صلاحيات', icon: '🛡️', badge: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20' },
+  update_role: { label: 'تعديل دور صلاحيات', icon: '✏️', badge: 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20' },
+  delete_role: { label: 'حذف دور صلاحيات', icon: '🗑️', badge: 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20' },
+  update_settings: { label: 'تحديث إعدادات النظام', icon: '⚙️', badge: 'bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20' },
+  create_task: { label: 'إنشاء مهمة جديدة', icon: '📋', badge: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20' },
+  update_task: { label: 'تعديل مهمة', icon: '✏️', badge: 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20' },
+  toggle_task_active: { label: 'تغيير تفعيل مهمة', icon: '🔄', badge: 'bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20' },
+  delete_task: { label: 'حذف مهمة', icon: '🗑️', badge: 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20' },
+  create_schedule_template: { label: 'إنشاء قالب دوام', icon: '📅', badge: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20' },
+  update_schedule_template: { label: 'تعديل قالب دوام', icon: '✏️', badge: 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20' },
+  delete_schedule_template: { label: 'حذف قالب دوام', icon: '🗑️', badge: 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20' },
+  add_official_holiday: { label: 'تسجيل عطلة رسمية', icon: '🌴', badge: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20' },
+  update_official_holiday: { label: 'تعديل عطلة رسمية', icon: '✏️', badge: 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20' },
+  delete_official_holiday: { label: 'حذف عطلة رسمية', icon: '🗑️', badge: 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20' },
+  record_consultant_leave: { label: 'تسجيل إجازة استشاري', icon: '🏖️', badge: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20' },
+  update_consultant_leave: { label: 'تعديل إجازة استشاري', icon: '✏️', badge: 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20' },
+  delete_consultant_leave: { label: 'حذف إجازة استشاري', icon: '🗑️', badge: 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20' },
+};
+
+function formatAction(actionKey) {
+  if (!actionKey) return { label: 'إجراء عام', icon: '⚡', badge: 'bg-slate-500/10 text-slate-600 border border-slate-500/20' };
+  if (actionTranslations[actionKey]) return actionTranslations[actionKey];
+
+  const formatted = actionKey.replace(/_/g, ' ');
+  return { label: formatted, icon: '📌', badge: 'bg-primary/10 text-primary border border-primary/20' };
+}
+
+function getActionBadgeClass(actionKey) {
+  return formatAction(actionKey).badge;
+}
+
+const entityTranslations = {
+  SiteVisit: { label: 'زيارة ميدانية', icon: '⚡' },
+  Site: { label: 'موقع ميداني', icon: '📍' },
+  Consultant: { label: 'استشاري ميداني', icon: '👷' },
+  ConsultantDailyVisit: { label: 'سجل دوام يومي', icon: '📅' },
+  User: { label: 'حساب مستخدم', icon: '👤' },
+  Role: { label: 'دور صلاحيات', icon: '🛡️' },
+  Setting: { label: 'إعداد نظام', icon: '⚙️' },
+  TaskDefinition: { label: 'تعريف مهمة', icon: '📋' },
+  WorkScheduleTemplate: { label: 'قالب دوام', icon: '📅' },
+  OfficialHoliday: { label: 'عطلة رسمية', icon: '🌴' },
+  ConsultantLeave: { label: 'إجازة استشاري', icon: '🏖️' },
+  Backup: { label: 'نسخة احتياطية', icon: '💾' },
+};
+
+function formatEntity(entityKey) {
+  if (!entityKey) return { label: 'عام', icon: '⚙️' };
+  if (entityTranslations[entityKey]) return entityTranslations[entityKey];
+  return { label: entityKey, icon: '📦' };
+}
+
+const keyTranslations = {
+  status: 'حالة الإجراء',
+  in_progress: 'قيد التنفيذ',
+  completed: 'مكتملة',
+  pending: 'قيد الانتظار',
+  site_visit_id: 'رقم الزيارة الميدانية',
+  site_id: 'رقم الموقع الميداني',
+  site_name: '📍 اسم الموقع الميداني',
+  submitted_responses_count: 'عدد المهام المنفذة والمستلمة',
+  previous_responses_count: 'عدد المهام المنفذة سابقاً',
+  tasks_details: '📋 نتائج واستجابات المهام الجديدة',
+  previous_tasks_details: '📋 نتائج واستجابات المهام السابقة',
+  notes: 'الملاحظات الميدانية',
+  responses_count: 'عدد المهام المنفذة',
+  days: 'أيام الأسبوع وجدول العمل',
+  is_default: 'قالب افتراضي للنظام',
+  daily_hours: 'ساعات العمل اليومية',
+  user_id: 'رقم المستخدم',
+  ip: 'عنوان IP',
+  name: 'الاسم',
+  name_ar: 'الاسم بالعربية',
+  code: 'الرمز المرجعي',
+  is_active: 'حالة التفعيل',
+  employment_status: 'الحالة الوظيفية',
+  phone: 'رقم الهاتف',
+  email: 'البريد الإلكتروني',
+  start_date: 'تاريخ البداية',
+  end_date: 'تاريخ النهاية',
+  permissions: 'الصلاحيات المسندة',
+  active: 'نشط',
+  inactive: 'غير نشط',
+  vacation: 'في إجازة',
+  description: 'الوصف التفصيلي',
+};
+
+function translateKey(key) {
+  return keyTranslations[key] || key;
+}
+
+const dayNamesMap = {
+  0: 'الأحد',
+  1: 'الاثنين',
+  2: 'الثلاثاء',
+  3: 'الأربعاء',
+  4: 'الخميس',
+  5: 'الجمعة',
+  6: 'السبت',
+};
+
+function formatDaysSchedule(daysArr) {
+  if (!Array.isArray(daysArr)) return null;
+  const working = [];
+  const off = [];
+  daysArr.forEach(d => {
+    const dName = dayNamesMap[d.day_of_week];
+    if (dName) {
+      if (d.is_working_day) {
+        working.push(dName);
+      } else {
+        off.push(dName);
+      }
+    }
+  });
+
+  if (working.length === 0 && off.length === 0) return null;
+
+  let result = `أيام العمل: ${working.join('، ')}`;
+  if (off.length > 0) {
+    result += ` (العطلة: ${off.join('، ')})`;
+  }
+  return result;
+}
+
+function formatValue(val) {
+  if (val === null || val === undefined) return '—';
+  if (typeof val === 'boolean') return val ? 'نعم (مفعل)' : 'لا (معطل)';
+
+  let parsed = val;
+  if (typeof val === 'string' && (val.startsWith('[') || val.startsWith('{'))) {
+    try {
+      parsed = JSON.parse(val);
+    } catch (e) {
+      parsed = val;
+    }
+  }
+
+  if (Array.isArray(parsed) && parsed.length > 0 && parsed[0] && parsed[0].day_of_week !== undefined) {
+    const formattedDays = formatDaysSchedule(parsed);
+    if (formattedDays) return formattedDays;
+  }
+
+  if (typeof parsed === 'object') {
+    return JSON.stringify(parsed);
+  }
+
+  if (keyTranslations[val]) return keyTranslations[val];
+  return String(val);
+}
+
+function getMergedDiffList(log) {
+  if (!log) return [];
+
+  const oldVals = log.old_values || {};
+  const newVals = log.new_values || {};
+
+  const siteName = newVals.site_name || oldVals.site_name || null;
+  const ignoredKeys = [
+    'updated_at',
+    'created_at',
+    'deleted_at',
+    'id',
+    'template_id',
+    'created_by',
+    'site_name',
+    'site_id',
+    'site_visit_id',
+    'responses_count',
+    'previous_responses_count',
+    'submitted_responses_count',
+    'tasks_details',
+    'previous_tasks_details',
+  ];
+
+  const allKeys = Array.from(new Set([...Object.keys(oldVals), ...Object.keys(newVals)]));
+  const regularKeys = allKeys.filter(k => !ignoredKeys.includes(k));
+
+  const diffItems = [];
+
+  if (siteName) {
+    diffItems.push({
+      isHeader: true,
+      title: 'اسم الموقع الميداني',
+      value: siteName,
+    });
+  }
+
+  const oldTasksStr = oldVals.previous_tasks_details || oldVals.tasks_details || '';
+  const newTasksStr = newVals.tasks_details || '';
+
+  if (oldTasksStr || newTasksStr) {
+    const parseTaskString = (str) => {
+      if (!str || typeof str !== 'string') return {};
+      const map = {};
+      str.split(' | ').forEach(item => {
+        const parts = item.split(': ');
+        if (parts.length >= 2 && parts[0].trim() !== '') {
+          const tName = parts[0].trim();
+          const tVal = parts.slice(1).join(': ').trim();
+          map[tName] = tVal;
+        } else if (item.trim() !== '') {
+          map['استجابة مهمة ميدانية'] = item.trim();
+        }
+      });
+      return map;
+    };
+
+    const oldTaskMap = parseTaskString(oldTasksStr);
+    const newTaskMap = parseTaskString(newTasksStr);
+    const allTaskNames = Array.from(new Set([...Object.keys(oldTaskMap), ...Object.keys(newTaskMap)]));
+
+    allTaskNames.forEach(tName => {
+      const oldV = oldTaskMap[tName] || '—';
+      const newV = newTaskMap[tName] || '—';
+
+      // Skip task if old and new values are identical (focus only on changes)
+      if (oldV !== '—' && newV !== '—' && oldV === newV) {
+        return;
+      }
+
+      const cleanTaskName = tName.replace(/^📋\s*/, '');
+      diffItems.push({
+        isTask: true,
+        label: `📋 المهمة: ${cleanTaskName}`,
+        oldVal: oldV,
+        newVal: newV,
+      });
+    });
+  }
+
+  // Handle 'days' schedule array diff specifically if present
+  if (oldVals.days || newVals.days) {
+    const parseDaysArr = (val) => {
+      if (!val) return null;
+      let p = val;
+      if (typeof val === 'string' && (val.startsWith('[') || val.startsWith('{'))) {
+        try { p = JSON.parse(val); } catch(e) {}
+      }
+      return (Array.isArray(p) && p.length > 0 && p[0] && p[0].day_of_week !== undefined) ? p : null;
+    };
+
+    const oldDays = parseDaysArr(oldVals.days);
+    const newDays = parseDaysArr(newVals.days);
+
+    if (oldDays && newDays) {
+      const oldMap = {};
+      oldDays.forEach(d => { oldMap[d.day_of_week] = d.is_working_day; });
+      const newMap = {};
+      newDays.forEach(d => { newMap[d.day_of_week] = d.is_working_day; });
+
+      let anyDayChanged = false;
+      for (let dayNum = 0; dayNum <= 6; dayNum++) {
+        const oldW = oldMap[dayNum];
+        const newW = newMap[dayNum];
+        if (oldW !== undefined && newW !== undefined && oldW !== newW) {
+          anyDayChanged = true;
+          const dayName = dayNamesMap[dayNum] || `يوم #${dayNum}`;
+          diffItems.push({
+            isTask: false,
+            label: `📅 حالة يوم (${dayName})`,
+            oldVal: oldW ? 'يوم عمل رسمي' : 'عطلة أسبوعية',
+            newVal: newW ? 'يوم عمل رسمي' : 'عطلة أسبوعية',
+          });
+        }
+      }
+
+      // If we handled day-by-day comparison, prevent the raw 'days' key from showing as a lump text
+      if (anyDayChanged || (oldDays && newDays)) {
+        ignoredKeys.push('days');
+      }
+    }
+  }
+
+  regularKeys.forEach(k => {
+    if (ignoredKeys.includes(k)) return;
+    const oldV = oldVals[k];
+    const newV = newVals[k];
+    // Skip if values are identical (no change occurred)
+    if (oldV !== undefined && newV !== undefined && oldV === newV) {
+      return;
+    }
+    diffItems.push({
+      key: k,
+      label: translateKey(k),
+      oldVal: oldV !== undefined ? oldV : '—',
+      newVal: newV !== undefined ? newV : '—',
+    });
+  });
+
+  return diffItems;
 }
 </script>

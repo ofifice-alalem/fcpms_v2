@@ -68,6 +68,7 @@ class WorkScheduleService
      */
     public function updateScheduleTemplate(WorkScheduleTemplate $template, array $data): WorkScheduleTemplate
     {
+        $template->load('days');
         $oldData = $template->toArray();
 
         return DB::transaction(function () use ($template, $data, $oldData) {

@@ -151,29 +151,79 @@ class GovernanceRepository implements GovernanceRepositoryInterface
             ->latest()
             ->limit($limit)
             ->get()
-            ->map(function ($log) {
-                return [
-                    'id' => $log->id,
-                    'user_id' => $log->user_id,
-                    'user_name' => $log->user ? $log->user->name : 'النظام الآلي',
-                    'user_email' => $log->user ? $log->user->email : null,
-                    'action' => $log->action,
-                    'entity_type' => $log->entity_type ?? $log->model_type ?? 'عام',
-                    'entity_id' => $log->entity_id ?? $log->model_id,
-                    'description' => $log->description,
-                    'old_values' => $log->old_values,
-                    'new_values' => $log->new_values,
-                    'ip_address' => $log->ip_address,
-                    'user_agent' => $log->user_agent,
-                    'created_at' => $log->created_at ? $log->created_at->format('Y-m-d H:i:s') : null,
-                ];
-            })
+            ->map(fn($log) => $this->enrichLogData($log))
             ->values();
     }
 
     public function findActivityLogById(int $id): ?ActivityLog
     {
         return ActivityLog::with('user')->find($id);
+    }
+
+    protected function enrichLogData(ActivityLog $log): array
+    {
+        $oldValues = $log->old_values ?? [];
+        $newValues = $log->new_values ?? [];
+        $entityType = $log->entity_type ?? $log->model_type;
+        $entityId = $log->entity_id ?? $log->model_id;
+
+        if (($entityType === 'SiteVisit' || $log->action === 'execute_site_visit' || $log->action === 'open_site_visit') && $entityId) {
+            $visit = \App\Models\SiteVisit::with(['site', 'taskResponses.taskDefinition', 'taskResponses.values.component'])->find($entityId);
+            if ($visit) {
+                if ($visit->site) {
+                    $newValues['site_name'] = $visit->site->name;
+                    if (!isset($oldValues['site_name'])) {
+                        $oldValues['site_name'] = $visit->site->name;
+                    }
+                }
+
+                if ($visit->taskResponses && $visit->taskResponses->isNotEmpty()) {
+                    $taskSummaries = [];
+                    foreach ($visit->taskResponses as $resp) {
+                        $taskTitle = $resp->taskDefinition ? $resp->taskDefinition->title : "مهمة ميدانية #{$resp->task_definition_id}";
+                        if ($resp->values && $resp->values->isNotEmpty()) {
+                            $vals = $resp->values->map(function ($v) {
+                                $lbl = $v->component ? $v->component->label : 'الإدخال';
+                                $valText = $v->value ?? '—';
+                                return "{$lbl}: {$valText}";
+                            })->implode('، ');
+                            $taskSummaries[] = "{$taskTitle}: {$vals}";
+                        } else {
+                            $statusStr = $resp->status === 'submitted' ? 'مكتملة ومستلمة' : ($resp->completed_at ? 'تم التنفيذ' : 'قيد الإجراء');
+                            $taskSummaries[] = "{$taskTitle}: {$statusStr}";
+                        }
+                    }
+                    if ((empty($newValues['tasks_details']) || !str_contains($newValues['tasks_details'], ':')) && !empty($taskSummaries)) {
+                        $newValues['tasks_details'] = implode(' | ', $taskSummaries);
+                    }
+                }
+            }
+        }
+
+        if (($entityType === 'WorkScheduleTemplate' || str_contains($log->action, 'schedule_template')) && $entityId) {
+            $tmpl = \App\Models\WorkScheduleTemplate::with('days')->find($entityId);
+            if ($tmpl && $tmpl->days) {
+                if (empty($newValues['days'])) {
+                    $newValues['days'] = $tmpl->days->toArray();
+                }
+            }
+        }
+
+        return [
+            'id' => $log->id,
+            'user_id' => $log->user_id,
+            'user_name' => $log->user ? $log->user->name : 'النظام الآلي',
+            'user_email' => $log->user ? $log->user->email : null,
+            'action' => $log->action,
+            'entity_type' => $entityType ?? 'عام',
+            'entity_id' => $entityId,
+            'description' => $log->description,
+            'old_values' => !empty($oldValues) ? $oldValues : null,
+            'new_values' => !empty($newValues) ? $newValues : null,
+            'ip_address' => $log->ip_address,
+            'user_agent' => $log->user_agent,
+            'created_at' => $log->created_at ? $log->created_at->format('Y-m-d H:i:s') : null,
+        ];
     }
 
     public function logActivity(array $data): ActivityLog
