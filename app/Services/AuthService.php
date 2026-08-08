@@ -42,6 +42,16 @@ class AuthService
         // BR-002: Update last login timestamp
         $this->userRepository->updateLastLogin($user->id);
 
+        \App\Helpers\ActivityLogger::log(
+            'login',
+            'User',
+            $user->id,
+            "تم تسجيل دخول المستخدم: {$user->name} ({$user->username})",
+            null,
+            ['user_id' => $user->id, 'ip' => request()->ip()],
+            $user->id
+        );
+
         return $user;
     }
 }

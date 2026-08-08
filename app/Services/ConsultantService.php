@@ -9,6 +9,7 @@ use App\Models\Consultant;
 use App\Models\User;
 use App\Repositories\Contracts\ConsultantRepositoryInterface;
 use App\Repositories\Contracts\UserRepositoryInterface;
+use App\Helpers\ActivityLogger;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
@@ -70,7 +71,18 @@ class ConsultantService
                 'notes' => $data['notes'] ?? null,
             ];
 
-            return $this->consultantRepository->create($consultantData);
+            $consultant = $this->consultantRepository->create($consultantData);
+
+            ActivityLogger::log(
+                'register_consultant',
+                'Consultant',
+                $consultant->id,
+                "تم تسجيل استشاري ميداني جديد: {$consultant->full_name} ({$consultant->employee_number})",
+                null,
+                $consultant->toArray()
+            );
+
+            return $consultant;
         });
     }
 
@@ -81,8 +93,9 @@ class ConsultantService
     {
         /** @var Consultant $consultant */
         $consultant = $this->consultantRepository->findOrFail($id);
+        $oldData = $consultant->toArray();
 
-        return DB::transaction(function () use ($consultant, $data) {
+        return DB::transaction(function () use ($consultant, $data, $oldData) {
             // 1. Lock employee_number modification (BR-003 / BR-005)
             unset($data['employee_number']);
 
@@ -124,8 +137,18 @@ class ConsultantService
             ]);
 
             ConsultantUpdatedEvent::dispatch($consultant);
+            $updated = $consultant->fresh(['user', 'workScheduleTemplate']);
 
-            return $consultant->fresh(['user', 'workScheduleTemplate']);
+            ActivityLogger::log(
+                'update_consultant',
+                'Consultant',
+                $updated->id,
+                "تم تحديث بيانات الاستشاري الميداني: {$updated->full_name}",
+                $oldData,
+                $updated->toArray()
+            );
+
+            return $updated;
         });
     }
 
@@ -136,8 +159,9 @@ class ConsultantService
     {
         /** @var Consultant $consultant */
         $consultant = $this->consultantRepository->findOrFail($id);
+        $oldStatus = $consultant->employment_status;
 
-        return DB::transaction(function () use ($consultant, $status) {
+        return DB::transaction(function () use ($consultant, $status, $oldStatus) {
             $consultant->update(['employment_status' => $status]);
 
             $user = $consultant->user;
@@ -153,7 +177,18 @@ class ConsultantService
                 }
             }
 
-            return $consultant->fresh(['user', 'workScheduleTemplate']);
+            $updated = $consultant->fresh(['user', 'workScheduleTemplate']);
+
+            ActivityLogger::log(
+                'change_consultant_status',
+                'Consultant',
+                $updated->id,
+                "تم تغيير حالة الاستشاري {$updated->full_name} إلى {$status}",
+                ['employment_status' => $oldStatus],
+                ['employment_status' => $status]
+            );
+
+            return $updated;
         });
     }
 
@@ -164,6 +199,7 @@ class ConsultantService
     {
         /** @var Consultant $consultant */
         $consultant = $this->consultantRepository->findOrFail($id);
+        $consultantData = $consultant->toArray();
 
         if ($this->consultantRepository->hasPendingVisits($id)) {
             throw ValidationException::withMessages([
@@ -171,14 +207,27 @@ class ConsultantService
             ]);
         }
 
-        return DB::transaction(function () use ($consultant) {
+        return DB::transaction(function () use ($consultant, $id, $consultantData) {
             if ($consultant->user) {
                 // Deactivate and soft-delete user account
                 $consultant->user->update(['status' => UserStatus::INACTIVE->value]);
                 $consultant->user->delete();
             }
 
-            return $consultant->delete();
+            $deleted = $consultant->delete();
+
+            if ($deleted) {
+                ActivityLogger::log(
+                    'delete_consultant',
+                    'Consultant',
+                    $id,
+                    "تم حذف الاستشاري الميداني: {$consultant->full_name}",
+                    $consultantData,
+                    null
+                );
+            }
+
+            return $deleted;
         });
     }
 

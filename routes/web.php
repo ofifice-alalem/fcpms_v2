@@ -18,7 +18,7 @@ Route::middleware('guest')->group(function () {
 
 // Authenticated Routes
 Route::middleware('auth')->group(function () {
-    Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
+    Route::match(['get', 'post'], '/logout', [LoginController::class, 'logout'])->name('logout');
 
     Route::get('/dashboard', function (Request $request) {
         $user = Auth::user();
@@ -85,6 +85,14 @@ Route::middleware('auth')->group(function () {
         Route::get('/reports/consultants/{consultant}/tasks', [\App\Http\Controllers\Admin\AdminReportController::class, 'consultantTasksBreakdown'])->name('reports.consultant-tasks');
         Route::get('/reports/visit-detail/{visit}', [\App\Http\Controllers\Admin\AdminReportController::class, 'showVisitDetail'])->name('reports.visit-detail');
         Route::get('/reports/export', [\App\Http\Controllers\Admin\AdminReportController::class, 'export'])->name('reports.export');
+
+        // Phase 07: System Governance & Audit Logs Routes
+        Route::get('/governance', [\App\Http\Controllers\Admin\GovernanceController::class, 'index'])->name('governance.index');
+        Route::post('/governance/roles', [\App\Http\Controllers\Admin\GovernanceController::class, 'storeRole'])->name('governance.roles.store');
+        Route::put('/governance/roles/{role}', [\App\Http\Controllers\Admin\GovernanceController::class, 'updateRole'])->name('governance.roles.update');
+        Route::delete('/governance/roles/{role}', [\App\Http\Controllers\Admin\GovernanceController::class, 'destroyRole'])->name('governance.roles.destroy');
+        Route::post('/governance/settings', [\App\Http\Controllers\Admin\GovernanceController::class, 'updateSettings'])->name('governance.settings.update');
+        Route::get('/governance/audit-logs/{log}', [\App\Http\Controllers\Admin\GovernanceController::class, 'showAuditLog'])->name('governance.audit-logs.show');
     });
 
     // Phase 05: Consultant Daily Visits Portal Routes

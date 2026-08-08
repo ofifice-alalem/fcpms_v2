@@ -51,6 +51,23 @@ class LoginController extends Controller
      */
     public function logout(Request $request): RedirectResponse
     {
+        try {
+            $user = Auth::user();
+            if ($user) {
+                \App\Helpers\ActivityLogger::log(
+                    'logout',
+                    'User',
+                    $user->id,
+                    "تم تسجيل خروج المستخدم: {$user->name}",
+                    null,
+                    null,
+                    $user->id
+                );
+            }
+        } catch (\Throwable $e) {
+            // Ignore activity logging exception on logout to guarantee logout success
+        }
+
         Auth::guard('web')->logout();
 
         $request->session()->invalidate();

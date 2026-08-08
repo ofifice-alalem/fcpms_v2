@@ -30,7 +30,18 @@ class ConsultantVisitService
 
     public function startDay(Consultant $consultant, ?string $notes = null): DailyRecord
     {
-        return $this->dailyRecordRepo->startDay($consultant, $notes);
+        $record = $this->dailyRecordRepo->startDay($consultant, $notes);
+
+        \App\Helpers\ActivityLogger::log(
+            'start_day',
+            'DailyRecord',
+            $record->id,
+            "قام الاستشاري {$consultant->full_name} ببدء يوميته الميدانية بتاريخ {$record->record_date}",
+            null,
+            ['daily_record_id' => $record->id, 'date' => $record->record_date]
+        );
+
+        return $record;
     }
 
     public function getAvailableSites(?DailyRecord $dailyRecord = null): Collection
@@ -89,7 +100,18 @@ class ConsultantVisitService
             return $this->siteVisitRepo->findWithDetails($existing->id);
         }
 
-        return $this->siteVisitRepo->openVisit($dailyRecord, $siteId, $notes);
+        $visit = $this->siteVisitRepo->openVisit($dailyRecord, $siteId, $notes);
+
+        \App\Helpers\ActivityLogger::log(
+            'open_site_visit',
+            'SiteVisit',
+            $visit->id,
+            "تم فتح زيارة ميدانية جديدة في موقع: " . ($visit->site ? $visit->site->name : $siteId),
+            null,
+            ['site_visit_id' => $visit->id, 'site_id' => $siteId]
+        );
+
+        return $visit;
     }
 
     public function getActiveVisit(DailyRecord $dailyRecord): ?SiteVisit
@@ -104,7 +126,18 @@ class ConsultantVisitService
 
     public function saveTaskResponses(SiteVisit $siteVisit, array $responsesData, array $attachmentsData = []): SiteVisit
     {
-        return $this->siteVisitRepo->saveTaskResponses($siteVisit, $responsesData, $attachmentsData);
+        $visit = $this->siteVisitRepo->saveTaskResponses($siteVisit, $responsesData, $attachmentsData);
+
+        \App\Helpers\ActivityLogger::log(
+            'execute_site_visit',
+            'SiteVisit',
+            $visit->id,
+            "تم تنفيذ واستكمال الزيارة الميدانية بحالة: {$visit->status}",
+            null,
+            ['site_visit_id' => $visit->id, 'status' => $visit->status, 'responses_count' => count($responsesData)]
+        );
+
+        return $visit;
     }
 
     public function getVisitDetails(int $visitId): ?SiteVisit

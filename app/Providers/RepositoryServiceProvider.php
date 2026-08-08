@@ -20,6 +20,8 @@ use App\Repositories\Eloquent\UserRepository;
 use App\Repositories\Eloquent\WorkScheduleRepository;
 use App\Repositories\Contracts\ReportRepositoryInterface;
 use App\Repositories\Eloquent\ReportRepository;
+use App\Repositories\Contracts\GovernanceRepositoryInterface;
+use App\Repositories\Eloquent\GovernanceRepository;
 use Illuminate\Support\ServiceProvider;
 
 class RepositoryServiceProvider extends ServiceProvider
@@ -38,6 +40,7 @@ class RepositoryServiceProvider extends ServiceProvider
         $this->app->bind(DailyRecordRepositoryInterface::class, DailyRecordRepository::class);
         $this->app->bind(SiteVisitRepositoryInterface::class, SiteVisitRepository::class);
         $this->app->bind(ReportRepositoryInterface::class, ReportRepository::class);
+        $this->app->bind(GovernanceRepositoryInterface::class, GovernanceRepository::class);
     }
 
     /**

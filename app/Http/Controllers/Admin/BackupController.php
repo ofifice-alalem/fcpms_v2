@@ -130,6 +130,15 @@ class BackupController extends Controller
             unlink($sqlTmpPath);
         }
 
+        \App\Helpers\ActivityLogger::log(
+            'create_backup',
+            'Backup',
+            null,
+            "تم إنشاء نسخة احتياطية جديدة بقاعدة البيانات: {$filename}",
+            null,
+            ['filename' => $filename, 'note' => $request->input('note')]
+        );
+
         return back()->with('success', 'تم إنشاء النسخة الاحتياطية بنجاح.');
     }
 
@@ -168,6 +177,15 @@ class BackupController extends Controller
 
         $this->deleteDir($tmpDir);
 
+        \App\Helpers\ActivityLogger::log(
+            'restore_backup',
+            'Backup',
+            null,
+            "تم استعادة قاعدة البيانات من النسخة الاحتياطية: {$filename}",
+            null,
+            ['filename' => $filename]
+        );
+
         return back()->with('success', 'تمت استعادة النسخة الاحتياطية بنجاح.');
     }
 
@@ -191,6 +209,15 @@ class BackupController extends Controller
         if (file_exists($zipPath)) {
             unlink($zipPath);
         }
+
+        \App\Helpers\ActivityLogger::log(
+            'delete_backup',
+            'Backup',
+            null,
+            "تم حذف النسخة الاحتياطية: {$filename}",
+            ['filename' => $filename],
+            null
+        );
 
         return back()->with('success', 'تم حذف النسخة الاحتياطية.');
     }

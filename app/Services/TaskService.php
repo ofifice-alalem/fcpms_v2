@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\TaskDefinition;
 use App\Repositories\Contracts\TaskDefinitionRepositoryInterface;
+use App\Helpers\ActivityLogger;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 class TaskService
@@ -24,21 +25,73 @@ class TaskService
 
     public function createTask(array $data): TaskDefinition
     {
-        return $this->taskRepo->createFullTask($data);
+        $task = $this->taskRepo->createFullTask($data);
+
+        ActivityLogger::log(
+            'create_task',
+            'TaskDefinition',
+            $task->id,
+            "تم إنشاء تعريف مهمة جديد: {$task->name_ar}",
+            null,
+            $task->toArray()
+        );
+
+        return $task;
     }
 
     public function updateTask(TaskDefinition $task, array $data): TaskDefinition
     {
-        return $this->taskRepo->updateFullTask($task, $data);
+        $oldValues = $task->toArray();
+        $updatedTask = $this->taskRepo->updateFullTask($task, $data);
+
+        ActivityLogger::log(
+            'update_task',
+            'TaskDefinition',
+            $updatedTask->id,
+            "تم تعديل مهمة: {$updatedTask->name_ar}",
+            $oldValues,
+            $updatedTask->toArray()
+        );
+
+        return $updatedTask;
     }
 
     public function toggleActive(TaskDefinition $task): TaskDefinition
     {
-        return $this->taskRepo->toggleActive($task);
+        $oldState = $task->is_active;
+        $updatedTask = $this->taskRepo->toggleActive($task);
+
+        ActivityLogger::log(
+            'toggle_task_active',
+            'TaskDefinition',
+            $updatedTask->id,
+            "تم تغيير حالة تفعيل المهمة {$updatedTask->name_ar} إلى " . ($updatedTask->is_active ? 'نشطة' : 'غير نشطة'),
+            ['is_active' => $oldState],
+            ['is_active' => $updatedTask->is_active]
+        );
+
+        return $updatedTask;
     }
 
     public function deleteTask(TaskDefinition $task): bool
     {
-        return $this->taskRepo->deleteTask($task);
+        $taskData = $task->toArray();
+        $taskId = $task->id;
+        $taskName = $task->name_ar;
+
+        $deleted = $this->taskRepo->deleteTask($task);
+
+        if ($deleted) {
+            ActivityLogger::log(
+                'delete_task',
+                'TaskDefinition',
+                $taskId,
+                "تم حذف المهمة: {$taskName}",
+                $taskData,
+                null
+            );
+        }
+
+        return $deleted;
     }
 }

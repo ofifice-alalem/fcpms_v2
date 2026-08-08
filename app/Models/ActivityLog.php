@@ -15,8 +15,18 @@ class ActivityLog extends Model
         'action',
         'entity_type',
         'entity_id',
+        'model_type',
+        'model_id',
         'description',
+        'old_values',
+        'new_values',
         'ip_address',
+        'user_agent',
+    ];
+
+    protected $casts = [
+        'old_values' => 'array',
+        'new_values' => 'array',
     ];
 
     public function user(): BelongsTo

@@ -9,6 +9,7 @@ use App\Models\WorkScheduleTemplate;
 use App\Repositories\Contracts\ConsultantLeaveRepositoryInterface;
 use App\Repositories\Contracts\ConsultantRepositoryInterface;
 use App\Repositories\Contracts\WorkScheduleRepositoryInterface;
+use App\Helpers\ActivityLogger;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
@@ -47,7 +48,18 @@ class WorkScheduleService
             // Default to 7 days if not fully provided
             $days = $data['days'] ?? $this->getDefaultDaysConfig();
 
-            return $this->scheduleRepo->createTemplateWithDays($data, $days);
+            $template = $this->scheduleRepo->createTemplateWithDays($data, $days);
+
+            ActivityLogger::log(
+                'create_schedule_template',
+                'WorkScheduleTemplate',
+                $template->id,
+                "تم إنشاء قالب دوام جديد: {$template->name}",
+                null,
+                $template->toArray()
+            );
+
+            return $template;
         });
     }
 
@@ -56,14 +68,26 @@ class WorkScheduleService
      */
     public function updateScheduleTemplate(WorkScheduleTemplate $template, array $data): WorkScheduleTemplate
     {
-        return DB::transaction(function () use ($template, $data) {
+        $oldData = $template->toArray();
+
+        return DB::transaction(function () use ($template, $data, $oldData) {
             if (!empty($data['is_default']) && !$template->is_default) {
                 $this->scheduleRepo->resetDefaultTemplates();
             }
 
             $days = $data['days'] ?? [];
+            $updated = $this->scheduleRepo->updateTemplateWithDays($template, $data, $days);
 
-            return $this->scheduleRepo->updateTemplateWithDays($template, $data, $days);
+            ActivityLogger::log(
+                'update_schedule_template',
+                'WorkScheduleTemplate',
+                $updated->id,
+                "تم تعديل قالب الدوام: {$updated->name}",
+                $oldData,
+                $updated->toArray()
+            );
+
+            return $updated;
         });
     }
 
@@ -81,8 +105,24 @@ class WorkScheduleService
             ]);
         }
 
-        return DB::transaction(function () use ($template) {
-            return $this->scheduleRepo->deleteTemplate($template);
+        $templateData = $template->toArray();
+        $templateId = $template->id;
+
+        return DB::transaction(function () use ($template, $templateData, $templateId) {
+            $deleted = $this->scheduleRepo->deleteTemplate($template);
+
+            if ($deleted) {
+                ActivityLogger::log(
+                    'delete_schedule_template',
+                    'WorkScheduleTemplate',
+                    $templateId,
+                    "تم حذف قالب الدوام: {$templateData['name']}",
+                    $templateData,
+                    null
+                );
+            }
+
+            return $deleted;
         });
     }
 
@@ -92,7 +132,18 @@ class WorkScheduleService
     public function addOfficialHoliday(array $data): OfficialHoliday
     {
         return DB::transaction(function () use ($data) {
-            return $this->scheduleRepo->addOfficialHoliday($data);
+            $holiday = $this->scheduleRepo->addOfficialHoliday($data);
+
+            ActivityLogger::log(
+                'add_official_holiday',
+                'OfficialHoliday',
+                $holiday->id,
+                "تم إضافة عطلة رسمية: {$holiday->name} ({$holiday->start_date})",
+                null,
+                $holiday->toArray()
+            );
+
+            return $holiday;
         });
     }
 
@@ -101,8 +152,21 @@ class WorkScheduleService
      */
     public function updateOfficialHoliday(OfficialHoliday $holiday, array $data): OfficialHoliday
     {
-        return DB::transaction(function () use ($holiday, $data) {
-            return $this->scheduleRepo->updateOfficialHoliday($holiday, $data);
+        $oldData = $holiday->toArray();
+
+        return DB::transaction(function () use ($holiday, $data, $oldData) {
+            $updated = $this->scheduleRepo->updateOfficialHoliday($holiday, $data);
+
+            ActivityLogger::log(
+                'update_official_holiday',
+                'OfficialHoliday',
+                $updated->id,
+                "تم تعديل العطلة الرسمية: {$updated->name}",
+                $oldData,
+                $updated->toArray()
+            );
+
+            return $updated;
         });
     }
 
@@ -111,8 +175,24 @@ class WorkScheduleService
      */
     public function deleteOfficialHoliday(OfficialHoliday $holiday): bool
     {
-        return DB::transaction(function () use ($holiday) {
-            return $this->scheduleRepo->deleteOfficialHoliday($holiday);
+        $holidayData = $holiday->toArray();
+        $holidayId = $holiday->id;
+
+        return DB::transaction(function () use ($holiday, $holidayData, $holidayId) {
+            $deleted = $this->scheduleRepo->deleteOfficialHoliday($holiday);
+
+            if ($deleted) {
+                ActivityLogger::log(
+                    'delete_official_holiday',
+                    'OfficialHoliday',
+                    $holidayId,
+                    "تم حذف العطلة الرسمية: {$holidayData['name']}",
+                    $holidayData,
+                    null
+                );
+            }
+
+            return $deleted;
         });
     }
 
@@ -135,6 +215,15 @@ class WorkScheduleService
                 }
             }
 
+            ActivityLogger::log(
+                'record_consultant_leave',
+                'ConsultantLeave',
+                $leave->id,
+                "تم تسجيل إجازة استشاري: " . ($consultant ? $consultant->full_name : $leave->consultant_id),
+                null,
+                $leave->toArray()
+            );
+
             return $leave;
         });
     }
@@ -144,8 +233,21 @@ class WorkScheduleService
      */
     public function updateConsultantLeave(ConsultantLeave $leave, array $data): ConsultantLeave
     {
-        return DB::transaction(function () use ($leave, $data) {
-            return $this->leaveRepo->updateConsultantLeave($leave, $data);
+        $oldData = $leave->toArray();
+
+        return DB::transaction(function () use ($leave, $data, $oldData) {
+            $updated = $this->leaveRepo->updateConsultantLeave($leave, $data);
+
+            ActivityLogger::log(
+                'update_consultant_leave',
+                'ConsultantLeave',
+                $updated->id,
+                "تم تعديل إجازة الاستشاري",
+                $oldData,
+                $updated->toArray()
+            );
+
+            return $updated;
         });
     }
 
@@ -154,7 +256,10 @@ class WorkScheduleService
      */
     public function deleteConsultantLeave(ConsultantLeave $leave): bool
     {
-        return DB::transaction(function () use ($leave) {
+        $leaveData = $leave->toArray();
+        $leaveId = $leave->id;
+
+        return DB::transaction(function () use ($leave, $leaveData, $leaveId) {
             $consultant = $leave->consultant;
             $deleted = $this->leaveRepo->deleteConsultantLeave($leave);
 
@@ -170,6 +275,17 @@ class WorkScheduleService
                         'employment_status' => ConsultantStatus::ACTIVE,
                     ]);
                 }
+            }
+
+            if ($deleted) {
+                ActivityLogger::log(
+                    'delete_consultant_leave',
+                    'ConsultantLeave',
+                    $leaveId,
+                    "تم حذف إجازة استشاري",
+                    $leaveData,
+                    null
+                );
             }
 
             return $deleted;

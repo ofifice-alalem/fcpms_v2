@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Enums\SiteStatus;
 use App\Models\Site;
 use App\Repositories\Contracts\SiteRepositoryInterface;
+use App\Helpers\ActivityLogger;
 use Illuminate\Validation\ValidationException;
 
 class SiteService
@@ -24,7 +25,18 @@ class SiteService
             ]);
         }
 
-        return $this->siteRepository->create($data);
+        $site = $this->siteRepository->create($data);
+
+        ActivityLogger::log(
+            'create_site',
+            'Site',
+            $site->id,
+            "تم إنشاء موقع ميداني جديد: {$site->name} ({$site->code})",
+            null,
+            $site->toArray()
+        );
+
+        return $site;
     }
 
     /**
@@ -33,6 +45,7 @@ class SiteService
     public function updateSite(int $siteId, array $data): Site
     {
         $site = $this->siteRepository->findOrFail($siteId);
+        $oldData = $site->toArray();
 
         // BR-020: Lock code editing if site already has registered visits
         if (isset($data['code']) && $data['code'] !== $site->code) {
@@ -49,7 +62,18 @@ class SiteService
             }
         }
 
-        return $this->siteRepository->update($siteId, $data);
+        $updatedSite = $this->siteRepository->update($siteId, $data);
+
+        ActivityLogger::log(
+            'update_site',
+            'Site',
+            $updatedSite->id,
+            "تم تحديث بيانات الموقع الميداني: {$updatedSite->name}",
+            $oldData,
+            $updatedSite->toArray()
+        );
+
+        return $updatedSite;
     }
 
     /**
@@ -58,9 +82,21 @@ class SiteService
     public function toggleStatus(int $siteId): Site
     {
         $site = $this->siteRepository->findOrFail($siteId);
+        $oldStatus = $site->status;
         $newStatus = $site->status === SiteStatus::ACTIVE ? SiteStatus::INACTIVE->value : SiteStatus::ACTIVE->value;
 
-        return $this->siteRepository->update($siteId, ['status' => $newStatus]);
+        $updatedSite = $this->siteRepository->update($siteId, ['status' => $newStatus]);
+
+        ActivityLogger::log(
+            'toggle_site_status',
+            'Site',
+            $updatedSite->id,
+            "تم تغيير حالة الموقع الميداني {$updatedSite->name} إلى {$newStatus}",
+            ['status' => $oldStatus],
+            ['status' => $newStatus]
+        );
+
+        return $updatedSite;
     }
 
     /**
@@ -68,12 +104,28 @@ class SiteService
      */
     public function deleteSite(int $siteId): bool
     {
+        $site = $this->siteRepository->findOrFail($siteId);
+        $siteData = $site->toArray();
+
         if ($this->siteRepository->hasPendingVisits($siteId)) {
             throw ValidationException::withMessages([
                 'site' => ['لا يمكن حذف الموقع نظراً لوجود زيارات ميدانية معلقة قيد التنفيذ.'],
             ]);
         }
 
-        return $this->siteRepository->delete($siteId);
+        $deleted = $this->siteRepository->delete($siteId);
+
+        if ($deleted) {
+            ActivityLogger::log(
+                'delete_site',
+                'Site',
+                $siteId,
+                "تم حذف الموقع الميداني: {$site->name}",
+                $siteData,
+                null
+            );
+        }
+
+        return $deleted;
     }
 }
