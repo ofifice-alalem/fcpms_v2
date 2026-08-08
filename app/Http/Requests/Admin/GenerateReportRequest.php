@@ -20,6 +20,7 @@ class GenerateReportRequest extends FormRequest
             'consultant_id' => ['nullable', 'integer', 'exists:consultants,id'],
             'site_id'       => ['nullable', 'integer', 'exists:sites,id'],
             'city'          => ['nullable', 'string', 'max:100'],
+            'diff_only'     => ['nullable'],
         ];
     }
 }

@@ -323,23 +323,49 @@
             </div>
           </div>
 
-          <div class="flex items-center justify-end gap-2 pt-2 border-t border-slate-200/60 dark:border-white/10">
-            <SpatialButton type="submit" variant="primary" size="md">
-              <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/>
-              </svg>
-              <span>تطبيق التصفية</span>
-            </SpatialButton>
-
-            <SpatialButton
-              v-if="hasActiveFilters"
-              type="button"
-              variant="secondary"
-              size="md"
-              @click="resetFilters"
+          <div class="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-slate-200/60 dark:border-white/10">
+            <!-- Spatial UI Pill Filter (Matches TaskBuilder Checkbox Pill Style) -->
+            <div
+              @click="filterForm.diff_only = !filterForm.diff_only"
+              :class="[
+                'p-3 px-4 rounded-2xl border flex items-center gap-3 text-xs font-black cursor-pointer transition-all select-none',
+                filterForm.diff_only
+                  ? 'bg-primary/15 border-primary/40 text-slate-900 dark:text-white shadow-sm ring-2 ring-primary/20'
+                  : 'bg-white dark:bg-[#0c121e] border-slate-200/80 dark:border-white/10 text-slate-600 dark:text-white/70 hover:border-slate-300'
+              ]"
             >
-              <span>إعادة تعيين الفلاتر</span>
-            </SpatialButton>
+              <SpatialCheckbox :model-value="filterForm.diff_only" />
+              <span class="flex items-center gap-2">
+                <span class="w-7 h-7 rounded-full border-2 border-amber-500 dark:border-amber-400 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.8" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                  </svg>
+                </span>
+                <span>تعديلات الأثر الرجعي فقط</span>
+                <span class="text-[11px] text-slate-500 dark:text-white/50 font-normal">
+                  (تفاوت تاريخ الزيارة وآخر تعديل)
+                </span>
+              </span>
+            </div>
+
+            <div class="flex items-center gap-2">
+              <SpatialButton type="submit" variant="primary" size="md">
+                <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/>
+                </svg>
+                <span>تطبيق التصفية</span>
+              </SpatialButton>
+
+              <SpatialButton
+                v-if="hasActiveFilters"
+                type="button"
+                variant="secondary"
+                size="md"
+                @click="resetFilters"
+              >
+                <span>إعادة تعيين الفلاتر</span>
+              </SpatialButton>
+            </div>
           </div>
         </form>
       </SpatialCard>
@@ -359,6 +385,7 @@
           <table class="w-full text-right border-collapse">
             <thead>
               <tr class="border-b border-slate-200 dark:border-white/10 text-xs font-black text-slate-600 dark:text-white/70 bg-slate-100/90 dark:bg-white/5">
+                <th class="p-4 w-12 text-center">#</th>
                 <th class="p-4">تاريخ الزيارة الفعلي</th>
                 <th class="p-4">آخر تعديل</th>
                 <th class="p-4">الاستشاري الميداني</th>
@@ -371,10 +398,13 @@
             </thead>
             <tbody class="divide-y divide-slate-100 dark:divide-white/5 text-sm font-bold">
               <tr
-                v-for="visit in metrics?.visits_log"
+                v-for="(visit, index) in metrics?.visits_log"
                 :key="visit.id"
                 class="transition-colors hover:bg-slate-50/80 dark:hover:bg-white/5"
               >
+                <td class="p-4 text-center font-mono text-xs font-black text-slate-400 dark:text-white/40">
+                  #{{ String(Number(index) + 1).padStart(2, '0') }}
+                </td>
                 <td class="p-4 font-mono text-xs font-black text-slate-700 dark:text-white/80 whitespace-nowrap">
                   <div>{{ formatDate(visit.daily_record?.work_date || visit.daily_record?.record_date || visit.created_at) }}</div>
                   <div class="text-[11px] font-bold text-indigo-600 dark:text-indigo-400 mt-0.5" v-if="visit.check_in_time || visit.visit_started_at">
@@ -432,7 +462,7 @@
               </tr>
 
               <tr v-if="!metrics?.visits_log || metrics.visits_log.length === 0">
-                <td colspan="8" class="p-12 text-center">
+                <td colspan="9" class="p-12 text-center">
                   <SpatialEmptyState
                     title="لا يوجد زيارات ميدانية مطابقة"
                     description="لم نجد أي زيارة ميدانية تتطابق مع معايير التصفية والخيارات المحددة."
@@ -461,7 +491,7 @@
       max-width="md"
       @close="isSiteSelectorOpen = false"
     >
-      <div class="space-y-4 py-2">
+      <div class="space-y-4 py-2 pb-36">
         <p class="text-xs font-bold text-slate-600 dark:text-white/70">
           حدد موقع العمل الميداني لعرض قائمة المهام المنفذة عليه، كم مرة تكررت كل مهمة وأسماء الاستشاريين الذين نفذوها:
         </p>
@@ -471,6 +501,7 @@
           label="موقع العمل الميداني"
           placeholder="اختر الموقع..."
           :options="modalSiteOptions"
+          :allow-custom-text="false"
         />
       </div>
 
@@ -507,6 +538,7 @@ import SpatialCard from '@/Components/Spatial/SpatialCard.vue';
 import SpatialButton from '@/Components/Spatial/SpatialButton.vue';
 import SpatialInput from '@/Components/Spatial/SpatialInput.vue';
 import SpatialDropdown from '@/Components/Spatial/SpatialDropdown.vue';
+import SpatialCheckbox from '@/Components/Spatial/SpatialCheckbox.vue';
 import SpatialStatusPill from '@/Components/Spatial/SpatialStatusPill.vue';
 import SpatialIconButton from '@/Components/Spatial/SpatialIconButton.vue';
 import SpatialEmptyState from '@/Components/Spatial/SpatialEmptyState.vue';
@@ -560,6 +592,7 @@ const filterForm = reactive({
   date_target: props.filters?.date_target || 'work_date',
   date_from: props.filters?.date_from || '',
   date_to: props.filters?.date_to || '',
+  diff_only: props.filters?.diff_only == '1' || props.filters?.diff_only === 'true' || props.filters?.diff_only === true,
 });
 
 const hasActiveFilters = computed(() => {
@@ -569,7 +602,8 @@ const hasActiveFilters = computed(() => {
     filterForm.city ||
     (filterForm.date_target && filterForm.date_target !== 'work_date') ||
     filterForm.date_from ||
-    filterForm.date_to
+    filterForm.date_to ||
+    filterForm.diff_only
   );
 });
 
@@ -598,7 +632,11 @@ const cityOptions = computed(() => {
 });
 
 function applyFilters() {
-  router.get(route('admin.reports.index'), filterForm, {
+  const query = {
+    ...filterForm,
+    diff_only: filterForm.diff_only ? '1' : '',
+  };
+  router.get(route('admin.reports.index'), query, {
     preserveState: true,
     preserveScroll: true,
   });
@@ -611,6 +649,7 @@ function resetFilters() {
   filterForm.date_target = 'work_date';
   filterForm.date_from = '';
   filterForm.date_to = '';
+  filterForm.diff_only = false;
   applyFilters();
 }
 

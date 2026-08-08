@@ -120,6 +120,19 @@ class ReportRepository implements ReportRepositoryInterface
 
         $allVisits = $visitQuery->orderBy('created_at', 'desc')->get();
 
+        $diffOnly = !empty($filters['diff_only']) && ($filters['diff_only'] == '1' || $filters['diff_only'] === 'true' || $filters['diff_only'] === true);
+        if ($diffOnly) {
+            $allVisits = $allVisits->filter(function ($visit) {
+                $workDate = $visit->dailyRecord->work_date ?? null;
+                if (!$workDate) {
+                    return false;
+                }
+                $workDateStr = Carbon::parse($workDate)->format('Y-m-d');
+                $updatedDateStr = Carbon::parse($visit->updated_at)->timezone('Africa/Tripoli')->format('Y-m-d');
+                return $workDateStr !== $updatedDateStr;
+            })->values();
+        }
+
         $totalVisits = $allVisits->count();
         $completedVisits = $allVisits->where('status', 'completed')->count();
         $inProgressVisits = $allVisits->where('status', 'in_progress')->count();
@@ -248,7 +261,22 @@ class ReportRepository implements ReportRepositoryInterface
             });
         }
 
-        return $query->orderBy('created_at', 'desc')->get()->toArray();
+        $visits = $query->orderBy('created_at', 'desc')->get();
+
+        $diffOnly = !empty($filters['diff_only']) && ($filters['diff_only'] == '1' || $filters['diff_only'] === 'true' || $filters['diff_only'] === true);
+        if ($diffOnly) {
+            $visits = $visits->filter(function ($visit) {
+                $workDate = $visit->dailyRecord->work_date ?? null;
+                if (!$workDate) {
+                    return false;
+                }
+                $workDateStr = Carbon::parse($workDate)->format('Y-m-d');
+                $updatedDateStr = Carbon::parse($visit->updated_at)->timezone('Africa/Tripoli')->format('Y-m-d');
+                return $workDateStr !== $updatedDateStr;
+            })->values();
+        }
+
+        return $visits->toArray();
     }
 
     /**

@@ -26,63 +26,66 @@
         </svg>
       </div>
 
-      <!-- DESKTOP DROPDOWN MENU (Screens >= 700px) -->
-      <div
-        v-if="isOpen && !isMobile"
-        class="spatial-dropdown-menu animate-spatial-in z-[100] shadow-2xl space-y-2 p-2 min-w-[220px]"
-        :class="openUpward ? 'bottom-full mb-2' : 'top-full mt-2'"
-      >
-        <!-- Search Input Box -->
-        <div v-if="searchable" class="relative px-1 pt-1 space-y-1.5">
-          <input
-            ref="searchInputRef"
-            v-model="searchQuery"
-            type="text"
-            placeholder="🔍 ابحث بالكلمة أو اختر القيمة..."
-            class="w-full px-3 py-2 text-xs font-bold rounded-xl bg-slate-100 dark:bg-white/10 text-slate-900 dark:text-white border border-slate-200 dark:border-white/10 focus:outline-none focus:border-primary transition-all placeholder:text-slate-400 dark:placeholder:text-white/40"
-            @click.stop
-            @keydown.enter.prevent="selectCustomSearchText"
-          />
+      <!-- DESKTOP DROPDOWN MENU (Teleported to Body to eliminate overflow & z-index clipping) -->
+      <Teleport to="body">
+        <div
+          v-if="isOpen && !isMobile"
+          ref="desktopMenuRef"
+          class="spatial-dropdown-menu animate-spatial-in shadow-2xl space-y-2 p-2"
+          :style="floatingStyle"
+        >
+          <!-- Search Input Box -->
+          <div v-if="searchable" class="relative px-1 pt-1 space-y-1.5">
+            <input
+              ref="searchInputRef"
+              v-model="searchQuery"
+              type="text"
+              placeholder="🔍 ابحث بالكلمة أو اختر القيمة..."
+              class="w-full px-3 py-2 text-xs font-bold rounded-xl bg-slate-100 dark:bg-white/10 text-slate-900 dark:text-white border border-slate-200 dark:border-white/10 focus:outline-none focus:border-primary transition-all placeholder:text-slate-400 dark:placeholder:text-white/40"
+              @click.stop
+              @keydown.enter.prevent="selectCustomSearchText"
+            />
 
-          <!-- Quick Option for Custom Keyword Filter -->
-          <div
-            v-if="searchQuery.trim() && allowCustomText"
-            @click.stop="selectCustomSearchText"
-            class="p-2 rounded-xl bg-primary/10 hover:bg-primary/20 text-primary dark:text-blue-400 text-xs font-black cursor-pointer flex items-center justify-between transition-all border border-primary/20"
-          >
-            <span class="truncate">🔍 تصفية مباشرة بالكلمة: "{{ searchQuery }}"</span>
-            <span class="text-[10px] bg-primary/20 px-1.5 py-0.5 rounded font-mono shrink-0">Enter ↵</span>
-          </div>
-        </div>
-
-        <!-- Options List -->
-        <ul class="space-y-1 max-h-56 overflow-y-auto custom-scroll">
-          <template v-if="filteredOptions.length > 0">
-            <li
-              v-for="option in filteredOptions"
-              :key="option.value"
-              @click.stop="selectOption(option)"
-              :class="[
-                'spatial-dropdown-item flex items-center justify-between cursor-pointer',
-                isSelected(option.value) ? 'bg-primary/10 text-primary dark:bg-primary/20 dark:text-blue-400 font-black' : ''
-              ]"
+            <!-- Quick Option for Custom Keyword Filter -->
+            <div
+              v-if="searchQuery.trim() && allowCustomText"
+              @click.stop="selectCustomSearchText"
+              class="p-2 rounded-xl bg-primary/10 hover:bg-primary/20 text-primary dark:text-blue-400 text-xs font-black cursor-pointer flex items-center justify-between transition-all border border-primary/20"
             >
-              <div class="flex items-center gap-2 truncate">
-                <SpatialCheckbox v-if="multiple" :model-value="isSelected(option.value)" class="pointer-events-none scale-90" />
-                <span class="truncate">{{ option.label }}</span>
-              </div>
-              <span v-if="!multiple && isSelected(option.value)" class="text-xs text-primary font-black">✓</span>
-            </li>
-          </template>
+              <span class="truncate">🔍 تصفية مباشرة بالكلمة: "{{ searchQuery }}"</span>
+              <span class="text-[10px] bg-primary/20 px-1.5 py-0.5 rounded font-mono shrink-0">Enter ↵</span>
+            </div>
+          </div>
 
-          <li v-else-if="!searchQuery.trim()" class="p-3 text-center text-xs font-bold text-slate-400 dark:text-white/40">
-            لا توجد خيارات المتاحة
-          </li>
-          <li v-else class="p-3 text-center text-xs font-bold text-slate-400 dark:text-white/40">
-            اضغط Enter أعلاه للتصفية حسب النص "{{ searchQuery }}"
-          </li>
-        </ul>
-      </div>
+          <!-- Options List -->
+          <ul class="space-y-1 max-h-56 overflow-y-auto custom-scroll">
+            <template v-if="filteredOptions.length > 0">
+              <li
+                v-for="option in filteredOptions"
+                :key="option.value"
+                @click.stop="selectOption(option)"
+                :class="[
+                  'spatial-dropdown-item flex items-center justify-between cursor-pointer',
+                  isSelected(option.value) ? 'bg-primary/10 text-primary dark:bg-primary/20 dark:text-blue-400 font-black' : ''
+                ]"
+              >
+                <div class="flex items-center gap-2 truncate">
+                  <SpatialCheckbox v-if="multiple" :model-value="isSelected(option.value)" class="pointer-events-none scale-90" />
+                  <span class="truncate">{{ option.label }}</span>
+                </div>
+                <span v-if="!multiple && isSelected(option.value)" class="text-xs text-primary font-black">✓</span>
+              </li>
+            </template>
+
+            <li v-else-if="!searchQuery.trim()" class="p-3 text-center text-xs font-bold text-slate-400 dark:text-white/40">
+              لا توجد خيارات المتاحة
+            </li>
+            <li v-else class="p-3 text-center text-xs font-bold text-slate-400 dark:text-white/40">
+              اضغط Enter أعلاه للتصفية حسب النص "{{ searchQuery }}"
+            </li>
+          </ul>
+        </div>
+      </Teleport>
     </div>
 
     <!-- MOBILE FULLSCREEN WINDOW MODAL (Screens < 700px) -->
@@ -203,10 +206,12 @@ const emit = defineEmits(['update:modelValue', 'change']);
 const isOpen = ref(false);
 const isMobile = ref(false);
 const dropdownRef = ref(null);
+const desktopMenuRef = ref(null);
 const searchInputRef = ref(null);
 const searchInputRefMobile = ref(null);
 const searchQuery = ref('');
 const openUpward = ref(false);
+const floatingStyle = ref({});
 
 const safeOptions = computed(() => {
   return Array.isArray(props.options) ? props.options : [];
@@ -248,18 +253,47 @@ function updateIsMobile() {
   isMobile.value = window.innerWidth < 700;
 }
 
-function checkPosition() {
+function updateFloatingStyle() {
   if (!dropdownRef.value) return;
   const rect = dropdownRef.value.getBoundingClientRect();
-  const spaceBelow = window.innerHeight - rect.bottom;
-  const menuEstimatedHeight = 280;
-  openUpward.value = spaceBelow < menuEstimatedHeight && rect.top > menuEstimatedHeight;
+  const spaceBelowViewport = window.innerHeight - rect.bottom;
+  const spaceAboveViewport = rect.top;
+  const menuEstimatedHeight = 260;
+
+  const isUpward = spaceBelowViewport < menuEstimatedHeight && spaceAboveViewport > menuEstimatedHeight;
+  openUpward.value = isUpward;
+
+  if (isUpward) {
+    floatingStyle.value = {
+      position: 'fixed',
+      bottom: `${window.innerHeight - rect.top + 6}px`,
+      left: `${rect.left}px`,
+      width: `${Math.max(rect.width, 220)}px`,
+      zIndex: 999999,
+    };
+  } else {
+    floatingStyle.value = {
+      position: 'fixed',
+      top: `${rect.bottom + 6}px`,
+      left: `${rect.left}px`,
+      width: `${Math.max(rect.width, 220)}px`,
+      zIndex: 999999,
+    };
+  }
+}
+
+function handleScrollOrResize() {
+  if (isOpen.value && !isMobile.value) {
+    updateFloatingStyle();
+  }
 }
 
 function toggleDropdown() {
   isOpen.value = !isOpen.value;
   if (isOpen.value) {
-    checkPosition();
+    nextTick(() => {
+      updateFloatingStyle();
+    });
     if (props.searchable) {
       searchQuery.value = '';
       if (isMobile.value) {
@@ -313,19 +347,25 @@ function selectCustomSearchText() {
 }
 
 function handleClickOutside(e) {
-  if (dropdownRef.value && !dropdownRef.value.contains(e.target)) {
-    isOpen.value = false;
+  if (dropdownRef.value && dropdownRef.value.contains(e.target)) {
+    return;
   }
+  if (desktopMenuRef.value && desktopMenuRef.value.contains(e.target)) {
+    return;
+  }
+  isOpen.value = false;
 }
 
 onMounted(() => {
   updateIsMobile();
   window.addEventListener('resize', updateIsMobile);
+  window.addEventListener('scroll', handleScrollOrResize, true);
   document.addEventListener('click', handleClickOutside);
 });
 
 onUnmounted(() => {
   window.removeEventListener('resize', updateIsMobile);
+  window.removeEventListener('scroll', handleScrollOrResize, true);
   document.removeEventListener('click', handleClickOutside);
 });
 </script>
