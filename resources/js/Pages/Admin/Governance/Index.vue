@@ -692,8 +692,11 @@ const actionTranslations = {
   toggle_site_status: { label: 'تغيير حالة موقع', icon: '🔄', badge: 'bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20' },
   delete_site: { label: 'حذف موقع ميداني', icon: '🗑️', badge: 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20' },
   create_consultant: { label: 'إضافة استشاري', icon: '👷', badge: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20' },
+  register_consultant: { label: 'تسجيل استشاري جديد', icon: '👷', badge: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20' },
+  'register consultant': { label: 'تسجيل استشاري جديد', icon: '👷', badge: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20' },
   update_consultant: { label: 'تعديل ملف استشاري', icon: '✏️', badge: 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20' },
   toggle_consultant_status: { label: 'تغيير حالة استشاري', icon: '🔄', badge: 'bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20' },
+  change_consultant_status: { label: 'تغيير حالة استشاري', icon: '🔄', badge: 'bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20' },
   delete_consultant: { label: 'حذف استشاري', icon: '🗑️', badge: 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20' },
   execute_site_visit: { label: 'تنفيذ زيارة ميدانية', icon: '⚡', badge: 'bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20' },
   open_site_visit: { label: 'فتح زيارة ميدانية', icon: '🚀', badge: 'bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border border-cyan-500/20' },
@@ -771,6 +774,15 @@ const keyTranslations = {
   is_default: 'قالب افتراضي للنظام',
   daily_hours: 'ساعات العمل اليومية',
   user_id: 'رقم المستخدم',
+  user: '👤 حساب المستخدم المرتبط',
+  work_schedule_template: '📅 قالب الدوام المعتمد',
+  work_schedule_template_id: 'رقم قالب الدوام',
+  hire_date: '📅 تاريخ التعيين',
+  national_id: 'الرقم الوطني / الهوية',
+  specialization: 'التخصص الفني',
+  department: 'القسم / الإدارة',
+  consultant_id: 'رقم الاستشاري الميداني',
+  consultant: '👷 الاستشاري الميداني',
   ip: 'عنوان IP',
   name: 'الاسم',
   name_ar: 'الاسم بالعربية',
@@ -782,6 +794,7 @@ const keyTranslations = {
   start_date: 'تاريخ البداية',
   end_date: 'تاريخ النهاية',
   permissions: 'الصلاحيات المسندة',
+  password: '🔑 كلمة المرور',
   active: 'نشط',
   inactive: 'غير نشط',
   vacation: 'في إجازة',
@@ -844,8 +857,19 @@ function formatValue(val) {
     if (formattedDays) return formattedDays;
   }
 
-  if (typeof parsed === 'object') {
+  // Format model objects cleanly
+  if (typeof parsed === 'object' && parsed !== null) {
+    if (parsed.full_name) return parsed.full_name;
+    if (parsed.name) {
+      return parsed.email ? `${parsed.name} (${parsed.email})` : parsed.name;
+    }
+    if (parsed.title) return parsed.title;
     return JSON.stringify(parsed);
+  }
+
+  // Format ISO timestamp strings cleanly (e.g. 2026-08-07T22:00:00.000000Z -> 2026-08-07)
+  if (typeof parsed === 'string' && /^\d{4}-\d{2}-\d{2}T/.test(parsed)) {
+    return parsed.split('T')[0];
   }
 
   if (keyTranslations[val]) return keyTranslations[val];
@@ -874,6 +898,9 @@ function getMergedDiffList(log) {
     'submitted_responses_count',
     'tasks_details',
     'previous_tasks_details',
+    'user_id',
+    'work_schedule_template_id',
+    'consultant_id',
   ];
 
   const allKeys = Array.from(new Set([...Object.keys(oldVals), ...Object.keys(newVals)]));
@@ -979,15 +1006,20 @@ function getMergedDiffList(log) {
     if (ignoredKeys.includes(k)) return;
     const oldV = oldVals[k];
     const newV = newVals[k];
-    // Skip if values are identical (no change occurred)
-    if (oldV !== undefined && newV !== undefined && oldV === newV) {
+
+    const formattedOld = formatValue(oldV);
+    const formattedNew = formatValue(newV);
+
+    // Skip if formatted values are identical (no actual human-visible change occurred)
+    if (formattedOld === formattedNew) {
       return;
     }
+
     diffItems.push({
       key: k,
       label: translateKey(k),
-      oldVal: oldV !== undefined ? oldV : '—',
-      newVal: newV !== undefined ? newV : '—',
+      oldVal: formattedOld,
+      newVal: formattedNew,
     });
   });
 

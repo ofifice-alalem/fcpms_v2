@@ -28,7 +28,7 @@ class Consultant extends Model
     protected function casts(): array
     {
         return [
-            'hire_date' => 'date',
+            'hire_date' => 'date:Y-m-d',
             'employment_status' => ConsultantStatus::class,
         ];
     }

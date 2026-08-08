@@ -122,7 +122,12 @@ const consultantOptions = computed(() => {
   }));
 });
 
-const todayStr = new Date().toISOString().substring(0, 10);
+function getLocalDateString() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+
+const todayStr = getLocalDateString();
 
 const form = reactive({
   id: null,
@@ -138,8 +143,8 @@ watch(() => props.isOpen, (newVal) => {
     if (props.isEdit && props.leaveData) {
       form.id = props.leaveData.id;
       form.consultant_id = props.leaveData.consultant_id || (props.activeConsultants.length > 0 ? props.activeConsultants[0].id : null);
-      form.start_date = props.leaveData.start_date ? String(props.leaveData.start_date).substring(0, 10) : todayStr;
-      form.end_date = props.leaveData.end_date ? String(props.leaveData.end_date).substring(0, 10) : todayStr;
+      form.start_date = props.leaveData.start_date ? String(props.leaveData.start_date).split('T')[0] : todayStr;
+      form.end_date = props.leaveData.end_date ? String(props.leaveData.end_date).split('T')[0] : todayStr;
       form.reason = props.leaveData.reason || '';
       form.notes = props.leaveData.notes || '';
     } else {

@@ -41,14 +41,16 @@ class TaskService
 
     public function updateTask(TaskDefinition $task, array $data): TaskDefinition
     {
+        $task->load(['components.options', 'siteAssignments', 'consultantAssignments']);
         $oldValues = $task->toArray();
         $updatedTask = $this->taskRepo->updateFullTask($task, $data);
+        $updatedTask->load(['components.options', 'siteAssignments', 'consultantAssignments']);
 
         ActivityLogger::log(
             'update_task',
             'TaskDefinition',
             $updatedTask->id,
-            "تم تعديل مهمة: {$updatedTask->name_ar}",
+            "تم تعديل المهمة: {$updatedTask->name_ar}",
             $oldValues,
             $updatedTask->toArray()
         );

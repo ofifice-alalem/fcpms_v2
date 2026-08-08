@@ -93,9 +93,12 @@ class ConsultantService
     {
         /** @var Consultant $consultant */
         $consultant = $this->consultantRepository->findOrFail($id);
+        $consultant->load(['user', 'workScheduleTemplate']);
         $oldData = $consultant->toArray();
 
         return DB::transaction(function () use ($consultant, $data, $oldData) {
+            $passwordChanged = false;
+
             // 1. Lock employee_number modification (BR-003 / BR-005)
             unset($data['employee_number']);
 
@@ -120,6 +123,7 @@ class ConsultantService
 
             if (!empty($data['password'])) {
                 $consultant->user->update(['password' => Hash::make($data['password'])]);
+                $passwordChanged = true;
             }
 
             if (isset($data['full_name']) && $data['full_name'] !== $consultant->full_name) {
@@ -138,14 +142,20 @@ class ConsultantService
 
             ConsultantUpdatedEvent::dispatch($consultant);
             $updated = $consultant->fresh(['user', 'workScheduleTemplate']);
+            $newData = $updated->toArray();
+
+            if ($passwordChanged) {
+                $oldData['password'] = '—';
+                $newData['password'] = 'تم تحديث كلمة المرور 🔒';
+            }
 
             ActivityLogger::log(
                 'update_consultant',
                 'Consultant',
                 $updated->id,
-                "تم تحديث بيانات الاستشاري الميداني: {$updated->full_name}",
+                $passwordChanged ? "تم تحديث كلمة المرور وبيانات الاستشاري الميداني: {$updated->full_name}" : "تم تحديث بيانات الاستشاري الميداني: {$updated->full_name}",
                 $oldData,
-                $updated->toArray()
+                $newData
             );
 
             return $updated;

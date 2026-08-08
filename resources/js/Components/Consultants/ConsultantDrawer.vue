@@ -189,6 +189,22 @@ const scheduleOptions = computed(() => {
   }));
 });
 
+function safeDateString(val) {
+  if (!val) return '';
+  if (typeof val === 'string') {
+    return val.split('T')[0];
+  }
+  return '';
+}
+
+function getTodayLocalDate() {
+  const d = new Date();
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
 watch(() => props.consultantData, (newVal) => {
   if (newVal) {
     form.id = newVal.id;
@@ -199,7 +215,7 @@ watch(() => props.consultantData, (newVal) => {
     form.password = '';
     form.phone = newVal.phone || '';
     form.specialization = newVal.specialization || '';
-    form.hire_date = newVal.hire_date ? newVal.hire_date.substring(0, 10) : '';
+    form.hire_date = safeDateString(newVal.hire_date);
     form.work_schedule_template_id = newVal.work_schedule_template_id || null;
     form.employment_status = newVal.employment_status?.value || newVal.employment_status || 'active';
     form.notes = newVal.notes || '';
@@ -217,7 +233,7 @@ function resetForm() {
   form.password = '';
   form.phone = '';
   form.specialization = '';
-  form.hire_date = new Date().toISOString().substring(0, 10);
+  form.hire_date = getTodayLocalDate();
   form.work_schedule_template_id = null;
   form.employment_status = 'active';
   form.notes = '';

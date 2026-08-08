@@ -234,16 +234,18 @@ class WorkScheduleService
      */
     public function updateConsultantLeave(ConsultantLeave $leave, array $data): ConsultantLeave
     {
+        $leave->load('consultant');
         $oldData = $leave->toArray();
 
         return DB::transaction(function () use ($leave, $data, $oldData) {
             $updated = $this->leaveRepo->updateConsultantLeave($leave, $data);
+            $updated->load('consultant');
 
             ActivityLogger::log(
                 'update_consultant_leave',
                 'ConsultantLeave',
                 $updated->id,
-                "تم تعديل إجازة الاستشاري",
+                "تم تعديل إجازة الاستشاري: " . ($updated->consultant ? $updated->consultant->full_name : ''),
                 $oldData,
                 $updated->toArray()
             );
