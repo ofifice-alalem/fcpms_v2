@@ -250,6 +250,16 @@
             >
               🔴 غائب ({{ stats.absent_consultants }})
             </button>
+
+            <button
+              @click="consultantsFilter = 'leave_or_off'"
+              :class="[
+                'px-3 py-1.5 rounded-lg transition-all cursor-pointer select-none',
+                consultantsFilter === 'leave_or_off' ? 'bg-amber-600 text-white shadow-xs' : 'text-slate-500 dark:text-white/60 hover:text-slate-900 dark:hover:text-white'
+              ]"
+            >
+              🏖️ إجازات وعطلات ({{ (stats.leave_consultants || 0) + (stats.off_day_consultants || 0) }})
+            </button>
           </div>
         </div>
 
@@ -292,11 +302,28 @@
                         ? 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border-emerald-500/30'
                         : (c.status === 'leave'
                             ? 'bg-amber-500/15 text-amber-600 dark:text-amber-400 border-amber-500/30'
-                            : 'bg-rose-500/15 text-rose-600 dark:text-rose-400 border-rose-500/30')
+                            : (c.status === 'off_day' || c.status === 'holiday'
+                                ? 'bg-sky-500/15 text-sky-600 dark:text-sky-400 border-sky-500/30'
+                                : 'bg-rose-500/15 text-rose-600 dark:text-rose-400 border-rose-500/30'))
                     ]"
                   >
-                    <span :class="['w-2 h-2 rounded-full', c.status === 'checked_in' ? 'bg-emerald-500 animate-pulse' : (c.status === 'leave' ? 'bg-amber-500' : 'bg-rose-500')]"></span>
-                    <span>{{ c.status === 'checked_in' ? 'حاضر' : (c.status === 'leave' ? 'في إجازة' : 'غائب') }}</span>
+                    <span
+                      :class="[
+                        'w-2 h-2 rounded-full',
+                        c.status === 'checked_in' ? 'bg-emerald-500 animate-pulse' :
+                        c.status === 'leave' ? 'bg-amber-500' :
+                        (c.status === 'off_day' || c.status === 'holiday' ? 'bg-sky-500' : 'bg-rose-500')
+                      ]"
+                    ></span>
+                    <span>
+                      {{
+                        c.status === 'checked_in' ? 'حاضر' :
+                        c.status === 'leave' ? 'في إجازة' :
+                        c.status === 'off_day' ? 'عطلة أسبوعية' :
+                        c.status === 'holiday' ? (c.holiday_name ? `عطلة: ${c.holiday_name}` : 'عطلة رسمية') :
+                        'غائب'
+                      }}
+                    </span>
                   </span>
                 </td>
                 <td class="p-4 text-center font-mono text-xs font-bold text-slate-700 dark:text-white/80 whitespace-nowrap">
@@ -803,6 +830,9 @@ const filteredConsultants = computed(() => {
   }
   if (consultantsFilter.value === 'absent') {
     return props.consultants_status.filter(c => c.status === 'absent');
+  }
+  if (consultantsFilter.value === 'leave_or_off') {
+    return props.consultants_status.filter(c => ['leave', 'off_day', 'holiday'].includes(c.status));
   }
   return props.consultants_status;
 });

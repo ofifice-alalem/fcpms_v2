@@ -84,19 +84,25 @@ class ReportRepository implements ReportRepositoryInterface
     {
         $visitQuery = SiteVisit::with(['dailyRecord.consultant', 'site', 'taskResponses.taskDefinition', 'taskResponses.values']);
 
+        $dateTarget = $filters['date_target'] ?? 'work_date';
+
         if (!empty($filters['date_from'])) {
-            $visitQuery->where(function ($q) use ($filters) {
-                $q->whereHas('dailyRecord', fn ($dq) => $dq->whereDate('work_date', '>=', $filters['date_from']))
-                  ->orWhereDate('visit_started_at', '>=', $filters['date_from'])
-                  ->orWhereDate('created_at', '>=', $filters['date_from']);
-            });
+            if ($dateTarget === 'updated_at') {
+                $visitQuery->whereDate('updated_at', '>=', $filters['date_from']);
+            } else {
+                $visitQuery->whereHas('dailyRecord', function ($dq) use ($filters) {
+                    $dq->whereDate('work_date', '>=', $filters['date_from']);
+                });
+            }
         }
         if (!empty($filters['date_to'])) {
-            $visitQuery->where(function ($q) use ($filters) {
-                $q->whereHas('dailyRecord', fn ($dq) => $dq->whereDate('work_date', '<=', $filters['date_to']))
-                  ->orWhereDate('visit_started_at', '<=', $filters['date_to'])
-                  ->orWhereDate('created_at', '<=', $filters['date_to']);
-            });
+            if ($dateTarget === 'updated_at') {
+                $visitQuery->whereDate('updated_at', '<=', $filters['date_to']);
+            } else {
+                $visitQuery->whereHas('dailyRecord', function ($dq) use ($filters) {
+                    $dq->whereDate('work_date', '<=', $filters['date_to']);
+                });
+            }
         }
         if (!empty($filters['consultant_id'])) {
             $visitQuery->whereHas('dailyRecord', function ($q) use ($filters) {
@@ -208,19 +214,25 @@ class ReportRepository implements ReportRepositoryInterface
 
         $query = SiteVisit::with(['dailyRecord.consultant', 'site', 'taskResponses.taskDefinition']);
 
+        $dateTarget = $filters['date_target'] ?? 'work_date';
+
         if (!empty($filters['date_from'])) {
-            $query->where(function ($q) use ($filters) {
-                $q->whereHas('dailyRecord', fn ($dq) => $dq->whereDate('work_date', '>=', $filters['date_from']))
-                  ->orWhereDate('visit_started_at', '>=', $filters['date_from'])
-                  ->orWhereDate('created_at', '>=', $filters['date_from']);
-            });
+            if ($dateTarget === 'updated_at') {
+                $query->whereDate('updated_at', '>=', $filters['date_from']);
+            } else {
+                $query->whereHas('dailyRecord', function ($dq) use ($filters) {
+                    $dq->whereDate('work_date', '>=', $filters['date_from']);
+                });
+            }
         }
         if (!empty($filters['date_to'])) {
-            $query->where(function ($q) use ($filters) {
-                $q->whereHas('dailyRecord', fn ($dq) => $dq->whereDate('work_date', '<=', $filters['date_to']))
-                  ->orWhereDate('visit_started_at', '<=', $filters['date_to'])
-                  ->orWhereDate('created_at', '<=', $filters['date_to']);
-            });
+            if ($dateTarget === 'updated_at') {
+                $query->whereDate('updated_at', '<=', $filters['date_to']);
+            } else {
+                $query->whereHas('dailyRecord', function ($dq) use ($filters) {
+                    $dq->whereDate('work_date', '<=', $filters['date_to']);
+                });
+            }
         }
         if (!empty($filters['consultant_id'])) {
             $query->whereHas('dailyRecord', function ($q) use ($filters) {

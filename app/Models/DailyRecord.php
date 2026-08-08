@@ -27,7 +27,7 @@ class DailyRecord extends Model implements Auditable
     protected function casts(): array
     {
         return [
-            'work_date' => 'date',
+            'work_date' => 'date:Y-m-d',
             'check_in_time' => 'datetime',
             'check_out_time' => 'datetime',
             'required_daily_tasks' => 'integer',

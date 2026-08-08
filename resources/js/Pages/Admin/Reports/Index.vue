@@ -280,7 +280,7 @@
       <!-- Multi-Filter Bar -->
       <SpatialCard padding="p-5" class="relative z-30">
         <form @submit.prevent="applyFilters" class="space-y-4">
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
             <SpatialDropdown
               v-model="filterForm.consultant_id"
               label="الاستشاري الميداني"
@@ -300,6 +300,13 @@
               label="المدينة"
               placeholder="جميع المدن"
               :options="cityOptions"
+            />
+
+            <SpatialDropdown
+              v-model="filterForm.date_target"
+              label="تصفية حسب تاريخ"
+              placeholder="تاريخ الزيارة الفعلي"
+              :options="dateTargetOptions"
             />
 
             <div class="grid grid-cols-2 gap-2">
@@ -352,11 +359,11 @@
           <table class="w-full text-right border-collapse">
             <thead>
               <tr class="border-b border-slate-200 dark:border-white/10 text-xs font-black text-slate-600 dark:text-white/70 bg-slate-100/90 dark:bg-white/5">
-                <th class="p-4">تاريخ اليوم</th>
+                <th class="p-4">تاريخ الزيارة الفعلي</th>
+                <th class="p-4">آخر تعديل</th>
                 <th class="p-4">الاستشاري الميداني</th>
                 <th class="p-4">موقع العمل</th>
                 <th class="p-4">المدينة</th>
-                <th class="p-4">وقت الدخول / الخروج</th>
                 <th class="p-4 text-center">المهام (يومية / إضافية)</th>
                 <th class="p-4 text-center">حالة الزيارة</th>
                 <th class="p-4 text-center w-28">الإجراءات</th>
@@ -368,8 +375,17 @@
                 :key="visit.id"
                 class="transition-colors hover:bg-slate-50/80 dark:hover:bg-white/5"
               >
-                <td class="p-4 font-mono text-xs font-black text-slate-700 dark:text-white/80">
-                  {{ formatDate(visit.daily_record?.record_date || visit.created_at) }}
+                <td class="p-4 font-mono text-xs font-black text-slate-700 dark:text-white/80 whitespace-nowrap">
+                  <div>{{ formatDate(visit.daily_record?.work_date || visit.daily_record?.record_date || visit.created_at) }}</div>
+                  <div class="text-[11px] font-bold text-indigo-600 dark:text-indigo-400 mt-0.5" v-if="visit.check_in_time || visit.visit_started_at">
+                    ⏰ {{ formatTime(visit.check_in_time || visit.visit_started_at) }}
+                  </div>
+                </td>
+                <td class="p-4 font-mono text-xs font-black text-slate-700 dark:text-white/80 whitespace-nowrap">
+                  <div>{{ formatDate(visit.updated_at || visit.completed_at || visit.created_at) }}</div>
+                  <div class="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 mt-0.5">
+                    🕒 {{ formatTime(visit.updated_at || visit.completed_at || visit.created_at) }}
+                  </div>
                 </td>
                 <td class="p-4">
                   <div class="font-black text-slate-900 dark:text-white">
@@ -384,9 +400,6 @@
                 </td>
                 <td class="p-4 text-xs font-bold text-slate-600 dark:text-white/70">
                   {{ visit.site?.city || '-' }}
-                </td>
-                <td class="p-4 font-mono text-xs text-slate-600 dark:text-white/80">
-                  {{ formatTime(visit.check_in_time) }} ⬅️ {{ formatTime(visit.check_out_time) }}
                 </td>
                 <td class="p-4 text-center">
                   <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-slate-100 dark:bg-white/5 border border-slate-200/80 dark:border-white/10 font-mono text-xs font-black">
@@ -535,10 +548,16 @@ function goToSiteBreakdown() {
   router.get(route('admin.reports.site-breakdown', selectedSiteId.value));
 }
 
+const dateTargetOptions = [
+  { label: '📅 تاريخ الزيارة الفعلي', value: 'work_date' },
+  { label: '🕒 تاريخ آخر تعديل', value: 'updated_at' },
+];
+
 const filterForm = reactive({
   consultant_id: props.filters?.consultant_id || '',
   site_id: props.filters?.site_id || '',
   city: props.filters?.city || '',
+  date_target: props.filters?.date_target || 'work_date',
   date_from: props.filters?.date_from || '',
   date_to: props.filters?.date_to || '',
 });
@@ -548,6 +567,7 @@ const hasActiveFilters = computed(() => {
     filterForm.consultant_id ||
     filterForm.site_id ||
     filterForm.city ||
+    (filterForm.date_target && filterForm.date_target !== 'work_date') ||
     filterForm.date_from ||
     filterForm.date_to
   );
@@ -588,6 +608,7 @@ function resetFilters() {
   filterForm.consultant_id = '';
   filterForm.site_id = '';
   filterForm.city = '';
+  filterForm.date_target = 'work_date';
   filterForm.date_from = '';
   filterForm.date_to = '';
   applyFilters();
@@ -624,11 +645,43 @@ async function openVisitModal(visitId) {
 
 function formatDate(dateStr) {
   if (!dateStr) return '-';
-  return String(dateStr).substring(0, 10);
+  const str = String(dateStr);
+  if (/^\d{4}-\d{2}-\d{2}$/.test(str)) {
+    return str;
+  }
+  const d = new Date(dateStr);
+  if (isNaN(d.getTime())) return str.substring(0, 10);
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
 }
 
 function formatTime(timeStr) {
   if (!timeStr) return '--:--';
-  return String(timeStr).substring(11, 16) || String(timeStr).substring(0, 5);
+  const str = String(timeStr);
+  if (/^\d{2}:\d{2}/.test(str)) {
+    return str.substring(0, 5);
+  }
+  const d = new Date(timeStr);
+  if (isNaN(d.getTime())) {
+    return str.substring(11, 16) || str.substring(0, 5);
+  }
+  const hours = String(d.getHours()).padStart(2, '0');
+  const minutes = String(d.getMinutes()).padStart(2, '0');
+  return `${hours}:${minutes}`;
+}
+
+function formatDateTime(dateStr) {
+  if (!dateStr) return '--:--';
+  const str = String(dateStr);
+  const d = new Date(dateStr);
+  if (isNaN(d.getTime())) return str.substring(0, 16);
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  const hours = String(d.getHours()).padStart(2, '0');
+  const minutes = String(d.getMinutes()).padStart(2, '0');
+  return `${year}-${month}-${day} ${hours}:${minutes}`;
 }
 </script>

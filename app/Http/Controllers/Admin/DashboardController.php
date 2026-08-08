@@ -8,6 +8,10 @@ use App\Models\DailyRecord;
 use App\Models\SiteVisit;
 use App\Models\TaskResponse;
 use App\Models\ConsultantLeave;
+use App\Models\OfficialHoliday;
+use App\Models\WorkScheduleTemplate;
+use App\Rules\BusinessRuleEvaluator;
+use App\Enums\AttendanceStatus;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -19,9 +23,21 @@ class DashboardController extends Controller
     {
         $today = Carbon::today();
 
-        // 1. All Active Consultants
-        $allConsultants = Consultant::with(['user', 'workScheduleTemplate'])->get();
+        // 1. All Active Consultants with their Work Schedule Templates
+        $allConsultants = Consultant::with(['user', 'workScheduleTemplate.days'])->get();
         $totalConsultantsCount = $allConsultants->count();
+
+        // Default Work Schedule Template (Fallback if consultant doesn't have a template)
+        $defaultTemplate = WorkScheduleTemplate::where('is_default', true)->with('days')->first();
+
+        // Check if today is an official holiday (BR-014)
+        $officialHolidayToday = OfficialHoliday::whereDate('start_date', '<=', $today)
+            ->whereDate('end_date', '>=', $today)
+            ->first();
+        $isOfficialHoliday = !is_null($officialHolidayToday);
+
+        // Day of week (0=Sunday ... 6=Saturday)
+        $todayDayOfWeek = $today->dayOfWeek;
 
         // 2. Checked In Consultants Today (Daily Records with check_in_time)
         $todayDailyRecords = DailyRecord::with([
@@ -34,15 +50,12 @@ class DashboardController extends Controller
         ->get();
 
         $checkedInConsultantIds = $todayDailyRecords->whereNotNull('check_in_time')->pluck('consultant_id')->toArray();
-        $checkedInCount = count($checkedInConsultantIds);
 
-        // 3. Absent Consultants & Leaves Today
+        // 3. Leaves Today
         $leavesToday = ConsultantLeave::whereDate('start_date', '<=', $today)
             ->whereDate('end_date', '>=', $today)
             ->pluck('consultant_id')
             ->toArray();
-
-        $absentCount = max(0, $totalConsultantsCount - $checkedInCount);
 
         // 4. Visited Sites Today
         $todaySiteVisits = SiteVisit::with([
@@ -83,12 +96,21 @@ class DashboardController extends Controller
             return $r->status === 'submitted' || ($r->completed_at && $hasValues);
         })->count();
 
-        // Detailed Lists for Dashboard Views
-        $consultantsStatusList = $allConsultants->map(function ($c) use ($checkedInConsultantIds, $todayDailyRecords, $leavesToday) {
-            $isLeave = in_array($c->id, $leavesToday);
+        // Detailed Lists for Dashboard Views using BusinessRuleEvaluator (BR-018)
+        $consultantsStatusList = $allConsultants->map(function ($c) use (
+            $todayDayOfWeek,
+            $isOfficialHoliday,
+            $officialHolidayToday,
+            $defaultTemplate,
+            $checkedInConsultantIds,
+            $todayDailyRecords,
+            $leavesToday
+        ) {
+            $isOnLeave = in_array($c->id, $leavesToday);
             
-            // Find record for today, or fallback to latest record
-            $record = $todayDailyRecords->firstWhere('consultant_id', $c->id);
+            // Find record for today, or fallback to latest record for site visits history
+            $todayRecord = $todayDailyRecords->firstWhere('consultant_id', $c->id);
+            $record = $todayRecord;
             if (!$record) {
                 $record = DailyRecord::where('consultant_id', $c->id)
                     ->with([
@@ -100,7 +122,33 @@ class DashboardController extends Controller
                     ->first();
             }
 
-            $isCheckedIn = in_array($c->id, $checkedInConsultantIds) || ($record && !is_null($record->check_in_time));
+            $isCheckedIn = in_array($c->id, $checkedInConsultantIds) || ($todayRecord && !is_null($todayRecord->check_in_time));
+
+            // Check if today is a working day for this consultant based on their template
+            $template = $c->workScheduleTemplate ?? $defaultTemplate;
+            $dayConfig = $template?->days?->firstWhere('day_of_week', $todayDayOfWeek);
+            if ($dayConfig) {
+                $isWorkingDay = (bool) $dayConfig->is_working_day;
+            } else {
+                // Default: Sunday(0) to Thursday(4) are working days, Friday(5)/Saturday(6) are weekend
+                $isWorkingDay = !in_array($todayDayOfWeek, [5, 6]);
+            }
+
+            // Strict BR-018 evaluation: Official Holiday -> Work Schedule -> Leave -> Activity -> Absence
+            $evalStatus = BusinessRuleEvaluator::evaluateAttendanceStatus(
+                $isOfficialHoliday,
+                $isWorkingDay,
+                $isOnLeave,
+                $isCheckedIn
+            );
+
+            $statusString = match($evalStatus) {
+                AttendanceStatus::HOLIDAY => 'holiday',
+                AttendanceStatus::NON_WORKING_DAY => 'off_day',
+                AttendanceStatus::LEAVE => 'leave',
+                AttendanceStatus::PRESENT => 'checked_in',
+                AttendanceStatus::ABSENT => 'absent',
+            };
 
             $siteVisitsList = [];
             if ($record && $record->siteVisits) {
@@ -174,8 +222,10 @@ class DashboardController extends Controller
                 'employee_number' => $c->employee_number,
                 'specialization' => $c->specialization,
                 'phone' => $c->phone,
-                'status' => $isCheckedIn ? 'checked_in' : ($isLeave ? 'leave' : 'absent'),
-                'check_in_time' => $record && $record->check_in_time ? Carbon::parse($record->check_in_time)->format('H:i') : null,
+                'status' => $statusString,
+                'is_working_day' => $isWorkingDay,
+                'holiday_name' => $isOfficialHoliday && $officialHolidayToday ? $officialHolidayToday->name : null,
+                'check_in_time' => $todayRecord && $todayRecord->check_in_time ? Carbon::parse($todayRecord->check_in_time)->format('H:i') : null,
                 'completed_daily_tasks' => $record ? $record->completed_daily_tasks : 0,
                 'required_daily_tasks' => $record ? $record->required_daily_tasks : 0,
                 'completion_percentage' => $record ? (float) $record->completion_percentage : 0,
@@ -283,11 +333,20 @@ class DashboardController extends Controller
             ];
         })->values()->all();
 
+        $checkedInCount = $consultantsStatusList->where('status', 'checked_in')->count();
+        $absentCount = $consultantsStatusList->where('status', 'absent')->count();
+        $leaveCount = $consultantsStatusList->where('status', 'leave')->count();
+        $offDayCount = $consultantsStatusList->whereIn('status', ['off_day', 'holiday'])->count();
+
         return Inertia::render('Admin/Dashboard/Index', [
             'stats' => [
                 'total_consultants' => $totalConsultantsCount,
                 'checked_in_consultants' => $checkedInCount,
                 'absent_consultants' => $absentCount,
+                'leave_consultants' => $leaveCount,
+                'off_day_consultants' => $offDayCount,
+                'is_official_holiday' => $isOfficialHoliday,
+                'holiday_name' => $officialHolidayToday ? $officialHolidayToday->name : null,
                 'visited_sites' => $visitedSitesCount,
                 'total_site_visits' => $totalVisitsCount,
                 'daily_tasks_count' => $dailyTasksCount,
