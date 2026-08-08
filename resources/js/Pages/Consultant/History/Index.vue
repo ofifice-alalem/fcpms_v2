@@ -72,18 +72,18 @@
           </span>
         </div>
 
-        <!-- Desktop View Table -->
-        <div class="hidden md:block overflow-x-auto">
+        <!-- Desktop View Table (High-Fidelity Enterprise Design) -->
+        <div class="hidden md:block overflow-x-auto rounded-2xl border border-slate-200/80 dark:border-white/10">
           <table class="w-full text-right border-collapse">
             <thead>
-              <tr class="border-b border-slate-200 dark:border-white/10 text-xs font-black text-slate-500 dark:text-white/50 uppercase tracking-wider">
-                <th class="py-3 px-4">التاريخ واليوم</th>
-                <th class="py-3 px-4">آخر تعديل</th>
-                <th class="py-3 px-4">الحالة</th>
-                <th class="py-3 px-4">المواقع المزارة</th>
-                <th class="py-3 px-4 text-center">المهام الإضافية</th>
-                <th class="py-3 px-4">نسبة الإنجاز</th>
-                <th class="py-3 px-4 text-center">الإجراء والفتح</th>
+              <tr class="bg-slate-100/70 dark:bg-white/5 border-b border-slate-200/80 dark:border-white/10 text-xs font-black text-slate-600 dark:text-white/60 uppercase tracking-wider">
+                <th class="py-3.5 px-4">التاريخ واليوم</th>
+                <th class="py-3.5 px-4">آخر تعديل</th>
+                <th class="py-3.5 px-4">الحالة</th>
+                <th class="py-3.5 px-4">المواقع المزارة</th>
+                <th class="py-3.5 px-4 text-center">المهام الإضافية</th>
+                <th class="py-3.5 px-4">نسبة الإنجاز</th>
+                <th class="py-3.5 px-4 text-center">الإجراء والفتح</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-slate-100 dark:divide-white/5 text-sm">
@@ -91,18 +91,18 @@
                 v-for="day in days"
                 :key="day.date"
                 :class="[
-                  'hover:bg-slate-50/50 dark:hover:bg-white/5 transition-colors',
+                  'hover:bg-slate-50/70 dark:hover:bg-white/[0.03] transition-colors align-middle',
                   day.is_today ? 'bg-primary/5 dark:bg-primary/10 font-bold' : ''
                 ]"
               >
                 <!-- Date & Day Name & Start Time -->
-                <td class="py-4 px-4 font-bold text-slate-900 dark:text-white whitespace-nowrap">
-                  <div class="flex items-center gap-2">
-                    <span v-if="day.is_today" class="w-2 h-2 rounded-full bg-primary animate-ping"></span>
+                <td class="py-4 px-4 font-bold text-slate-900 dark:text-white whitespace-nowrap align-middle">
+                  <div class="flex items-start gap-2.5">
+                    <span v-if="day.is_today" class="w-2.5 h-2.5 mt-1 rounded-full bg-primary animate-ping shrink-0"></span>
                     <div>
-                      <div class="font-black text-sm">{{ day.day_name }}</div>
-                      <div class="text-xs font-mono text-slate-500 dark:text-white/50 dir-ltr text-right">{{ day.formatted_date }}</div>
-                      <div class="text-[11px] font-bold text-indigo-600 dark:text-indigo-400 mt-0.5" v-if="day.record && day.record.check_in_time">
+                      <div class="font-black text-sm text-slate-900 dark:text-white">{{ day.day_name }}</div>
+                      <div class="text-xs font-mono text-slate-500 dark:text-white/50 dir-ltr text-right mt-0.5">{{ day.formatted_date }}</div>
+                      <div class="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 text-[11px] font-extrabold border border-indigo-500/20 mt-1.5" v-if="day.record && day.record.check_in_time">
                         ⏰ {{ day.record.check_in_time }}
                       </div>
                     </div>
@@ -110,21 +110,26 @@
                 </td>
 
                 <!-- Last Modified -->
-                <td class="py-4 px-4 font-bold text-slate-900 dark:text-white whitespace-nowrap">
+                <td class="py-4 px-4 font-bold text-slate-900 dark:text-white whitespace-nowrap align-middle">
                   <div
                     v-if="day.record && day.record.updated_date"
                     :class="[
-                      'inline-block px-3 py-1.5 rounded-2xl transition-all',
+                      'inline-block px-3.5 py-2 rounded-2xl transition-all',
                       !day.record.is_same_day_update
                         ? 'border-2 border-amber-500/50 dark:border-amber-400/50 bg-amber-500/10 dark:bg-amber-400/10 shadow-2xs'
-                        : 'border border-slate-200 dark:border-white/10 bg-slate-50/50 dark:bg-white/5'
+                        : 'border border-slate-200/80 dark:border-white/10 bg-slate-100/60 dark:bg-white/5'
                     ]"
                   >
-                    <div class="font-black text-sm" :class="!day.record.is_same_day_update ? 'text-amber-700 dark:text-amber-300' : ''">
-                      {{ day.record.updated_day_name }}
+                    <div class="flex items-center gap-1.5">
+                      <span class="font-black text-sm" :class="!day.record.is_same_day_update ? 'text-amber-700 dark:text-amber-300' : 'text-slate-900 dark:text-white'">
+                        {{ day.record.updated_day_name }}
+                      </span>
+                      <span v-if="!day.record.is_same_day_update" class="text-[10px] px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-800 dark:text-amber-300 font-bold border border-amber-500/30">
+                        أثر رجعي
+                      </span>
                     </div>
-                    <div class="text-xs font-mono text-slate-500 dark:text-white/50 dir-ltr text-right">{{ day.record.updated_date }}</div>
-                    <div class="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 mt-0.5" v-if="day.record.updated_time">
+                    <div class="text-xs font-mono text-slate-500 dark:text-white/50 dir-ltr text-right mt-0.5">{{ day.record.updated_date }}</div>
+                    <div class="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 mt-1" v-if="day.record.updated_time">
                       🕒 {{ day.record.updated_time }}
                     </div>
                   </div>
@@ -134,10 +139,10 @@
                 </td>
 
                 <!-- Status Pill -->
-                <td class="py-4 px-4">
+                <td class="py-4 px-4 align-middle">
                   <span
                     :class="[
-                      'inline-flex items-center px-3 py-1 rounded-full text-xs font-black border',
+                      'inline-flex items-center px-3 py-1 rounded-full text-xs font-black border shadow-2xs',
                       getStatusClass(day.status_type)
                     ]"
                   >
@@ -146,31 +151,34 @@
                 </td>
 
                 <!-- Visited sites -->
-                <td class="py-4 px-4 font-mono text-xs font-black text-slate-800 dark:text-white">
-                  {{ day.record ? day.record.site_visits_count + ' مواقع' : '-' }}
+                <td class="py-4 px-4 align-middle">
+                  <span v-if="day.record" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-slate-100 dark:bg-white/5 font-mono text-xs font-black text-slate-800 dark:text-white border border-slate-200/80 dark:border-white/10">
+                    📍 {{ day.record.site_visits_count }} مواقع
+                  </span>
+                  <span v-else class="text-slate-400 dark:text-white/30 text-xs font-normal">--</span>
                 </td>
 
                 <!-- On-demand tasks count -->
-                <td class="py-4 px-4 text-center font-mono text-base font-black">
-                  <span v-if="day.record && day.record.on_demand_tasks_count > 0" class="text-amber-600 dark:text-amber-400 text-base font-black">
-                    {{ day.record.on_demand_tasks_count }}
+                <td class="py-4 px-4 text-center align-middle">
+                  <span v-if="day.record && day.record.on_demand_tasks_count > 0" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-amber-500/10 text-amber-700 dark:text-amber-400 font-mono text-xs font-black border border-amber-500/20">
+                    ⚡ {{ day.record.on_demand_tasks_count }}
                   </span>
-                  <span v-else class="text-slate-400 dark:text-white/30 text-sm font-bold">
+                  <span v-else class="text-slate-400 dark:text-white/30 text-xs font-normal">
                     --
                   </span>
                 </td>
 
                 <!-- Progress percentage -->
-                <td class="py-4 px-4">
-                  <div v-if="day.record" class="flex items-center gap-2 w-32">
-                    <div class="flex-1 bg-slate-200 dark:bg-slate-700 h-2 rounded-full overflow-hidden">
+                <td class="py-4 px-4 align-middle">
+                  <div v-if="day.record" class="flex items-center gap-2.5 w-36">
+                    <div class="flex-1 bg-slate-200/80 dark:bg-slate-700/80 h-2.5 rounded-full overflow-hidden p-0.5 border border-slate-200 dark:border-white/10">
                       <div
-                        class="h-full bg-primary transition-all duration-300"
+                        class="h-full bg-primary rounded-full transition-all duration-300 shadow-xs"
                         :style="{ width: `${day.record.completion_percentage}%` }"
                       ></div>
                     </div>
-                    <span class="text-xs font-mono font-black text-slate-700 dark:text-white/80">
-                      {{ day.record.completion_percentage }}%
+                    <span class="text-xs font-mono font-black text-slate-800 dark:text-white">
+                      {{ Math.round(day.record.completion_percentage) }}%
                     </span>
                   </div>
                   <span v-else class="text-xs text-slate-400 dark:text-white/30">-</span>
@@ -201,7 +209,7 @@
                   </SpatialButton>
 
                   <SpatialButton
-                    v-else-if="!day.is_future && !day.is_weekend"
+                    v-else-if="!day.is_future"
                     variant="secondary"
                     size="sm"
                     @click="openDateRecord(day.date)"
@@ -348,7 +356,7 @@
               </SpatialButton>
 
               <SpatialButton
-                v-else-if="!day.is_future && !day.is_weekend"
+                v-else-if="!day.is_future"
                 variant="secondary"
                 size="md"
                 class="w-full justify-center shadow-xs"
@@ -358,7 +366,7 @@
               </SpatialButton>
 
               <div v-else class="text-center text-xs font-bold text-slate-400 dark:text-white/30 py-2">
-                عطلة أسبوعية / غير متاح 🌴
+                غير متاح 🔒
               </div>
             </div>
           </div>
