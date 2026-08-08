@@ -14,6 +14,8 @@ use Inertia\Inertia;
 use Inertia\Response as InertiaResponse;
 use Maatwebsite\Excel\Facades\Excel;
 
+use Illuminate\Support\Facades\Gate;
+
 class AdminReportController extends Controller
 {
     public function __construct(
@@ -27,6 +29,7 @@ class AdminReportController extends Controller
      */
     public function index(GenerateReportRequest $request): InertiaResponse
     {
+        Gate::authorize('view-reports');
         $filters = $request->validated();
 
         $metrics = $this->reportService->getEnterpriseReportData($filters);
@@ -77,6 +80,8 @@ class AdminReportController extends Controller
      */
     public function export(ExportReportRequest $request)
     {
+        Gate::authorize('export-reports');
+
         $filters = $request->validated();
         $format = $request->input('format', 'excel');
 
@@ -96,6 +101,8 @@ class AdminReportController extends Controller
      */
     public function sitesReport(GenerateReportRequest $request): InertiaResponse
     {
+        Gate::authorize('view-reports');
+
         $filters = $request->validated();
         $sitesReport = $this->reportService->getSitesPerformanceData($filters);
 
@@ -121,6 +128,8 @@ class AdminReportController extends Controller
      */
     public function siteTaskBreakdown(int $site, GenerateReportRequest $request): InertiaResponse
     {
+        Gate::authorize('view-reports');
+
         $filters = $request->validated();
         $breakdownData = $this->reportService->getSpecificSiteTaskData($site, $filters);
 
@@ -145,6 +154,8 @@ class AdminReportController extends Controller
      */
     public function consultantsReport(GenerateReportRequest $request): InertiaResponse
     {
+        Gate::authorize('view-reports');
+
         $filters = $request->validated();
         $consultantsReport = $this->reportService->getConsultantsPerformanceData($filters);
 
@@ -167,6 +178,8 @@ class AdminReportController extends Controller
      */
     public function consultantSitesBreakdown(int $consultant, GenerateReportRequest $request): InertiaResponse
     {
+        Gate::authorize('view-reports');
+
         $filters = $request->validated();
         $breakdownData = $this->reportService->getConsultantSitesData($consultant, $filters);
 
@@ -183,6 +196,8 @@ class AdminReportController extends Controller
      */
     public function consultantTasksBreakdown(int $consultant, GenerateReportRequest $request): InertiaResponse
     {
+        Gate::authorize('view-reports');
+
         $filters = $request->validated();
         $breakdownData = $this->reportService->getConsultantTasksData($consultant, $filters);
 

@@ -22,14 +22,21 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/dashboard', function (Request $request) {
         $user = Auth::user();
-        if ($user && ($user->hasRole('hr') || $user->hasRole('admin'))) {
+        if ($user && $user->hasRole('consultant')) {
+            return redirect()->route('consultant.visits.index');
+        }
+        if ($user && $user->roles()->count() > 0) {
             return app(\App\Http\Controllers\Admin\DashboardController::class)->index($request);
         }
-        return redirect()->route('consultant.visits.index');
+        
+        return Inertia::render('Error', [
+            'status' => 403,
+            'message' => 'تم تسجيل حسابك بنجاح، ولكن الحساب بحاجة لتحديد دور الصلاحيات من صفحة "إدارة مستخدمي النظام".',
+        ]);
     })->name('dashboard');
 
-    // Admin Routes
-    Route::prefix('admin')->name('admin.')->middleware('role:hr|admin')->group(function () {
+    // Admin & Governance Routes (Accessible to Admin, HR, and any newly created non-consultant roles)
+    Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin_access'])->group(function () {
         // Phase 01: Site & Location Management Routes
         Route::get('/sites', [SiteController::class, 'index'])->name('sites.index');
         Route::post('/sites', [SiteController::class, 'store'])->name('sites.store');
@@ -93,6 +100,13 @@ Route::middleware('auth')->group(function () {
         Route::delete('/governance/roles/{role}', [\App\Http\Controllers\Admin\GovernanceController::class, 'destroyRole'])->name('governance.roles.destroy');
         Route::post('/governance/settings', [\App\Http\Controllers\Admin\GovernanceController::class, 'updateSettings'])->name('governance.settings.update');
         Route::get('/governance/audit-logs/{log}', [\App\Http\Controllers\Admin\GovernanceController::class, 'showAuditLog'])->name('governance.audit-logs.show');
+
+        // Phase 09: System Users & Account Management Routes
+        Route::get('/users', [\App\Http\Controllers\Admin\UserController::class, 'index'])->name('users.index');
+        Route::post('/users', [\App\Http\Controllers\Admin\UserController::class, 'store'])->name('users.store');
+        Route::put('/users/{user}', [\App\Http\Controllers\Admin\UserController::class, 'update'])->name('users.update');
+        Route::patch('/users/{user}/toggle-status', [\App\Http\Controllers\Admin\UserController::class, 'toggleStatus'])->name('users.toggle-status');
+        Route::delete('/users/{user}', [\App\Http\Controllers\Admin\UserController::class, 'destroy'])->name('users.destroy');
     });
 
     // Phase 05: Consultant Daily Visits Portal Routes

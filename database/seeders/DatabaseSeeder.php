@@ -21,6 +21,7 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         // 0. Ensure Roles Exist
+        $adminRole = Role::firstOrCreate(['name' => 'admin', 'guard_name' => 'web']);
         $hrRole = Role::firstOrCreate(['name' => 'hr', 'guard_name' => 'web']);
         $consultantRole = Role::firstOrCreate(['name' => 'consultant', 'guard_name' => 'web']);
 
@@ -34,7 +35,7 @@ class DatabaseSeeder extends Seeder
                 'status' => UserStatus::ACTIVE,
             ]
         );
-        $admin->syncRoles([$hrRole]);
+        $admin->syncRoles([$adminRole, $hrRole]);
 
         // 2. Active Field Consultant
         $consultantUser = User::firstOrCreate(

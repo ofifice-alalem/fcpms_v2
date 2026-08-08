@@ -52,7 +52,7 @@
             </button>
           </div>
 
-          <Link :href="route('admin.tasks.create')">
+          <Link v-if="hasPerm('create-tasks')" :href="route('admin.tasks.create')">
             <SpatialButton variant="primary">
               <div class="w-6 h-6 rounded-xl bg-white/20 flex items-center justify-center text-white">
                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -311,6 +311,7 @@
 
               <!-- Active Status Toggle Button -->
               <button
+                v-if="hasPerm('edit-tasks')"
                 @click.stop="toggleActiveStatus(task)"
                 :class="[
                   'px-3 py-1 rounded-full text-xs font-black transition-all flex items-center gap-2 cursor-pointer border select-none',
@@ -392,7 +393,7 @@
               </button>
 
               <!-- Edit Button (Emerald Green Ring) -->
-              <Link :href="route('admin.tasks.edit', task.id)">
+              <Link v-if="hasPerm('edit-tasks')" :href="route('admin.tasks.edit', task.id)">
                 <button
                   type="button"
                   title="تعديل بنية المهمة والتكليفات"
@@ -408,6 +409,7 @@
 
             <!-- Delete Button (Rose Red Ring) -->
             <button
+              v-if="hasPerm('delete-tasks')"
               type="button"
               title="أرشفة وتأكيد الحذف"
               @click="openDeleteModal(task)"
@@ -489,6 +491,7 @@
                 <!-- Active Status Toggle -->
                 <td class="p-4 text-center whitespace-nowrap">
                   <button
+                    v-if="hasPerm('edit-tasks')"
                     @click.stop="toggleActiveStatus(task)"
                     :class="[
                       'px-3 py-1 rounded-full text-xs font-black transition-all inline-flex items-center gap-2 cursor-pointer border select-none',
@@ -504,6 +507,7 @@
                       class="pointer-events-none scale-90"
                     />
                   </button>
+                  <span v-else :class="['w-2 h-2 rounded-full inline-block', task.is_active ? 'bg-emerald-500' : 'bg-slate-400']"></span>
                 </td>
 
                 <!-- Action Buttons in Table View -->
@@ -523,7 +527,7 @@
                     </button>
 
                     <!-- Edit Button -->
-                    <Link :href="route('admin.tasks.edit', task.id)">
+                    <Link v-if="hasPerm('edit-tasks')" :href="route('admin.tasks.edit', task.id)">
                       <button
                         type="button"
                         title="تعديل بنية المهمة والتكليفات"
@@ -537,6 +541,7 @@
 
                     <!-- Delete Button -->
                     <button
+                      v-if="hasPerm('delete-tasks')"
                       type="button"
                       title="أرشفة وتأكيد الحذف"
                       @click="openDeleteModal(task)"
@@ -565,7 +570,7 @@
         <p class="text-xs font-bold text-slate-500 dark:text-white/60 max-w-sm mx-auto">
           لم يتم إنشاء أي مهمة أو استبيان تفتيش يطابق الفلاتر المحددة حالياً. اضغط على الزر أدناه لبناء أول مهمة.
         </p>
-        <Link :href="route('admin.tasks.create')">
+        <Link v-if="hasPerm('create-tasks')" :href="route('admin.tasks.create')">
           <SpatialButton variant="primary" size="md" class="mt-2">
             + بناء أول مهمة ميدانية
           </SpatialButton>
@@ -592,7 +597,7 @@
 
 <script setup>
 import { ref, computed } from 'vue';
-import { router, Link } from '@inertiajs/vue3';
+import { router, Link, usePage } from '@inertiajs/vue3';
 import HRLayout from '@/Layouts/HRLayout.vue';
 import SpatialCard from '@/Components/Spatial/SpatialCard.vue';
 import SpatialButton from '@/Components/Spatial/SpatialButton.vue';
@@ -624,6 +629,15 @@ const props = defineProps({
     default: () => [],
   },
 });
+
+const page = usePage();
+const userPermissions = computed(() => page.props.auth?.user?.permissions || []);
+const userRoles = computed(() => page.props.auth?.user?.roles || []);
+
+const hasPerm = (perm) => {
+  if (userRoles.value.includes('admin')) return true;
+  return userPermissions.value.includes(perm);
+};
 
 const toastRef = ref(null);
 const viewMode = ref('grid'); // 'grid' | 'table'

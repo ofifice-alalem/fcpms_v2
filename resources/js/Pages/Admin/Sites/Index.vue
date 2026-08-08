@@ -17,6 +17,7 @@
         </div>
 
         <SpatialButton
+          v-if="hasPerm('create-sites')"
           variant="primary"
           @click="openCreateDrawer"
         >
@@ -147,6 +148,7 @@
                     </SpatialIconButton>
 
                     <SpatialIconButton
+                      v-if="hasPerm('edit-sites')"
                       variant="info"
                       title="تعديل الموقع"
                       @click="openEditDrawer(site)"
@@ -158,6 +160,7 @@
 
                     <!-- Dynamic Toggle Status Button -->
                     <SpatialIconButton
+                      v-if="hasPerm('edit-sites')"
                       :variant="site.status === 'active' ? 'warning' : 'success'"
                       :title="site.status === 'active' ? 'تعطيل الموقع' : 'تفعيل الموقع'"
                       @click="toggleSiteStatus(site)"
@@ -174,6 +177,7 @@
                     </SpatialIconButton>
 
                     <SpatialIconButton
+                      v-if="hasPerm('delete-sites')"
                       variant="danger"
                       title="حذف الموقع"
                       @click="confirmDeleteSite(site)"
@@ -387,8 +391,8 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
-import { router, useForm, Link } from '@inertiajs/vue3';
+import { ref, computed } from 'vue';
+import { router, useForm, Link, usePage } from '@inertiajs/vue3';
 import HRLayout from '@/Layouts/HRLayout.vue';
 import SpatialCard from '@/Components/Spatial/SpatialCard.vue';
 import SpatialButton from '@/Components/Spatial/SpatialButton.vue';
@@ -406,6 +410,15 @@ const props = defineProps({
   sites: Object,
   filters: Object,
 });
+
+const page = usePage();
+const userPermissions = computed(() => page.props.auth?.user?.permissions || []);
+const userRoles = computed(() => page.props.auth?.user?.roles || []);
+
+const hasPerm = (perm) => {
+  if (userRoles.value.includes('admin')) return true;
+  return userPermissions.value.includes(perm);
+};
 
 const toastRef = ref(null);
 const searchQuery = ref(props.filters.search || '');

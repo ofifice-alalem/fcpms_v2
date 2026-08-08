@@ -15,6 +15,8 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
+use Illuminate\Support\Facades\Gate;
+
 class TaskBuilderController extends Controller
 {
     public function __construct(
@@ -23,6 +25,8 @@ class TaskBuilderController extends Controller
 
     public function index(Request $request): Response|JsonResponse
     {
+        Gate::authorize('view-tasks');
+
         $filters = $request->only(['search', 'task_type', 'is_active', 'site_id', 'consultant_id', 'sort']);
 
         $tasks = $this->taskService->getFilteredTasks($filters, 15);
@@ -47,6 +51,8 @@ class TaskBuilderController extends Controller
 
     public function create(): Response
     {
+        Gate::authorize('create-tasks');
+
         $sites = Site::select('id', 'name', 'code')->get();
         $consultants = Consultant::select('id', 'full_name', 'employee_number')->get();
 
@@ -59,6 +65,8 @@ class TaskBuilderController extends Controller
 
     public function store(StoreTaskDefinitionRequest $request): RedirectResponse|JsonResponse
     {
+        Gate::authorize('create-tasks');
+
         $task = $this->taskService->createTask($request->validated());
 
         if ($request->wantsJson() && !$request->header('X-Inertia')) {
@@ -74,6 +82,8 @@ class TaskBuilderController extends Controller
 
     public function show(TaskDefinition $task): JsonResponse
     {
+        Gate::authorize('view-tasks');
+
         $details = $this->taskService->getTaskDetails($task->id);
 
         return response()->json([
@@ -84,6 +94,8 @@ class TaskBuilderController extends Controller
 
     public function edit(TaskDefinition $task): Response
     {
+        Gate::authorize('edit-tasks');
+
         $taskDetails = $this->taskService->getTaskDetails($task->id);
         $sites = Site::select('id', 'name', 'code')->get();
         $consultants = Consultant::select('id', 'full_name', 'employee_number')->get();
@@ -97,6 +109,8 @@ class TaskBuilderController extends Controller
 
     public function update(UpdateTaskDefinitionRequest $request, TaskDefinition $task): RedirectResponse|JsonResponse
     {
+        Gate::authorize('edit-tasks');
+
         $updatedTask = $this->taskService->updateTask($task, $request->validated());
 
         if ($request->wantsJson() && !$request->header('X-Inertia')) {
@@ -112,6 +126,8 @@ class TaskBuilderController extends Controller
 
     public function toggleActive(TaskDefinition $task): RedirectResponse|JsonResponse
     {
+        Gate::authorize('edit-tasks');
+
         $updatedTask = $this->taskService->toggleActive($task);
 
         if (request()->wantsJson() && !request()->header('X-Inertia')) {
@@ -127,6 +143,8 @@ class TaskBuilderController extends Controller
 
     public function destroy(TaskDefinition $task): RedirectResponse|JsonResponse
     {
+        Gate::authorize('delete-tasks');
+
         $this->taskService->deleteTask($task);
 
         if (request()->wantsJson() && !request()->header('X-Inertia')) {

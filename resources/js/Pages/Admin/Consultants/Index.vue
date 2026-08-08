@@ -18,6 +18,7 @@
 
         <!-- Premium Spatial UI Primary Button Component -->
         <SpatialButton
+          v-if="hasPerm('create-consultants')"
           variant="primary"
           @click="openCreateDrawer"
         >
@@ -253,6 +254,7 @@
 
                     <!-- Edit Profile SVG -->
                     <SpatialIconButton
+                      v-if="hasPerm('edit-consultants')"
                       variant="info"
                       title="تعديل بيانات الاستشاري"
                       @click="openEditDrawer(consultant)"
@@ -264,6 +266,7 @@
 
                     <!-- Toggle Status Quick Button SVG (BR-015) -->
                     <SpatialIconButton
+                      v-if="hasPerm('edit-consultants')"
                       :variant="consultant.employment_status === 'active' ? 'warning' : 'success'"
                       :title="consultant.employment_status === 'active' ? 'تعليق وحظر الجلسات' : 'إعادة تفعيل الحساب'"
                       @click="toggleConsultantStatus(consultant)"
@@ -279,6 +282,7 @@
 
                     <!-- Soft Delete SVG -->
                     <SpatialIconButton
+                      v-if="hasPerm('delete-consultants')"
                       variant="danger"
                       title="نقل للأرشيف"
                       @click="openDeleteModal(consultant)"
@@ -415,6 +419,15 @@ const props = defineProps({
     default: null,
   },
 });
+
+const page = usePage();
+const userPermissions = computed(() => page.props.auth?.user?.permissions || []);
+const userRoles = computed(() => page.props.auth?.user?.roles || []);
+
+const hasPerm = (perm) => {
+  if (userRoles.value.includes('admin')) return true;
+  return userPermissions.value.includes(perm);
+};
 
 // Toast Ref
 const toastRef = ref(null);

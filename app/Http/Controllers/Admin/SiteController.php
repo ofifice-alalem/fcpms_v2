@@ -12,6 +12,8 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
+use Illuminate\Support\Facades\Gate;
+
 class SiteController extends Controller
 {
     public function __construct(
@@ -24,6 +26,8 @@ class SiteController extends Controller
      */
     public function index(Request $request): Response
     {
+        Gate::authorize('view-sites');
+
         $search = $request->query('search');
         $city = $request->query('city');
         $status = $request->query('status');
@@ -53,6 +57,8 @@ class SiteController extends Controller
      */
     public function store(StoreSiteRequest $request): RedirectResponse
     {
+        Gate::authorize('create-sites');
+
         $this->siteService->createSite($request->validated());
 
         return redirect()->route('admin.sites.index')
@@ -64,6 +70,8 @@ class SiteController extends Controller
      */
     public function update(UpdateSiteRequest $request, int $id): RedirectResponse
     {
+        Gate::authorize('edit-sites');
+
         $this->siteService->updateSite($id, $request->validated());
 
         return redirect()->route('admin.sites.index')
@@ -75,6 +83,8 @@ class SiteController extends Controller
      */
     public function toggleStatus(int $id): RedirectResponse
     {
+        Gate::authorize('edit-sites');
+
         $site = $this->siteService->toggleStatus($id);
 
         $statusText = $site->status->value === 'active' ? 'تفعيل' : 'تعطيل';
@@ -88,6 +98,8 @@ class SiteController extends Controller
      */
     public function destroy(int $id): RedirectResponse
     {
+        Gate::authorize('delete-sites');
+
         $this->siteService->deleteSite($id);
 
         return redirect()->route('admin.sites.index')

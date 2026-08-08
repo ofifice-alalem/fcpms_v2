@@ -16,6 +16,8 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
+use Illuminate\Support\Facades\Gate;
+
 class ConsultantController extends Controller
 {
     public function __construct(
@@ -28,6 +30,7 @@ class ConsultantController extends Controller
      */
     public function index(Request $request): Response|JsonResponse
     {
+        Gate::authorize('view-consultants');
         $filters = $request->only(['search', 'status', 'specialization', 'sort']);
 
         $consultants = $this->consultantRepository->getFilteredConsultants($filters, 15);
@@ -69,6 +72,8 @@ class ConsultantController extends Controller
      */
     public function store(StoreConsultantRequest $request): RedirectResponse|JsonResponse
     {
+        Gate::authorize('create-consultants');
+
         $consultant = $this->consultantService->registerNewConsultant($request->validated());
 
         if ($request->wantsJson() && !$request->header('X-Inertia')) {
@@ -88,6 +93,8 @@ class ConsultantController extends Controller
      */
     public function show(Consultant $consultant): JsonResponse
     {
+        Gate::authorize('view-consultants');
+
         $consultant->load(['user', 'workScheduleTemplate', 'leaves']);
 
         return response()->json([
@@ -114,6 +121,8 @@ class ConsultantController extends Controller
      */
     public function update(UpdateConsultantRequest $request, Consultant $consultant): RedirectResponse|JsonResponse
     {
+        Gate::authorize('edit-consultants');
+
         $updated = $this->consultantService->updateConsultant($consultant->id, $request->validated());
 
         if ($request->wantsJson() && !$request->header('X-Inertia')) {
@@ -133,6 +142,8 @@ class ConsultantController extends Controller
      */
     public function updateStatus(ChangeConsultantStatusRequest $request, Consultant $consultant): RedirectResponse|JsonResponse
     {
+        Gate::authorize('edit-consultants');
+
         $updated = $this->consultantService->changeEmploymentStatus($consultant->id, $request->validated()['status']);
 
         if ($request->wantsJson() && !$request->header('X-Inertia')) {
@@ -156,6 +167,8 @@ class ConsultantController extends Controller
      */
     public function destroy(Consultant $consultant): RedirectResponse|JsonResponse
     {
+        Gate::authorize('delete-consultants');
+
         $this->consultantService->deleteConsultant($consultant->id);
 
         if (request()->wantsJson() && !request()->header('X-Inertia')) {

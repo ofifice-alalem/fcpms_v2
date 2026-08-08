@@ -18,14 +18,14 @@
         </div>
 
         <div class="flex items-center gap-2.5 flex-wrap">
-          <SpatialButton variant="secondary" @click="showUpload = true" class="font-black">
+          <SpatialButton v-if="hasPerm('create-backups')" variant="secondary" @click="showUpload = true" class="font-black">
             <svg class="w-4 h-4 text-slate-600 dark:text-white/80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
             </svg>
             <span>رفع نسخة خارجية</span>
           </SpatialButton>
 
-          <SpatialButton variant="primary" @click="showCreate = true" class="font-black shadow-lg shadow-blue-500/20">
+          <SpatialButton v-if="hasPerm('create-backups')" variant="primary" @click="showCreate = true" class="font-black shadow-lg shadow-blue-500/20">
             <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/>
             </svg>
@@ -222,6 +222,7 @@
 
                     <!-- Restore Button -->
                     <SpatialIconButton
+                      v-if="hasPerm('restore-backups')"
                       variant="warning"
                       title="استعادة هذه النسخة"
                       @click="openRestoreModal(backup)"
@@ -233,6 +234,7 @@
 
                     <!-- Delete Button -->
                     <SpatialIconButton
+                      v-if="hasPerm('manage-backups')"
                       variant="danger"
                       title="حذف النسخة الاحتياطية"
                       @click="openDeleteModal(backup)"
@@ -440,6 +442,15 @@ const props = defineProps({
     default: () => [],
   },
 });
+
+const page = usePage();
+const userPermissions = computed(() => page.props.auth?.user?.permissions || []);
+const userRoles = computed(() => page.props.auth?.user?.roles || []);
+
+const hasPerm = (perm) => {
+  if (userRoles.value.includes('admin')) return true;
+  return userPermissions.value.includes(perm);
+};
 
 const toastRef = ref(null);
 const fileInputRef = ref(null);

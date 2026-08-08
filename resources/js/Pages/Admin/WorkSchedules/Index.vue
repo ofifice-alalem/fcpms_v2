@@ -18,6 +18,7 @@
 
         <div class="flex items-center gap-3 flex-wrap">
           <SpatialButton
+            v-if="hasPerm('create-schedules')"
             variant="secondary"
             @click="openCreateHolidayModal"
           >
@@ -28,6 +29,7 @@
           </SpatialButton>
 
           <SpatialButton
+            v-if="hasPerm('create-schedules')"
             variant="secondary"
             @click="openCreateLeaveModal"
           >
@@ -38,6 +40,7 @@
           </SpatialButton>
 
           <SpatialButton
+            v-if="hasPerm('create-schedules')"
             variant="primary"
             @click="openCreateTemplateDrawer"
           >
@@ -286,6 +289,7 @@
                   <td class="p-4 text-center">
                     <div class="flex items-center justify-center gap-1.5">
                       <SpatialIconButton
+                        v-if="hasPerm('edit-schedules')"
                         variant="info"
                         title="تعديل العطلة الرسمية"
                         @click="openEditHolidayModal(holiday)"
@@ -296,6 +300,7 @@
                       </SpatialIconButton>
 
                       <SpatialIconButton
+                        v-if="hasPerm('delete-schedules')"
                         variant="danger"
                         title="حذف العطلة الرسمية"
                         @click="openDeleteHolidayModal(holiday)"
@@ -313,7 +318,7 @@
                     <SpatialEmptyState
                       title="لا يوجد عطلات رسمية مسجلة"
                       description="يمكنك تسجيل المناسبات والعطلات الرسمية العامة لاستثنائها من احتساب الغياب."
-                      action-text="إضافة عطلة رسمية"
+                      :action-text="hasPerm('create-schedules') ? 'إضافة عطلة رسمية' : ''"
                       @action="openCreateHolidayModal"
                     />
                   </td>
@@ -373,6 +378,7 @@
                   <td class="p-4 text-center">
                     <div class="flex items-center justify-center gap-1.5">
                       <SpatialIconButton
+                        v-if="hasPerm('edit-schedules')"
                         variant="info"
                         title="تعديل الإجازة"
                         @click="openEditLeaveModal(leave)"
@@ -383,6 +389,7 @@
                       </SpatialIconButton>
 
                       <SpatialIconButton
+                        v-if="hasPerm('delete-schedules')"
                         variant="danger"
                         title="حذف الإجازة"
                         @click="openDeleteLeaveModal(leave)"
@@ -474,7 +481,7 @@
 
 <script setup>
 import { ref, computed } from 'vue';
-import { router } from '@inertiajs/vue3';
+import { router, usePage } from '@inertiajs/vue3';
 import HRLayout from '@/Layouts/HRLayout.vue';
 import SpatialToast from '@/Components/Spatial/SpatialToast.vue';
 import SpatialCard from '@/Components/Spatial/SpatialCard.vue';
@@ -510,6 +517,15 @@ const props = defineProps({
     default: () => [],
   },
 });
+
+const page = usePage();
+const userPermissions = computed(() => page.props.auth?.user?.permissions || []);
+const userRoles = computed(() => page.props.auth?.user?.roles || []);
+
+const hasPerm = (perm) => {
+  if (userRoles.value.includes('admin')) return true;
+  return userPermissions.value.includes(perm);
+};
 
 // Toast Ref
 const toastRef = ref(null);

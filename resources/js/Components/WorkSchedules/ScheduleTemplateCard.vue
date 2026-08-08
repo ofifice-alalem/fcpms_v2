@@ -114,6 +114,7 @@
 
         <!-- Edit Button (Green / Emerald) -->
         <button
+          v-if="hasPerm('edit-schedules')"
           type="button"
           title="تعديل القالب"
           @click="$emit('edit', template)"
@@ -127,6 +128,7 @@
 
         <!-- Delete Button -->
         <button
+          v-if="hasPerm('delete-schedules')"
           type="button"
           title="حذف القالب"
           @click="$emit('delete', template)"
@@ -144,6 +146,7 @@
 
 <script setup>
 import { computed } from 'vue';
+import { usePage } from '@inertiajs/vue3';
 import SpatialCircularProgress from '@/Components/Spatial/SpatialCircularProgress.vue';
 
 const props = defineProps({
@@ -154,6 +157,15 @@ const props = defineProps({
 });
 
 defineEmits(['view', 'edit', 'delete']);
+
+const page = usePage();
+const userPermissions = computed(() => page.props.auth?.user?.permissions || []);
+const userRoles = computed(() => page.props.auth?.user?.roles || []);
+
+const hasPerm = (perm) => {
+  if (userRoles.value.includes('admin')) return true;
+  return userPermissions.value.includes(perm);
+};
 
 const daysOfWeek = [
   { value: 6, shortName: 'السبت' },

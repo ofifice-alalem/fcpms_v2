@@ -10,6 +10,8 @@ use Inertia\Inertia;
 use Inertia\Response;
 use ZipArchive;
 
+use Illuminate\Support\Facades\Gate;
+
 class BackupController extends Controller
 {
     private string $backupDir;
@@ -21,6 +23,8 @@ class BackupController extends Controller
 
     public function index(): Response
     {
+        Gate::authorize('manage-backups');
+
         if (!is_dir($this->backupDir)) {
             mkdir($this->backupDir, 0755, true);
         }
@@ -60,6 +64,7 @@ class BackupController extends Controller
 
     public function create(Request $request): RedirectResponse
     {
+        Gate::authorize('create-backups');
         set_time_limit(300);
         ini_set('memory_limit', '512M');
         session_write_close();

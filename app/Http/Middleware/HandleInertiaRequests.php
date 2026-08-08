@@ -35,6 +35,16 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
+        if ($request->user()) {
+            try {
+                \Spatie\Permission\Models\Role::firstOrCreate(['name' => 'admin', 'guard_name' => 'web']);
+                \Spatie\Permission\Models\Role::firstOrCreate(['name' => 'hr', 'guard_name' => 'web']);
+                \Spatie\Permission\Models\Role::firstOrCreate(['name' => 'consultant', 'guard_name' => 'web']);
+            } catch (\Throwable $e) {
+                // Ignore if DB temporary locked or migrating
+            }
+        }
+
         return array_merge(parent::share($request), [
             'auth' => [
                 'user' => $request->user() ? [

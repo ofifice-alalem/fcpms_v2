@@ -12,6 +12,8 @@ use Inertia\Response;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 
+use Illuminate\Support\Facades\Gate;
+
 class GovernanceController extends Controller
 {
     public function __construct(
@@ -20,6 +22,8 @@ class GovernanceController extends Controller
 
     public function index(): Response
     {
+        Gate::authorize('manage-governance');
+
         $data = $this->governanceService->getGovernanceDashboardData();
 
         return Inertia::render('Admin/Governance/Index', [
@@ -32,6 +36,8 @@ class GovernanceController extends Controller
 
     public function storeRole(StoreRoleRequest $request): RedirectResponse
     {
+        Gate::authorize('manage-roles');
+
         try {
             $this->governanceService->createRole($request->validated());
             return redirect()->back()->with('success', 'تم إنشاء دور الصلاحيات وتعيين المصفوفة بنجاح.');
@@ -42,6 +48,8 @@ class GovernanceController extends Controller
 
     public function updateRole(UpdateRoleRequest $request, int $roleId): RedirectResponse
     {
+        Gate::authorize('manage-roles');
+
         try {
             $this->governanceService->updateRole($roleId, $request->validated());
             return redirect()->back()->with('success', 'تم تحديث دور الصلاحيات وتعديل المصفوفة بنجاح.');
@@ -52,6 +60,8 @@ class GovernanceController extends Controller
 
     public function destroyRole(int $roleId): RedirectResponse
     {
+        Gate::authorize('manage-roles');
+
         try {
             $this->governanceService->deleteRole($roleId);
             return redirect()->back()->with('success', 'تم حذف دور الصلاحيات بنجاح.');
@@ -62,6 +72,8 @@ class GovernanceController extends Controller
 
     public function updateSettings(UpdateSettingsRequest $request): RedirectResponse
     {
+        Gate::authorize('manage-settings');
+
         try {
             $this->governanceService->updateSettings($request->validated()['settings']);
             return redirect()->back()->with('success', 'تم تحديث الإعدادات التشغيلية ومفاتيح النظام بنجاح.');
@@ -72,6 +84,8 @@ class GovernanceController extends Controller
 
     public function showAuditLog(int $logId): JsonResponse
     {
+        Gate::authorize('view-audit-logs');
+
         try {
             $log = $this->governanceService->getAuditLogDetail($logId);
             return response()->json([

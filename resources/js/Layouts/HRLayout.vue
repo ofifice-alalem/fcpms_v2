@@ -70,6 +70,7 @@
           </Link>
 
           <Link
+            v-if="hasPerm('view-sites')"
             :href="route('admin.sites.index')"
             :class="[
               'flex items-center gap-3 px-4 py-3 rounded-[16px] font-bold text-sm transition-all cursor-pointer',
@@ -81,6 +82,7 @@
           </Link>
 
           <Link
+            v-if="hasPerm('view-consultants')"
             :href="route('admin.consultants.index')"
             :class="[
               'flex items-center gap-3 px-4 py-3 rounded-[16px] font-bold text-sm transition-all cursor-pointer',
@@ -92,6 +94,7 @@
           </Link>
 
           <Link
+            v-if="hasPerm('view-schedules')"
             :href="route('admin.schedules.index')"
             :class="[
               'flex items-center gap-3 px-4 py-3 rounded-[16px] font-bold text-sm transition-all cursor-pointer',
@@ -103,6 +106,7 @@
           </Link>
 
           <Link
+            v-if="hasPerm('view-tasks')"
             :href="route('admin.tasks.index')"
             :class="[
               'flex items-center gap-3 px-4 py-3 rounded-[16px] font-bold text-sm transition-all cursor-pointer',
@@ -114,6 +118,7 @@
           </Link>
 
           <Link
+            v-if="hasPerm('view-reports')"
             :href="route('admin.reports.index')"
             :class="[
               'flex items-center gap-3 px-4 py-3 rounded-[16px] font-bold text-sm transition-all cursor-pointer',
@@ -125,6 +130,7 @@
           </Link>
 
           <Link
+            v-if="hasPerm('manage-backups')"
             :href="route('admin.backups.index')"
             :class="[
               'flex items-center gap-3 px-4 py-3 rounded-[16px] font-bold text-sm transition-all cursor-pointer',
@@ -136,6 +142,19 @@
           </Link>
 
           <Link
+            v-if="hasPerm('manage-users') || hasPerm('manage-roles') || hasPerm('manage-governance')"
+            :href="route('admin.users.index')"
+            :class="[
+              'flex items-center gap-3 px-4 py-3 rounded-[16px] font-bold text-sm transition-all cursor-pointer',
+              $page.component.startsWith('Admin/Users') ? 'bg-primary text-white shadow-md scale-102' : 'text-slate-600 dark:text-white/70 hover:bg-black/5 dark:hover:bg-white/5 hover:text-slate-900 dark:hover:text-white'
+            ]"
+          >
+            <svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+            <span>إدارة مستخدمي النظام</span>
+          </Link>
+
+          <Link
+            v-if="hasPerm('manage-governance')"
             :href="route('admin.governance.index')"
             :class="[
               'flex items-center gap-3 px-4 py-3 rounded-[16px] font-bold text-sm transition-all cursor-pointer',
@@ -275,6 +294,18 @@
             </Link>
 
             <Link
+              :href="route('admin.users.index')"
+              @click="isMobileDrawerOpen = false"
+              :class="[
+                'flex items-center gap-3 px-4 py-3.5 rounded-[16px] font-bold text-sm transition-all cursor-pointer',
+                $page.component.startsWith('Admin/Users') ? 'bg-primary text-white shadow-md' : 'text-slate-700 dark:text-white/80 hover:bg-black/5 dark:hover:bg-white/10'
+              ]"
+            >
+              <svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+              <span>إدارة مستخدمي النظام</span>
+            </Link>
+
+            <Link
               :href="route('admin.governance.index')"
               @click="isMobileDrawerOpen = false"
               :class="[
@@ -396,13 +427,22 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
-import { Link, router } from '@inertiajs/vue3';
+import { ref, computed, onMounted } from 'vue';
+import { Link, router, usePage } from '@inertiajs/vue3';
 import SpatialDrawer from '@/Components/Spatial/SpatialDrawer.vue';
 import SpatialMobileBottomNav from '@/Components/Spatial/SpatialMobileBottomNav.vue';
 
 const isDark = ref(true);
 const isMobileDrawerOpen = ref(false);
+
+const page = usePage();
+const userPermissions = computed(() => page.props.auth?.user?.permissions || []);
+const userRoles = computed(() => page.props.auth?.user?.roles || []);
+
+const hasPerm = (perm) => {
+  if (userRoles.value.includes('admin')) return true;
+  return userPermissions.value.includes(perm);
+};
 
 function applyTheme(dark) {
   isDark.value = dark;

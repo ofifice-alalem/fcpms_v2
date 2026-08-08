@@ -46,8 +46,8 @@ class GovernanceRepository implements GovernanceRepositoryInterface
                 'execute-visits', 'view-visit-history',
                 // Reports
                 'view-reports', 'export-reports', 'retroactive-audit',
-                // Governance
-                'manage-governance', 'manage-roles', 'manage-settings', 'view-audit-logs',
+                // Governance & Users
+                'manage-governance', 'manage-roles', 'manage-settings', 'view-audit-logs', 'manage-users',
                 // Backups
                 'manage-backups', 'create-backups', 'restore-backups',
             ];

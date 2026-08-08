@@ -17,6 +17,8 @@ use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
 use Inertia\Response;
 
+use Illuminate\Support\Facades\Gate;
+
 class WorkScheduleController extends Controller
 {
     public function __construct(
@@ -28,6 +30,8 @@ class WorkScheduleController extends Controller
      */
     public function index(): Response
     {
+        Gate::authorize('view-schedules');
+
         $data = $this->scheduleService->getWorkSchedulesPageData();
 
         return Inertia::render('Admin/WorkSchedules/Index', $data);
@@ -38,6 +42,8 @@ class WorkScheduleController extends Controller
      */
     public function storeTemplate(StoreScheduleTemplateRequest $request): RedirectResponse
     {
+        Gate::authorize('create-schedules');
+
         $this->scheduleService->createScheduleTemplate($request->validated());
 
         return redirect()->back()->with('success', 'تم إنشاء قالب الدوام وتعيين أيام العمل بنجاح.');
@@ -48,6 +54,8 @@ class WorkScheduleController extends Controller
      */
     public function updateTemplate(UpdateScheduleTemplateRequest $request, WorkScheduleTemplate $template): RedirectResponse
     {
+        Gate::authorize('edit-schedules');
+
         $this->scheduleService->updateScheduleTemplate($template, $request->validated());
 
         return redirect()->back()->with('success', 'تم تحديث بيانات قالب الدوام وأيام العمل بنجاح.');
@@ -58,6 +66,8 @@ class WorkScheduleController extends Controller
      */
     public function destroyTemplate(WorkScheduleTemplate $template): RedirectResponse
     {
+        Gate::authorize('delete-schedules');
+
         $this->scheduleService->deleteScheduleTemplate($template);
 
         return redirect()->back()->with('success', 'تم حذف قالب الدوام بنجاح.');
@@ -68,6 +78,8 @@ class WorkScheduleController extends Controller
      */
     public function storeHoliday(StoreOfficialHolidayRequest $request): RedirectResponse
     {
+        Gate::authorize('create-schedules');
+
         $this->scheduleService->addOfficialHoliday($request->validated());
 
         return redirect()->back()->with('success', 'تم تسجيل العطلة الرسمية العامة بنجاح.');
@@ -78,6 +90,8 @@ class WorkScheduleController extends Controller
      */
     public function updateHoliday(UpdateOfficialHolidayRequest $request, OfficialHoliday $holiday): RedirectResponse
     {
+        Gate::authorize('edit-schedules');
+
         $this->scheduleService->updateOfficialHoliday($holiday, $request->validated());
 
         return redirect()->back()->with('success', 'تم تحديث بيانات العطلة الرسمية بنجاح.');
@@ -88,6 +102,8 @@ class WorkScheduleController extends Controller
      */
     public function destroyHoliday(OfficialHoliday $holiday): RedirectResponse
     {
+        Gate::authorize('delete-schedules');
+
         $this->scheduleService->deleteOfficialHoliday($holiday);
 
         return redirect()->back()->with('success', 'تم حذف العطلة الرسمية بنجاح.');
@@ -98,6 +114,8 @@ class WorkScheduleController extends Controller
      */
     public function storeLeave(StoreConsultantLeaveRequest $request): RedirectResponse
     {
+        Gate::authorize('create-schedules');
+
         $this->scheduleService->recordConsultantLeave($request->validated());
 
         return redirect()->back()->with('success', 'تم تسجيل إجازة الاستشاري وتحديث حالته التشغيلية إلى "في إجازة".');
@@ -108,6 +126,8 @@ class WorkScheduleController extends Controller
      */
     public function updateLeave(UpdateConsultantLeaveRequest $request, ConsultantLeave $leave): RedirectResponse
     {
+        Gate::authorize('edit-schedules');
+
         $this->scheduleService->updateConsultantLeave($leave, $request->validated());
 
         return redirect()->back()->with('success', 'تم تحديث بيانات إجازة الاستشاري بنجاح.');
@@ -118,6 +138,8 @@ class WorkScheduleController extends Controller
      */
     public function destroyLeave(ConsultantLeave $leave): RedirectResponse
     {
+        Gate::authorize('delete-schedules');
+
         $this->scheduleService->deleteConsultantLeave($leave);
 
         return redirect()->back()->with('success', 'تم حذف سجل الإجازة بنجاح.');
