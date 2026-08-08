@@ -114,6 +114,20 @@ class ConsultantHistoryController extends Controller
                 }
             }
 
+            $latestUpdated = $record ? $record->updated_at : null;
+            if ($record && $record->siteVisits && $record->siteVisits->isNotEmpty()) {
+                $maxVisitUpdate = $record->siteVisits->max('updated_at');
+                if ($maxVisitUpdate && Carbon::parse($maxVisitUpdate)->gt(Carbon::parse($latestUpdated))) {
+                    $latestUpdated = $maxVisitUpdate;
+                }
+            }
+
+            $isSameDayUpdate = false;
+            if ($latestUpdated) {
+                $updatedDateStr = Carbon::parse($latestUpdated)->timezone('Africa/Tripoli')->toDateString();
+                $isSameDayUpdate = ($updatedDateStr === $dateStr);
+            }
+
             $days[] = [
                 'date' => $dateStr,
                 'day_name' => $current->locale('ar')->translatedFormat('l'),
@@ -128,6 +142,11 @@ class ConsultantHistoryController extends Controller
                 'record' => $record ? [
                     'id' => $record->id,
                     'check_in_time' => $record->check_in_time ? Carbon::parse($record->check_in_time)->timezone('Africa/Tripoli')->locale('ar')->translatedFormat('h:i a') : null,
+                    'updated_at' => $latestUpdated ? Carbon::parse($latestUpdated)->timezone('Africa/Tripoli')->format('Y-m-d H:i') : null,
+                    'updated_day_name' => $latestUpdated ? Carbon::parse($latestUpdated)->locale('ar')->translatedFormat('l') : null,
+                    'updated_date' => $latestUpdated ? Carbon::parse($latestUpdated)->format('d - m - Y') : null,
+                    'updated_time' => $latestUpdated ? Carbon::parse($latestUpdated)->timezone('Africa/Tripoli')->locale('ar')->translatedFormat('h:i a') : null,
+                    'is_same_day_update' => $isSameDayUpdate,
                     'completed_daily_tasks' => $record->completed_daily_tasks,
                     'required_daily_tasks' => $record->required_daily_tasks,
                     'completion_percentage' => (float)$record->completion_percentage,

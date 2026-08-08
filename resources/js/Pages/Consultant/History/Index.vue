@@ -78,8 +78,8 @@
             <thead>
               <tr class="border-b border-slate-200 dark:border-white/10 text-xs font-black text-slate-500 dark:text-white/50 uppercase tracking-wider">
                 <th class="py-3 px-4">التاريخ واليوم</th>
+                <th class="py-3 px-4">آخر تعديل</th>
                 <th class="py-3 px-4">الحالة</th>
-                <th class="py-3 px-4">وقت البدء</th>
                 <th class="py-3 px-4">المواقع المزارة</th>
                 <th class="py-3 px-4 text-center">المهام الإضافية</th>
                 <th class="py-3 px-4">نسبة الإنجاز</th>
@@ -95,14 +95,41 @@
                   day.is_today ? 'bg-primary/5 dark:bg-primary/10 font-bold' : ''
                 ]"
               >
-                <!-- Date & Day Name -->
-                <td class="py-4 px-4 font-bold text-slate-900 dark:text-white">
+                <!-- Date & Day Name & Start Time -->
+                <td class="py-4 px-4 font-bold text-slate-900 dark:text-white whitespace-nowrap">
                   <div class="flex items-center gap-2">
                     <span v-if="day.is_today" class="w-2 h-2 rounded-full bg-primary animate-ping"></span>
                     <div>
                       <div class="font-black text-sm">{{ day.day_name }}</div>
                       <div class="text-xs font-mono text-slate-500 dark:text-white/50 dir-ltr text-right">{{ day.formatted_date }}</div>
+                      <div class="text-[11px] font-bold text-indigo-600 dark:text-indigo-400 mt-0.5" v-if="day.record && day.record.check_in_time">
+                        ⏰ {{ day.record.check_in_time }}
+                      </div>
                     </div>
+                  </div>
+                </td>
+
+                <!-- Last Modified -->
+                <td class="py-4 px-4 font-bold text-slate-900 dark:text-white whitespace-nowrap">
+                  <div
+                    v-if="day.record && day.record.updated_date"
+                    :class="[
+                      'inline-block px-3 py-1.5 rounded-2xl transition-all',
+                      !day.record.is_same_day_update
+                        ? 'border-2 border-amber-500/50 dark:border-amber-400/50 bg-amber-500/10 dark:bg-amber-400/10 shadow-2xs'
+                        : 'border border-slate-200 dark:border-white/10 bg-slate-50/50 dark:bg-white/5'
+                    ]"
+                  >
+                    <div class="font-black text-sm" :class="!day.record.is_same_day_update ? 'text-amber-700 dark:text-amber-300' : ''">
+                      {{ day.record.updated_day_name }}
+                    </div>
+                    <div class="text-xs font-mono text-slate-500 dark:text-white/50 dir-ltr text-right">{{ day.record.updated_date }}</div>
+                    <div class="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 mt-0.5" v-if="day.record.updated_time">
+                      🕒 {{ day.record.updated_time }}
+                    </div>
+                  </div>
+                  <div v-else class="text-slate-400 dark:text-white/30 text-xs font-normal">
+                    --
                   </div>
                 </td>
 
@@ -116,11 +143,6 @@
                   >
                     {{ day.status_label }}
                   </span>
-                </td>
-
-                <!-- Check-in time -->
-                <td class="py-4 px-4 font-mono text-xs text-slate-600 dark:text-white/70">
-                  {{ day.record && day.record.check_in_time ? day.record.check_in_time : '-' }}
                 </td>
 
                 <!-- Visited sites -->
@@ -278,6 +300,25 @@
                   </span>
                 </div>
               </div>
+            </div>
+
+            <!-- Last Modified Strip (Full Width to Prevent Overflow) -->
+            <div
+              v-if="day.record && day.record.updated_date"
+              :class="[
+                'flex items-center justify-between text-xs px-3.5 py-2 rounded-2xl transition-all',
+                !day.record.is_same_day_update
+                  ? 'border-2 border-amber-500/50 dark:border-amber-400/50 bg-amber-500/10 dark:bg-amber-400/10 shadow-2xs'
+                  : 'border border-slate-200/60 dark:border-white/10 bg-slate-100/80 dark:bg-white/5'
+              ]"
+            >
+              <span class="font-bold flex items-center gap-1.5" :class="!day.record.is_same_day_update ? 'text-amber-700 dark:text-amber-300 font-black' : 'text-slate-500 dark:text-white/60'">
+                <span>🕒</span>
+                <span>آخر تعديل:</span>
+              </span>
+              <span class="font-mono text-xs font-black text-slate-800 dark:text-white dir-ltr">
+                {{ day.record.updated_day_name }} {{ day.record.updated_date }} <span class="text-emerald-600 dark:text-emerald-400">({{ day.record.updated_time }})</span>
+              </span>
             </div>
 
             <!-- Action Button -->
